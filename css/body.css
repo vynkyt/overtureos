@@ -1,0 +1,228 @@
+* {
+	box-sizing: border-box;
+	cursor: url(../media/img/cursor-pencil.png), auto !important;
+}
+
+/* Fonts */
+@import url('https://fonts.cdnfonts.com/css/cheri');
+
+@font-face {
+	font-family: "balsamiq sans";
+	src: url("https://imp.neocities.org/layouts/spacehey/sickly-sweet/BalsamiqSans-Regular.ttf");
+}
+
+@font-face {
+	font-family: "newpenji";
+	src: url(/fonts/newpenji.ttf);
+}
+
+:root {
+	--fonts: gaegu-r, arial;
+	--r-border: 2px solid #e4a79d;
+	--cream: #fffcdc;
+	--red: #c9525e;
+	--l-red: #e4a79d;
+	--l-blue: #c7d9f8;
+	--green: #d0ff8d;
+	--yellow: #ffe481;
+}
+
+html {
+	scrollbar-color: #FFE6F0;
+}
+
+body {
+	background: repeating-linear-gradient(135deg, #FFE6F0, #FFE6F0 15px, #fff 0, #fff 16px);
+	background-image: url('https://64.media.tumblr.com/7bdf9e6e09f825fd325c6e27492124bc/tumblr_inline_miqn3dMemA1qz4rgp.png');
+	background-attachment: fixed;
+	word-wrap: break-word;
+	font-size: 16px;
+	line-height: 23px;
+	font-family: "balsamiq sans";
+	color: #872A4E;
+	padding: 0px;
+	margin: 0px;
+	scrollbar-color: #FFE6F0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	padding: 5px;
+	font-family: "balsamiq sans";
+	color: #C55582;
+}
+
+i {
+	background: #c7d9f8;
+}
+
+b,
+strong {
+	background: #e4a79d;
+}
+
+mark {
+	background: #ffe481;
+
+	b {
+		background: transparent;
+	}
+}
+
+ul,
+ol {
+	margin: 0px;
+	padding: 0px 5px 5px 35px;
+	font-family: "balsamiq sans";
+}
+
+a {
+	color: black;
+	background: #FFE6F0;
+	font-weight: normal;
+	text-decoration: none;
+	font-family: "balsamiq sans";
+}
+
+a:hover {
+	color: black;
+	text-decoration: underline;
+	cursor: help;
+}
+
+a:focus {
+	text-decoration: wavy underline;
+}
+
+a:active {
+	outline: 0;
+}
+
+p {
+	margin: 0 0 10px 0;
+	padding: 5px;
+}
+
+p img {
+	vertical-align: middle;
+}
+
+blockquote {
+	font-family: "balsamiq sans";
+	font-size: 16px;
+	font-style: italic;
+	border-left: 2px solid #e4a79d;
+	padding-left: 5px;
+}
+
+::selection {
+	color: black;
+	background-color: #a6ddff;
+}
+
+summary {
+	cursor: help;
+	padding: 0px 5px;
+}
+
+figure {
+	position: relative;
+	border: 2px dashed #c9525e;
+	background: rgba(255, 255, 255, 0.699);
+	border-radius: 5px;
+	width: auto;
+	text-align: center;
+	margin: 20px 10px 20px 10px;
+	padding: 10px;
+
+	&.f-fix {
+		overflow: auto;
+
+		::after {
+			content: none;
+		}
+	}
+
+	img {
+		max-width: 100%;
+	}
+
+	::after {
+		content: url(../media/img/washitape.png);
+		opacity: 0.9;
+		position: absolute;
+		top: -20px;
+		left: 30%;
+	}
+}
+
+figcaption {
+	padding: 10px;
+	font-size: 15px;
+	line-height: normal;
+}
+
+.spoiler {
+	background-color: black;
+	color: black;
+}
+
+.spoiler:hover {
+	background-color: transparent;
+}
+
+.transp {
+	background: transparent;
+}
+
+.centered {
+	text-align: center;
+}
+
+.outlink::after {
+	content: "â†—";
+	padding-left: 2px;
+	vertical-align: text-bottom;
+}
+
+#s-m-t-tooltip {
+	max-width: 300px;
+	font-family: "balsamiq sans";
+	text-align: center;
+	z-index: 9999;
+	margin: 30px 15px 7px 12px;
+	padding: 5px;
+	border-radius: 10px;
+	border: 2px dashed #c9525e;
+	color: black;
+	background: #f9eab4;
+}
+
+@media only screen and (max-width: 599px) {
+	.hide {
+		display: none;
+	}
+}
+
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+::-webkit-scrollbar-thumb:vertical {
+	background-color: #e4a79d;
+	border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+	background-color: #e4a79d;
+	border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+	background-color: #fffcdc;
+}

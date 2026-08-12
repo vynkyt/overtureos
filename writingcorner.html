@@ -1,0 +1,396 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/x-icon" href="http://www.lastsecret.net/gifs/collegeroad_pondering.gif">
+
+<style>
+/* Cute CSS */
+h2, h1, .header-title {
+    font-family: 'Playball', cursive;
+    font-size: 3rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    background: linear-gradient(90deg, #d44a7e, #ff7eb3);
+    /* -webkit-background-clip: text; */
+    -webkit-text-fill-color: transparent;
+}
+
+blockquote {
+    font-family: 'Cheri', cursive;
+    font-size: 1.3rem;
+    color: #ff69b4;
+    background: #fff0f6;
+    border-left: 5px solid #ffb6c1;
+    padding: 15px 20px;
+    margin: 20px 0;
+    border-radius: 10px;
+    line-height: 1.6;
+}
+
+body {
+    background: repeating-linear-gradient(135deg, #FFE6F0, #FFE6F0 15px, #fff 0, #fff 16px);
+    color: #872A4E;
+    font-family: "balsamiq sans";
+    padding: 20px;
+}
+
+#editor {
+    background: white;
+    border: 2px dashed #ffafcc;
+    border-radius: 15px;
+    padding: 15px;
+    min-height: 400px;
+    max-width: 800px;
+    margin: 0 auto 20px;
+    overflow-y: auto;
+}
+
+button, select, input[type=color] {
+    border: 2px solid #ffafcc;
+    background-color: white;
+    color: #872A4E;
+    font-family: 'balsamiq sans';
+    font-size: 14px;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: 5px;
+}
+
+#editor img {
+    max-width: 100%;
+    border-radius: 10px;
+}
+
+#saveList {
+    text-align: center;
+    margin-top: 10px;
+}
+#saveList button {
+    display: block;
+    margin: 5px auto;
+}
+
+/* Fonts */
+@import url('https://fonts.cdnfonts.com/css/cheri');
+@font-face {
+   font-family: "balsamiq sans";
+   src: url("https://imp.neocities.org/layouts/spacehey/sickly-sweet/BalsamiqSans-Regular.ttf");
+}
+</style>
+</head>
+<body>
+
+<h1 id="headerTitle" class="header-title">˗ˋˏ ♡ ˎˊ˗</h1>
+
+<!-- Toolbar -->
+<div style="text-align:center; margin-bottom:10px;">
+    <select id="format">
+        <option value="p">Normal</option>
+        <option value="h1">Heading 1</option>
+        <option value="h2">Heading 2</option>
+        <option value="blockquote">Blockquote</option>
+    </select>
+    <select id="listFormat">
+        <option value="">Lists</option>
+        <option value="ul">• Bullet List</option>
+        <option value="ol">1. Numbered List</option>
+    </select>
+    <button onclick="formatText('bold')"><b>B</b></button>
+    <button onclick="formatText('italic')"><i>I</i></button>
+    <button onclick="formatText('underline')"><u>U</u></button>
+    <input type="color" id="textColor" title="Text Color">
+    <button onclick="addImage()">Add Image</button>
+    <button onclick="addTable()">Add Table</button>
+    <button onclick="saveDoc()">Save Doc</button>
+    <button id="clear">Clear</button>
+</div>
+
+<div id="editor" contenteditable="true" placeholder="Start typing..."></div>
+
+<div id="saveList">
+    <h3>Saved Docs</h3>
+    <div id="savedDocs"></div>
+</div>
+
+<script>
+const editor = document.getElementById('editor');
+const format = document.getElementById('format');
+const listFormat = document.getElementById('listFormat');
+const textColor = document.getElementById('textColor');
+const savedDocsDiv = document.getElementById('savedDocs');
+let currentFile = null;
+
+// Ensure clean paragraphs for Enter
+editor.addEventListener("keydown", function(e) {
+    if(e.key === "Enter"){
+        document.execCommand("insertParagraph", false, null);
+        e.preventDefault();
+    }
+});
+
+// Load last autosave
+editor.innerHTML = localStorage.getItem('myCuteDoc') || '';
+updateSavedDocs();
+
+// Save Doc (new file, versions, new file after clear)
+function saveDoc(){
+    let saves = JSON.parse(localStorage.getItem('savedDocs') || '{}');
+
+    if(currentFile === null){
+        // First save → ask for name
+        const name = prompt('Enter a name for this new file:');
+        if(!name) return;
+
+        currentFile = name;
+        saves[name] = {
+            history: [{
+                timestamp: new Date().toLocaleString(),
+                content: editor.innerHTML
+            }]
+        };
+        alert(`Created new file: "${name}"`);
+    } else {
+        // Ensure file exists before pushing
+        if(!saves[currentFile]){
+            saves[currentFile] = { history: [] };
+        }
+        saves[currentFile].history.push({
+            timestamp: new Date().toLocaleString(),
+            content: editor.innerHTML
+        });
+        alert(`Saved as new version of "${currentFile}"`);
+    }
+
+    // Update storage + UI
+    localStorage.setItem('savedDocs', JSON.stringify(saves));
+    updateSavedDocs();
+    document.getElementById('headerTitle').textContent = currentFile || '˗ˋˏ ♡ ˎˊ˗';
+}
+
+
+// Update saved docs list
+function updateSavedDocs(){
+    savedDocsDiv.innerHTML = '';
+    let saves = JSON.parse(localStorage.getItem('savedDocs') || '{}');
+
+    Object.keys(saves).forEach(name => {
+        const wrapper = document.createElement('div');
+
+        // Load button
+        const btn = document.createElement('button');
+        btn.textContent = `Load: ${name}`;
+btn.onclick = () => {
+    currentFile = name;
+    const latest = saves[name].history[saves[name].history.length - 1];
+    editor.innerHTML = latest.content;
+    localStorage.setItem('myCuteDoc', editor.innerHTML);
+    document.getElementById('headerTitle').textContent = currentFile;
+};
+
+
+        // Delete button
+        const del = document.createElement('button');
+        del.textContent = 'Delete';
+        del.onclick = () => {
+            if(confirm(`Delete document "${name}"?`)){
+                delete saves[name];
+                localStorage.setItem('savedDocs', JSON.stringify(saves));
+                if(currentFile===name) currentFile=null;
+                updateSavedDocs();
+            }
+        };
+
+        // Version history
+        const historyBtn = document.createElement('button');
+        historyBtn.textContent = 'Versions';
+        historyBtn.onclick = () => {
+            const existing = wrapper.querySelector('.versionDropdown');
+            if(existing){
+                existing.remove();
+                return;
+            }
+            const dropdown = document.createElement('div');
+            dropdown.className = 'versionDropdown';
+            dropdown.style.border = '2px dashed #ffafcc';
+            dropdown.style.borderRadius = '10px';
+            dropdown.style.padding = '5px';
+            dropdown.style.marginTop = '5px';
+            dropdown.style.backgroundColor = '#fff0f6';
+            dropdown.style.textAlign = 'center';
+
+            saves[name].history.forEach(v => {
+                const verBtn = document.createElement('button');
+                verBtn.textContent = v.timestamp;
+                verBtn.style.fontSize = '12px';
+                verBtn.style.margin = '3px';
+                verBtn.onclick = () => {
+                    if(confirm(`Restore version from ${v.timestamp}?`)){
+                        editor.innerHTML = v.content;
+                        localStorage.setItem('myCuteDoc', editor.innerHTML);
+                        saves[name].history.push({
+                            timestamp: new Date().toLocaleString(),
+                            content: v.content
+                        });
+                        localStorage.setItem('savedDocs', JSON.stringify(saves));
+                        updateSavedDocs();
+                    }
+                };
+                dropdown.appendChild(verBtn);
+            });
+            wrapper.appendChild(dropdown);
+        };
+
+        wrapper.appendChild(btn);
+        wrapper.appendChild(del);
+        wrapper.appendChild(historyBtn);
+        savedDocsDiv.appendChild(wrapper);
+    });
+}
+
+// Clear editor
+document.getElementById('clear').addEventListener('click', () => {
+    if(confirm('Are you sure you want to clear your doc?')){
+        editor.innerHTML = '';
+        localStorage.removeItem('myCuteDoc');
+        currentFile = null;
+        document.getElementById('headerTitle').textContent = '˗ˋˏ ♡ ˎˊ˗';
+    }
+});
+
+// Format dropdown (Normal fix!)
+format.addEventListener('change', () => {
+    editor.focus();
+    const tag = format.value;
+
+    if(tag === "p"){ 
+        document.execCommand('formatBlock', false, 'div'); 
+        document.execCommand('formatBlock', false, 'p');
+    } else if(tag === "h1" || tag === "h2" || tag === "blockquote"){
+        document.execCommand('formatBlock', false, tag);
+    }
+
+    format.value = '';
+});
+
+// List dropdown
+listFormat.addEventListener('change', () => {
+    editor.focus();
+    if(listFormat.value === "ul"){
+        document.execCommand('insertUnorderedList');
+    } else if(listFormat.value === "ol"){
+        document.execCommand('insertOrderedList');
+    }
+    listFormat.value = "";
+});
+
+// Bold / Italic / Underline
+function formatText(command){
+    editor.focus();
+    document.execCommand(command, false, null);
+}
+
+// Text color
+textColor.addEventListener('input', () => {
+    editor.focus();
+    document.execCommand('foreColor', false, textColor.value);
+});
+
+// Add image
+function addImage(){
+    const url = prompt('Enter image URL:');
+    if(url){
+        editor.focus();
+        document.execCommand('insertImage', false, url);
+    }
+}
+
+// Paste / drop image support
+editor.addEventListener('paste', (e) => {
+    const items = e.clipboardData.items;
+    for(let i=0; i<items.length; i++){
+        if(items[i].type.indexOf("image") !== -1){
+            const blob = items[i].getAsFile();
+            const reader = new FileReader();
+            reader.onload = function(event){
+                document.execCommand('insertImage', false, event.target.result);
+            }
+            reader.readAsDataURL(blob);
+        }
+    }
+});
+editor.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    for(let i=0;i<files.length;i++){
+        if(files[i].type.startsWith('image')){
+            const reader = new FileReader();
+            reader.onload = function(event){
+                document.execCommand('insertImage', false, event.target.result);
+            }
+            reader.readAsDataURL(files[i]);
+        }
+    }
+});
+
+// Add table
+function addTable() {
+    const rows = parseInt(prompt("Enter number of rows:", "2"));
+    const cols = parseInt(prompt("Enter number of columns:", "2"));
+    if(isNaN(rows) || isNaN(cols) || rows < 1 || cols < 1) return;
+
+    let table = document.createElement('table');
+    table.style.borderCollapse = 'collapse';
+    table.style.margin = '10px 0';
+    table.style.width = '100%';
+    table.style.maxWidth = '800px';
+
+    for(let r=0; r<rows; r++){
+        const tr = document.createElement('tr');
+        for(let c=0; c<cols; c++){
+            const td = document.createElement('td');
+            td.contentEditable = 'true';
+            td.style.border = '2px dashed #ffafcc';
+            td.style.padding = '5px';
+            td.style.textAlign = 'center';
+            td.textContent = " ";
+            tr.appendChild(td);
+        }
+        table.appendChild(tr);
+    }
+    insertNodeAtCaret(table);
+}
+function insertNodeAtCaret(node) {
+    const sel = window.getSelection();
+    if (sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(node);
+        range.setStartAfter(node);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    } else {
+        editor.appendChild(node);
+    }
+}
+
+// Indent/outdent shortcuts
+document.addEventListener('keydown', function(e){
+    if(e.ctrlKey && e.key === "]"){
+        e.preventDefault();
+        document.execCommand("indent", false, null);
+    }
+    if(e.ctrlKey && e.key === "["){
+        e.preventDefault();
+        document.execCommand("outdent", false, null);
+    }
+});
+</script>
+
+</body>
+</html>

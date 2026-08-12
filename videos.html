@@ -1,0 +1,829 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>video archive</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Vyonnie's Video Archive">
+	<link rel="icon" type="image/x-icon" href="https://sleepysprout.neocities.org/sitegraphics/you/bear3.png">
+	<link href="./fonts/stylesheet.css" rel="stylesheet" type="text/css" media="all">
+	<link href="./css/body.css" rel="stylesheet" type="text/css" media="all">
+	<link href="./css/entry.css" rel="stylesheet" type="text/css" media="all">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+    <script src="./js/tooltip.js"></script>
+    
+
+<style>
+@font-face {
+    font-family: "balsamiq sans";
+    src: url("https://imp.neocities.org/layouts/spacehey/sickly-sweet/BalsamiqSans-Regular.ttf");
+}
+
+* {cursor: url(https://cur.cursors-4u.net/others/oth-4/oth305.cur), auto !important;} /* End https://www.cursors-4u.com */
+                         
+                            
+body {
+    background-image: url("https://tora7.ciao.jp/sozai322/sozai-hana/happa-p.jpg");
+    color: #872A4E;
+    font-family: "balsamiq sans";
+}
+
+
+h1 {
+    text-align: center;
+    line-height: 0.7;
+}
+
+h2,
+h3,
+h4 {
+    font-size: 20px;
+    padding: 7px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #C55582;
+    text-align: center;
+    width: 100%;
+}
+blockquote {
+    text-align: center;}
+
+img.crisis {
+    position: fixed;
+    width: 15px;
+    height: 15px;
+    bottom: 3vh;
+    right: 1vw;
+    z-index: 9999;
+}
+
+aside {
+    height: 100%;
+}   
+
+#sidebar { 
+    background: #FFE6F0; 
+    position: fixed; 
+    z-index: 5; 
+    width: 200px;
+    height: 100%; 
+    padding: 10px; 
+    overflow: auto; 
+    flex: 0 0 270px; 
+    transition: width 0.3s ease; 
+    overflow-wrap: anywhere;
+}
+
+#sidebar button {
+    font-family: "balsamiq sans";
+    position: relative;
+	background: #ffafcc;
+	color: #FFE6F0;
+	border: 1px solid black;
+	border-radius: 5px;
+	margin: 2px 1px;
+	font-size: 17px;
+}
+
+#sidebar button:hover,
+#sidebar button.active {
+	background: #FFE6F0;
+	color: #ffafcc;
+}
+
+img.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 20%;;
+}
+
+img.box {
+    background: #FFE6F0;
+    cursor: zoom-in;
+    border: 2px solid #ffafcc;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin: 5px; 
+    box-sizing: border-box;
+    transition: all 0.25s ease-in-out;
+}
+
+img.box:hover {
+	transform: rotate(-7deg) scale(1.1);
+}
+
+.video-thumbnail {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.captions {
+	line-height: normal;
+	display: none;
+}
+
+main {
+    text-align: center;
+    z-index: 1;
+    line-height: 5px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17vw, 1fr)); /* Creates flexible grid */
+    gap: 10px; /* Space between items */
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    font-size: 15px;
+    color: #872A4E;
+    padding-right: 0; 
+    margin-right: 0; 
+    margin-left: 350px;
+}
+
+#pop-up {
+	top: 0px;
+	left: 0px;
+	text-align: center;
+	display: none;
+	z-index: 2;
+	position: fixed;
+	background-image: url("https://tora7.ciao.jp/sozai322/sozai-hana/happa-p.jpg");
+	padding: 10px 20px 20px 280px;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	align-items: center;
+	transition: padding 0.3s ease;
+}
+
+
+#pop-up iframe {
+    width: 80%;
+    height: 80%;
+    border-radius: 10px;
+}
+
+#pop-up iframe.cap {
+    width: 650px;
+    height: 350px;
+    border-radius: 10px;
+}
+
+
+#popCap {
+	margin: auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	max-width: 600px;
+}
+
+#pop-up button {
+	position: fixed;
+	right: 20px;
+	font-size: 30px;
+	cursor: zoom-out;
+	font-family: "balsamiq sans";
+	background: #ffafcc;
+	color: #FFE6F0;
+	border: 1px solid black;
+	border-radius: 5px;
+	margin: 2px 1px;
+	font-size: 17px;
+}
+
+a.nav {
+    color: #872A4E;
+}
+
+aside {
+    scroll-behavior: smooth;
+}
+
+</style>
+
+    <script>
+      // Wait for the document to fully load before attaching event listeners
+      window.onload = function () {
+        let thumbnails = document.querySelectorAll(".video-thumbnail");
+        let popUp = document.getElementById("pop-up");
+        let iframe = document.getElementById("pop-up-iframe");
+        let altCaption = document.getElementById("popCap");
+        let container = document.querySelector("body");
+        let buttons = document.querySelectorAll("#sidebar button");
+        let i;
+
+// adds a listener for when a button is clicked that adds the active class. yay
+for (i = 0; i < buttons.length; i++) {
+	buttons[i].addEventListener("click", function () {
+		this.classList.add("active");
+	});
+}
+   // Add click event listener to all video thumbnails
+    thumbnails.forEach(function (thumbnail) {
+      thumbnail.addEventListener("click", function () {
+        const videoUrl = this.getAttribute('data-video');  // Get video URL from the data-video attribute
+        const videoCaption = this.alt;  // Get the alt text for the video as the caption
+
+        // Set the iframe src to the clicked video URL
+        iframe.src = videoUrl;
+
+        // Set the caption
+        altCaption.innerText = videoCaption;
+
+        // Check for corresponding caption div under the clicked image
+        const captionDiv = document.getElementById(this.id + "-caption");
+        if (captionDiv) {
+          altCaption.innerHTML += captionDiv.innerHTML;  // Append the caption content
+        }
+
+        // Show the modal
+        popUp.style.display = "block";
+        container.style.overflow = "hidden"; // Disable background scrolling
+      });
+    });
+
+
+ // Close the pop-up modal and stop the video playback
+        window.closePopUp = function () {
+          container.style.overflow = "auto";
+          popUp.style.display = "none";
+          iframe.src = "";  // Stop the video by clearing the iframe src
+        }
+
+        // Show categories based on clicked button
+        window.showCat = function (className) {
+          let classBox = document.getElementsByClassName(className);
+          	for (i = 0; i < buttons.length; i++) {
+		// removes any prior active button
+		buttons[i].classList.remove("active");
+	}
+          for (let i = 0; i < classBox.length; i++) {
+            classBox[i].style.display = "inline-block"; // Show videos with matching category class
+          }
+
+          // Hide all other categories
+          let allBoxes = document.getElementsByClassName("box");
+          for (let i = 0; i < allBoxes.length; i++) {
+            if (!allBoxes[i].classList.contains(className)) {
+              allBoxes[i].style.display = "none"; // Hide non-matching categories
+            }
+          }
+        };
+      }
+    </script>
+
+  </head>
+  <body>
+   
+<a href="./safecrisis.html"><img title="feeling unsafe?" class="crisis" src="https://doqmeat.com/!g/pix/caution1.gif"></a>
+    <aside id="sidebar">
+   
+    
+       <a title="go back home!" class="nav" href="./main.html"><img class="center" src="https://doqmeat.com/!g/deco/tv.gif"></a>
+    <h1>Vyonnie's Video Archive</h1>
+     <nav>
+  
+        <h3>
+          categories
+        </h3>
+        <ol>
+            <li><a class="nav" href="#school">school</a></li>
+            <li><a class="nav" href="#preuni">pre-uni</a></li>
+            <li><a class="nav" href="#uni">uni</a></li>
+            <li><a class="nav" href="#academic">academic</a></li>
+            <li><a class="nav" href="#sport">sport</a></li>
+            <li><a class="nav" href="#music">music</a></li>
+            <li><a class="nav" href="#motiv">motivation</a></li>
+            <li><a class="nav" href="#misc">misc</a></li>
+        </ol>
+        <button id="default" onclick="showCat('box')">all</button>
+<hr id="school">
+      <h3 >school</h3>
+      <ol>
+      <li><button id="default" onclick="showCat('boxschool')">all</button></li>
+      <li><button id="default" onclick="showCat('igama')">ig add math</button></li>
+      <li><button id="default" onclick="showCat('igmat')">ig math</button></li>
+      <li><button onclick="showCat('igchem')">ig chemistry</button></li>
+      <li><button onclick="showCat('igphy')">ig physics</button></li>
+      <li><button onclick="showCat('igbio')">ig biology</button></li>
+      <li><button onclick="showCat('igecon')">ig economics</button></li>
+      </ol>
+ <hr id="preuni">     
+      <h3>pre-uni</h3>
+      <ol>
+      <li><button id="default" onclick="showCat('boxpreuni')">all</button></li>
+      <li><button id="default" onclick="showCat('alfmat')">alvl further math</button></li>
+      <li><button id="default" onclick="showCat('almat')">alvl math</button></li>
+      <li><button onclick="showCat('alchem')">alvl chemistry</button></li>
+      <li><button onclick="showCat('alphy')">alvl physics</button></li>
+      <li><button onclick="showCat('albio')">alvl biology</button></li>
+      <li><button onclick="showCat('alecon')">alvl compsci</button></li>
+      </ol>
+  <hr id="academic">   
+      <h3>academic</h3>
+      <ol>
+      <li><button id="default" onclick="showCat('boxacademic')">all</button></li>
+      <li><button id="default" onclick="showCat('miscmat')">math</button></li>
+      <li><button id="default" onclick="showCat('miscphysics')">physics</button></li>
+      <li><button onclick="showCat('miscchem')">chemistry</button></li>
+      <li><button onclick="showCat('miscbio')">biology</button></li>
+      <li><button onclick="showCat('misceng')">engineering</button></li>
+      <li><button onclick="showCat('misccs')">compsci</button></li>
+      <li><button onclick="showCat('miscecon')">economics</button></li>
+      </ol>
+   <hr id="sport">   
+      <h3>sport</h3>
+      <ol>
+      <li><button id="default" onclick="showCat('boxsport')">all</button></li>
+      <li><button id="default" onclick="showCat('workout')">workout</button></li>
+      <li><button id="default" onclick="showCat('dance')">dance</button></li>
+      <li><button id="default" onclick="showCat('figure-skating')">figure skating</button></li>
+      </ol>
+   <hr id="music">   
+      <h3>music</h3>
+      <ol>
+      <li><button id="default" onclick="showCat('boxmusic')">all</button></li>
+      <li><button id="default" onclick="showCat('frmusic')">french</button></li>
+      <li><button id="default" onclick="showCat('cnmusic')">chinese</button></li>
+      <li><button id="default" onclick="showCat('jpmusic')">japanese</button></li>
+      <li><button id="default" onclick="showCat('nightcore')">nightcore</button></li>
+      <li><button onclick="showCat('instrumental')">instrumental</button></li>
+      <li><button onclick="showCat('miscmusic')">other</button></li>
+      </ol>
+    <hr id="motiv">   
+      <h3>motivation</h3>
+      <ol>
+      <li><button id="default" onclick="showCat('boxmotiv')">all</button></li>
+      <li><button id="default" onclick="showCat('miscmotiv')">general</button></li>
+      <li><button id="default" onclick="showCat('meditation')">meditation</button></li>
+      <li><button id="default" onclick="showCat('finance')">finance</button></li>
+      <li><button id="default" onclick="showCat('engineering')">engineering</button></li>
+      </ol>
+ <hr id="misc">     
+      <h3>misc</h3>
+      <ol>
+      <li><button id="default" onclick="showCat('boxmisc')">all</button></li>
+      <li><button id="default" onclick="showCat('interviews')">interviews</button></li>
+      <li><button id="default" onclick="showCat('bts')">bts</button></li>
+      <li><button id="default" onclick="showCat('subbie')">subliminals</button></li>
+      <li><button id="default" onclick="showCat('miscmisc')">other</button></li>
+      </ol>
+    </nav>
+    </aside>
+    
+    
+    
+  <!-- series:
+    <img class="box boxacademic misccs video-thumbnail" 
+        title="⛸️" 
+        alt="⛸️"
+        src="https://img.youtube.com/vi/5ImypSnJJ2Y/0.jpg" 
+        data-video="https://www.youtube.com/embed/videoseries?si=tw1llFMfJHD5DAeU&amp;list=PLk2NBTjLOmCic6_B5bxjN58rTa2gEJQMT"/> -->
+        
+  <!-- shorts:
+    <div id='tpYtContainer'><img class="box boxmusic cnmusic video-thumbnail" 
+        title="《平凡之路》+ 《夜空中最亮的星》丨MangoTV | 王俊凱 (❤️), 蕭敬騰, 謝霆鋒" 
+        alt="《平凡之路》+ 《夜空中最亮的星》丨MangoTV | 王俊凱 (❤️), 蕭敬騰, 謝霆鋒"
+        src="https://img.youtube.com/vi/unvSQKDinc8/0.jpg" 
+        data-video="https://www.youtube.com/embed/unvSQKDinc8?autoplay=1"/></div> -->
+    
+    <!-- regular:
+    <img class="box boxmusic miscmusic video-thumbnail" 
+        title="Lifehouse - You And Me (Official Music Video)" 
+        alt="Lifehouse - You And Me (Official Music Video)"
+        src="https://img.youtube.com/vi/ac3HkriqdGQ/0.jpg" 
+        data-video="https://www.youtube.com/embed/ac3HkriqdGQ?autoplay=1"/> -->
+    
+<main style="text-align: center; margin-left: 210px;">
+
+    <img class="box boxacademic misceng video-thumbnail" 
+        title="
+Beginner’s Guide to the Onshape Interface" 
+        alt="
+Beginner’s Guide to the Onshape Interface"
+        src="https://img.youtube.com/vi/NrrS0ie8rWY/0.jpg" 
+        data-video="https://www.youtube.com/embed/NrrS0ie8rWY?autoplay=1"/>
+
+    <img class="box boxsport figure-skating video-thumbnail" 
+        title="⛸️" 
+        alt="⛸️"
+        src="https://img.youtube.com/vi/5ImypSnJJ2Y/0.jpg" 
+        data-video="https://www.youtube.com/embed/videoseries?si=tw1llFMfJHD5DAeU&amp;list=PLk2NBTjLOmCic6_B5bxjN58rTa2gEJQMT"/>
+        
+    <img class="box boxpreuni alchem video-thumbnail" 
+        title="A Level Chemistry 'Chemical Bonding'"
+        alt="A Level Chemistry 'Chemical Bonding'"
+        src="https://img.youtube.com/vi/4rzxZIu5OHc/0.jpg" 
+        data-video="https://www.youtube.com/embed/videoseries?si=x_XIrjWCVYTzNXfF&amp;list=PL9IouNCPbCxVVg87vikoY8LtC39e-2_7H"/>
+        
+
+    <img class="box boxmotiv engineering video-thumbnail" 
+        title="
+Variance and Standard Deviation - Year 1 Statistics [A-level]" 
+        alt="
+Variance and Standard Deviation - Year 1 Statistics [A-level]"
+        src="https://img.youtube.com/vi/oLX8lSadLjk/0.jpg" 
+        data-video="https://www.youtube.com/embed/oLX8lSadLjk?autoplay=1"/>
+
+    <img class="box boxpreuni almat video-thumbnail" 
+        title="
+Permutations & Combinations | A Level Maths 9709 Paper 5" 
+        alt="
+Permutations & Combinations | A Level Maths 9709 Paper 5 | 24:25"
+        src="https://img.youtube.com/vi/CHKOT4omVFY/0.jpg" 
+        data-video="https://www.youtube.com/embed/CHKOT4omVFY?autoplay=1"/>
+
+    <img class="box boxmotiv engineering video-thumbnail" 
+        title="How I Built an Electric Car at 16" 
+        alt="How I Built an Electric Car at 16"
+        src="https://img.youtube.com/vi/X3_G4lo7YCs/0.jpg" 
+        data-video="https://www.youtube.com/embed/X3_G4lo7YCs?autoplay=1"/>
+        
+    <img class="box boxmotiv finance video-thumbnail" 
+        title="I Locked Myself In a Room Until I Built a $350,000/mo Business" 
+        alt="I Locked Myself In a Room Until I Built a $350,000/mo Business"
+        src="https://img.youtube.com/vi/I78h9HrSndE/0.jpg" 
+        data-video="https://www.youtube.com/embed/I78h9HrSndE?autoplay=1"/>
+        
+    <img class="box boxacademic miscbio video-thumbnail" 
+        title="The Core Equation Of Neuroscience" 
+        alt="The Core Equation Of Neuroscience | 1.dec.25"
+        src="https://img.youtube.com/vi/zOmhHE2xctw/0.jpg" 
+        data-video="https://www.youtube.com/embed/zOmhHE2xctw?autoplay=1"/>
+        
+    <img class="box boxmotiv finance video-thumbnail" 
+        title="5 Easy Tips from My Mentor for Faster Success" 
+        alt="5 Easy Tips from My Mentor for Faster Success"
+        src="https://img.youtube.com/vi/dj7R1E009do/0.jpg" 
+        data-video="https://www.youtube.com/embed/dj7R1E009do?autoplay=1"/>
+        
+    <img class="box boxsport figure-skating video-thumbnail" 
+        title="Katarina Witt (GDR) - 1988 Calgary, Figure Skating, Ladies' Long Program (US ABC)" 
+        alt="Katarina Witt (GDR) - 1988 Calgary, Figure Skating, Ladies' Long Program (US ABC)"
+        src="https://img.youtube.com/vi/57R7aAY5QiM/0.jpg" 
+        data-video="https://www.youtube.com/embed/57R7aAY5QiM?autoplay=1"/>
+
+    <img class="box boxacademic miscphysics video-thumbnail" 
+        title="String Theory" 
+        alt="String Theory"
+        src="https://img.youtube.com/vi/n7cOlBxtKSo/0.jpg" 
+        data-video="https://www.youtube.com/embed/n7cOlBxtKSo?autoplay=1"/>
+        
+    <img class="box boxacademic miscphysics video-thumbnail" 
+        title="Divergence and curl: The language of Maxwell's equations, fluid flow, and more" 
+        alt="Divergence and curl: The language of Maxwell's equations, fluid flow, and more"
+        src="https://img.youtube.com/vi/rB83DpBJQsE/0.jpg" 
+        data-video="https://www.youtube.com/embed/rB83DpBJQsE?autoplay=1"/>
+        
+    <img class="box boxacademic misccs video-thumbnail" 
+        title="Neural networks" 
+        alt="Neural networks | Chapter 1 done!"
+        src="https://img.youtube.com/vi/aircAruvnKk/0.jpg" 
+        data-video="https://www.youtube.com/embed/videoseries?si=_o0DVC0XbNkCwL04&amp;list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi"/> 
+        
+    <img class="box boxmusic miscmusic video-thumbnail" 
+        title="Lifehouse - You And Me (Official Music Video)" 
+        alt="Lifehouse - You And Me (Official Music Video)"
+        src="https://img.youtube.com/vi/ac3HkriqdGQ/0.jpg" 
+        data-video="https://www.youtube.com/embed/ac3HkriqdGQ?autoplay=1"/>
+        
+    <img class="box boxsport figure-skating video-thumbnail" 
+        title="Ilia Malinin, 2024 World Champion, performs to 'Hope' by NF at 'Gold on Ice'" 
+        alt="Ilia Malinin, 2024 World Champion, performs to 'Hope' by NF at 'Gold on Ice'"
+        src="https://img.youtube.com/vi/6bkgEhU3j7w/0.jpg" 
+        data-video="https://www.youtube.com/embed/6bkgEhU3j7w?autoplay=1"/>
+
+    <img class="box boxacademic miscmat video-thumbnail" 
+        title="Essence of linear algebra" 
+        alt="Essence of linear algebra | Chapter 3 done!"
+        src="https://img.youtube.com/vi/fNk_zzaMoSs/0.jpg" 
+        data-video="https://www.youtube.com/embed/videoseries?si=_jB7dzlzsTh2QvZk&amp;list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab"/>
+        
+    <img class="box boxacademic miscmat video-thumbnail" 
+        title="Math Olympiad Lecture Series" 
+        alt="Math Olympiad Lecture Series | Chapter 2 done!"
+        src="https://img.youtube.com/vi/hEN6_v6gSEo/0.jpg" 
+        data-video="https://www.youtube.com/embed/videoseries?si=405gxmqLuVclSffL&amp;list=PLUE2inXTp_T90ZhISd9bm0tAU3OTh43v9"/>
+        
+    <img class="box boxmotiv meditation video-thumbnail" 
+        title="Activate Your Feminine Energy & Awaken the Goddess Within ~ Guided Meditation" 
+        alt="Activate Your Feminine Energy & Awaken the Goddess Within ~ Guided Meditation"
+        src="https://img.youtube.com/vi/iPngF0GuzPQ/0.jpg" 
+        data-video="https://www.youtube.com/embed/iPngF0GuzPQ?autoplay=1"/>
+        
+    <img class="box boxpreuni alfmat almat video-thumbnail" 
+        title="A-Level Math + Further Math A* Tips" 
+        alt="A-Level Math + Further Math A* Tips"
+        src="https://img.youtube.com/vi/ZXgSDAmIkXk/0.jpg" 
+        data-video="https://www.youtube.com/embed/ZXgSDAmIkXk?autoplay=1"/>
+        
+    <img class="box boxpreuni alfmat video-thumbnail" 
+        title="TEACHING A-Level Further Maths [AQA, Edexcel, OCR, OCR MEI] FULL COURSE" 
+        alt="TEACHING A-Level Further Maths [AQA, Edexcel, OCR, OCR MEI] FULL COURSE | Topic 1 done!"
+        src="https://img.youtube.com/vi/jtdhuqu36wg/0.jpg" 
+        data-video="https://www.youtube.com/embed/videoseries?si=TcdigbrPHnGbrmMf&amp;list=PLg2tfDG3Ww4us-ACGUOMdCiYXyg4ymxrK"/>
+        
+    <img class="box boxpreuni alfmat video-thumbnail" 
+        title="HOW TO GET AN A* - FURTHER MATHS A-LEVEL" 
+        alt="HOW TO GET AN A* - FURTHER MATHS A-LEVEL"
+        src="https://img.youtube.com/vi/-8_n2zWGN5I/0.jpg" 
+        data-video="https://www.youtube.com/embed/-8_n2zWGN5I?autoplay=1"/>
+        
+    <img class="box boxpreuni alfmat almat video-thumbnail" 
+        title="How to Get an A* in A-Level Maths And Further Maths in Just ONE Month" 
+        alt="How to Get an A* in A-Level Maths And Further Maths in Just ONE Month"
+        src="https://img.youtube.com/vi/VTEPpPgaPTE/0.jpg" 
+        data-video="https://www.youtube.com/embed/VTEPpPgaPTE?autoplay=1"/>
+        
+    <img class="box boxsport figure-skating video-thumbnail" 
+        title="Yuzuru Hanyu performs to Chopin's Ballade No 1 at PyeongChang 2018 | Music Monday" 
+        alt="Yuzuru Hanyu performs to Chopin's Ballade No 1 at PyeongChang 2018 | Music Monday"
+        src="https://img.youtube.com/vi/h-7rZ4G1f0w/0.jpg" 
+        data-video="https://www.youtube.com/embed/h-7rZ4G1f0w?autoplay=1"/>
+
+    <img class="box boxsport workout video-thumbnail" 
+        title="Ahyeon Ab Workout" 
+        alt="Ahyeon Ab Workout"
+        src="https://img.youtube.com/vi/UWuM4OFrvsE/0.jpg" 
+        data-video="https://www.youtube.com/embed/UWuM4OFrvsE?autoplay=1"/>
+        
+    <img class="box boxacademic misccs video-thumbnail" 
+        id="unitycodemonkey"
+        title="Learn UNITY Beginner/Intermediate 2025 (FREE COMPLETE Course - Unity Tutorial)" 
+        alt="1:23:22 | Learn UNITY Beginner/Intermediate 2025 (FREE COMPLETE Course - Unity Tutorial)"
+        src="https://img.youtube.com/vi/AmGSEH7QcDg/0.jpg" 
+        data-video="https://www.youtube.com/embed/AmGSEH7QcDg?autoplay=1"/>
+    <div id="unitycodemonkey-caption" class="captions">
+        <iframe class="cap" src="https://www.youtube.com/embed/IFayQioG71A?si=IudS5jVrHNpisnEi" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe class="cap" src="https://www.youtube.com/embed/E6A4WvsDeLE?si=jVrUI6Yjydb7b0oR" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe class="cap" src="https://www.youtube.com/embed/hKXsL7XNa9M?si=q3FPRAGvPfe8l6Fa" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+
+    <img class="box boxsport figure-skating video-thumbnail" 
+        title="
+'Salvatore' - Isabeau Levito performs to Lana Del Rey at 'Gold on Ice' 2024" 
+        alt="
+'Salvatore' - Isabeau Levito performs to Lana Del Rey at 'Gold on Ice' 2024"
+        src="https://img.youtube.com/vi/sCYYgtYK0bY/0.jpg" 
+        data-video="https://www.youtube.com/embed/sCYYgtYK0bY?autoplay=1"/>
+        
+    <img class="box boxschool igmat video-thumbnail" 
+        title="Rotations - GCSE Maths" 
+        alt="Rotations - GCSE Maths"
+        src="https://img.youtube.com/vi/gKdTYgrk_8U/0.jpg" 
+        data-video="https://www.youtube.com/embed/gKdTYgrk_8U?autoplay=1"/>
+        
+    <img class="box boxschool igchem video-thumbnail" 
+        title="Organic Chemistry Part1 Homologous series (IGCSE/GCE O Level CHEMISTRY) 0620" 
+        alt="Organic Chemistry Part1 Homologous series (IGCSE/GCE O Level CHEMISTRY) 0620"
+        src="https://img.youtube.com/vi/BaMGBLuj8B8/0.jpg" 
+        data-video="https://www.youtube.com/embed/BaMGBLuj8B8?autoplay=1"/>
+        
+    <img class="box boxschool igchem video-thumbnail" 
+        title="Organic Chemistry Part2 Isomer & Polymer (IGCSE/GCE O Level CHEMISTRY) 0620" 
+        alt="Organic Chemistry Part2 Isomer & Polymer (IGCSE/GCE O Level CHEMISTRY) 0620"
+        src="https://img.youtube.com/vi/WCejpCuyXA4/0.jpg" 
+        data-video="https://www.youtube.com/embed/WCejpCuyXA4?autoplay=1"/>
+        
+    <img class="box boxschool igmat video-thumbnail" 
+        title="Enlargements (Negative Scale Factor) - GCSE Higher Maths" 
+        alt="Enlargements (Negative Scale Factor) - GCSE Higher Maths"
+        src="https://img.youtube.com/vi/0_hclyERGAw/0.jpg" 
+        data-video="https://www.youtube.com/embed/0_hclyERGAw?autoplay=1"/>
+        
+    <img class="box boxschool igmat video-thumbnail" 
+        title="Enlargements - GCSE Maths" 
+        alt="Enlargements - GCSE Maths"
+        src="https://img.youtube.com/vi/z8NUrhU2e6M/0.jpg" 
+        data-video="https://www.youtube.com/embed/z8NUrhU2e6M?autoplay=1"/>
+        
+    <img class="box boxmotiv miscmotiv video-thumbnail" 
+        title="How to create success" 
+        alt="How to create success"
+        src="https://img.youtube.com/vi/cFpkCWwo91M/0.jpg" 
+        data-video="https://www.youtube.com/embed/cFpkCWwo91M?autoplay=1"/>
+        
+    <img class="box boxmotiv miscmotiv video-thumbnail" 
+        title="GET OFF UR PHONE AND DO SOMETHING WINNER (motivation)" 
+        alt="GET OFF UR PHONE AND DO SOMETHING WINNER (motivation)"
+        src="https://img.youtube.com/vi/h9cKMBn6dC0/0.jpg" 
+        data-video="https://www.youtube.com/embed/h9cKMBn6dC0?autoplay=1"/>
+        
+    <img class="box boxsport figure-skating video-thumbnail" 
+        title="
+Ye-lim Kim performs to 'A Thousand Years' at An Evening with Champions (2023)" 
+        alt="
+Ye-lim Kim performs to 'A Thousand Years' at An Evening with Champions (2023)"
+        src="https://img.youtube.com/vi/8htyCI7JSiQ/0.jpg" 
+        data-video="https://www.youtube.com/embed/8htyCI7JSiQ?autoplay=1"/>
+
+    <img class="box boxmotiv miscmotiv video-thumbnail" 
+        title="Drill this into ur brain and everything will click ASAP" 
+        alt="Drill this into ur brain and everything will click ASAP"
+        src="https://img.youtube.com/vi/thyi8ZZdw6U/0.jpg" 
+        data-video="https://www.youtube.com/embed/thyi8ZZdw6U?autoplay=1"/>
+        
+    <img class="box boxmotiv miscmotiv video-thumbnail" 
+        title="watch this before you get work done for motivation [pep talk]" 
+        alt="watch this before you get work done for motivation [pep talk]"
+        src="https://img.youtube.com/vi/_ssTqnbNLog/0.jpg" 
+        data-video="https://www.youtube.com/embed/_ssTqnbNLog?autoplay=1"/>
+        
+    <img class="box boxmusic cnmusic video-thumbnail" 
+        title="《平凡之路》+ 《夜空中最亮的星》丨MangoTV | 王俊凱 (❤️), 蕭敬騰, 謝霆鋒" 
+        alt="《平凡之路》+ 《夜空中最亮的星》丨MangoTV | 王俊凱 (❤️), 蕭敬騰, 謝霆鋒"
+        src="https://img.youtube.com/vi/ExSGYFBPuu0/0.jpg" 
+        data-video="https://www.youtube.com/embed/ExSGYFBPuu0?autoplay=1"/>
+        
+    <img class="box boxmusic nightcore video-thumbnail" 
+        title="【Nightcore】→ Self-Destructive || Lyrics" 
+        alt="【Nightcore】→ Self-Destructive || Lyrics"
+        src="https://img.youtube.com/vi/H0l55yGMI9Q/0.jpg" 
+        data-video="https://www.youtube.com/embed/H0l55yGMI9Q?autoplay=1"/>
+        
+    <img class="box boxmotiv miscmotiv video-thumbnail" 
+        title="watch this when you need motivation" 
+        alt="watch this when you need motivation"
+        src="https://img.youtube.com/vi/Hws0FDMics8/0.jpg" 
+        data-video="https://www.youtube.com/embed/Hws0FDMics8?autoplay=1"/>
+        
+    <img class="box boxschool igmat video-thumbnail" 
+        title="All of iGCSE Transformations!" 
+        alt="All of iGCSE Transformations!"
+        src="https://img.youtube.com/vi/8UIUkshzMf8/0.jpg" 
+        data-video="https://www.youtube.com/embed/8UIUkshzMf8?autoplay=1"/>
+        
+    <img class="box boxmusic frmusic video-thumbnail" 
+    title="Lennikim - mélancolie (Symphonique)"  
+    src="https://img.youtube.com/vi/hMoCWiZJgzk/0.jpg" 
+    alt="Lennikim - mélancolie (Symphonique)" 
+    data-video="https://www.youtube.com/embed/hMoCWiZJgzk?autoplay=1"/>
+    <img title="Lennikim - Scars (Official Video)" class="box boxmusic miscmusic video-thumbnail" src="https://img.youtube.com/vi/ks2-bmrpgyE/0.jpg" alt="Lennikim - Scars (Official Video)" data-video="https://www.youtube.com/embed/ks2-bmrpgyE?autoplay=1" />
+    <img title="False Confidence - Noah Kahan | Choreography by Sean Lew | #BABE2019 | Sean & Kaycee" class="box boxsport dance boxmusic miscmusic video-thumbnail" src="https://img.youtube.com/vi/SNCQsu5uXbo/0.jpg" alt="False Confidence - Noah Kahan | Choreography by Sean Lew | #BABE2019 | Sean & Kaycee" data-video="https://www.youtube.com/embed/SNCQsu5uXbo?autoplay=1" />
+    <img class="box boxsport dance video-thumbnail" title="100 Bad Days - AJR | Sean Lew Choreography | Flip The Switch 2023"  src="https://img.youtube.com/vi/n4vI8PCYQSg/0.jpg" alt="100 Bad Days - AJR | Sean Lew Choreography | Flip The Switch 2023" data-video="https://www.youtube.com/embed/n4vI8PCYQSg?autoplay=1" />
+    <img class="box boxmusic cnmusic video-thumbnail" 
+    title="肖战 XIAO ZHAN - 都一样 Anonymous（Official Performance film ）"  
+    alt="肖战 XIAO ZHAN - 都一样 Anonymous（Official Performance film ）" 
+    src="https://img.youtube.com/vi/_u6IH4ZqAyc/0.jpg" 
+    data-video="https://www.youtube.com/embed/_u6IH4ZqAyc?autoplay=1"/>
+    
+    <img class="box boxmusic cnmusic video-thumbnail" 
+    title="肖战 XIAO ZHAN - 灯塔 Beacon（Official Performance film ）"  
+    alt="肖战 XIAO ZHAN - 灯塔 Beacon（Official Performance film ）" 
+    src="https://img.youtube.com/vi/HtgizUPOOO4/0.jpg" 
+    data-video="https://www.youtube.com/embed/HtgizUPOOO4?autoplay=1"/>
+    
+    <img class="box boxmusic miscmusic video-thumbnail" 
+    title="Lennikim - Things I Want (Official Video)"  
+    alt="Lennikim - Things I Want (Official Video)" 
+    src="https://img.youtube.com/vi/wWGftw9SBlw/0.jpg" 
+    data-video="https://www.youtube.com/embed/wWGftw9SBlw?autoplay=1"/>
+    
+    <img class="box boxmusic frmusic video-thumbnail" 
+    title="LOU & LENNI KIM AMOUREUX??| Ce mur qui nous sépare [LIVE]"  
+    alt="LOU & LENNI KIM AMOUREUX??| Ce mur qui nous sépare [LIVE]" 
+    src="https://img.youtube.com/vi/uil3C-8Tc-o/0.jpg" 
+    data-video="https://www.youtube.com/embed/uil3C-8Tc-o?autoplay=1"/>
+    
+    <img class="box boxmisc bts video-thumbnail" 
+        title="LOU & LENNI-KIM | THE WALL BETWEEN US | EXTENDED MAKING-OF"  
+        alt="LOU & LENNI-KIM | THE WALL BETWEEN US | EXTENDED MAKING-OF" 
+        src="https://img.youtube.com/vi/Bo2MgQqFZKo/0.jpg" 
+        data-video="https://www.youtube.com/embed/Bo2MgQqFZKo?autoplay=1"/>
+        
+    <img class="box boxmusic frmusic video-thumbnail" 
+        title="MIRACULOUS | 🐞 LOU & LENNI-KIM - THE WALL BETWEEN US 🐞 | Official Music Video"  
+        alt="MIRACULOUS | 🐞 LOU & LENNI-KIM - THE WALL BETWEEN US 🐞 | Official Music Video" 
+        src="https://img.youtube.com/vi/IcjFBDY4rWM/0.jpg" 
+        data-video="https://www.youtube.com/embed/IcjFBDY4rWM?autoplay=1"/>
+    
+    <img class="box boxmusic instrumental video-thumbnail" 
+        title="🐾🐞Playlist Miraculous - All the best soundtracks🐞🐾- A playlist to work/study/draw...🤍🎧"  
+        alt="🐾🐞Playlist Miraculous - All the best soundtracks🐞🐾- A playlist to work/study/draw...🤍🎧" 
+        src="https://img.youtube.com/vi/cvILTmdLvZs/0.jpg" 
+        data-video="https://www.youtube.com/embed/cvILTmdLvZs?autoplay=1"/>
+    
+    <img class="box boxsport workout video-thumbnail" 
+        title="ABS & THIGH WORKOUT IN BED | Flat Belly & Slim Thighs BURN 🔥 ~ Emi" 
+        alt="ABS & THIGH WORKOUT IN BED | Flat Belly & Slim Thighs BURN 🔥 ~ Emi"
+        src="https://img.youtube.com/vi/MAoR3jEhqJ8/0.jpg" 
+        data-video="https://www.youtube.com/embed/MAoR3jEhqJ8?autoplay=1"/>
+    
+    <img class="box boxmusic frmusic video-thumbnail" 
+        title="⚠𝕄𝕚𝕣𝕒𝕔𝕦𝕝𝕠𝕦𝕤 𝕃𝕒𝕕𝕪𝕓𝕦𝕘 𝕒𝕟𝕕 ℂ𝕒𝕥 ℕ𝕠𝕚𝕣 𝕄𝕠𝕧𝕚𝕖 - 🐞 ℙ𝕝𝕦𝕤 𝔽𝕠𝕣𝕥𝕤 𝔼𝕟𝕤𝕖𝕞𝕓𝕝𝕖 🐾 - (𝕊𝕝𝕠𝕨𝕖𝕕 + ℝ𝕖𝕧𝕖𝕣𝕓𝕖𝕕)"  
+        alt="𝕄𝕚𝕣𝕒𝕔𝕦𝕝𝕠𝕦𝕤 𝕃𝕒𝕕𝕪𝕓𝕦𝕘 𝕒𝕟𝕕 ℂ𝕒𝕥 ℕ𝕠𝕚𝕣 𝕄𝕠𝕧𝕚𝕖 - 🐞 ℙ𝕝𝕦𝕤 𝔽𝕠𝕣𝕥𝕤 𝔼𝕟𝕤𝕖𝕞𝕓𝕝𝕖 🐾 - (𝕊𝕝𝕠𝕨𝕖𝕕 + ℝ𝕖𝕧𝕖𝕣𝕓𝕖𝕕)"
+        src="https://img.youtube.com/vi/DGL-_UApZb4/0.jpg" 
+        data-video="https://www.youtube.com/embed/DGL-_UApZb4?autoplay=1"/>
+    
+    <img class="box boxmisc subbie video-thumbnail" 
+        title="⚠️WARNING: Only Use If You’re Ready to Ace Every Test Without Stress - 100/100- FULL GPA - DOUBT=A++"  
+        alt="🐾⚠️WARNING: Only Use If You’re Ready to Ace Every Test Without Stress - 100/100- FULL GPA - DOUBT=A++" 
+        src="https://img.youtube.com/vi/dHIdhzkVrt0/0.jpg" 
+        data-video="https://www.youtube.com/embed/dHIdhzkVrt0?autoplay=1"/>
+        
+    <img class="box boxmusic nightcore video-thumbnail" 
+        title="Nightcore - Man Who Stays (Jake Scott) - (Lyrics)" 
+        alt="Nightcore - Man Who Stays (Jake Scott) - (Lyrics)"
+        src="https://img.youtube.com/vi/-MdrKH_Ky4c/0.jpg" 
+        data-video="https://www.youtube.com/embed/-MdrKH_Ky4c?autoplay=1"/>
+        
+    <img class="box boxmisc subbie video-thumbnail" 
+        title="scientific weight loss subliminal"  
+        alt="scientific weight loss subliminal" 
+        src="https://img.youtube.com/vi/WEElgzDffXg/0.jpg" 
+        data-video="https://www.youtube.com/embed/WEElgzDffXg?autoplay=1"/>
+        
+    <img class="box boxsport workout video-thumbnail" 
+        title="15mins Arm Flab Workout 🦋 | No More Bingo/Bat Wings! 🦇 | No Equipment" 
+        alt="15mins Arm Flab Workout 🦋 | No More Bingo/Bat Wings! 🦇 | No Equipment"
+        src="https://img.youtube.com/vi/x9Sib-TEivI/0.jpg" 
+        data-video="https://www.youtube.com/embed/x9Sib-TEivI?autoplay=1"/>
+        
+    <img class="box boxmusic cnmusic video-thumbnail" 
+        title="【黑崎子】 苍生不配" 
+        alt="【黑崎子】 苍生不配"
+        src="https://img.youtube.com/vi/MYTTengRcPc/0.jpg" 
+        data-video="https://www.youtube.com/embed/MYTTengRcPc?autoplay=1"/>
+        
+    <img class="box boxacademic miscecon miscgt video-thumbnail" 
+        id="gtyale"
+        title="Game Theory with Ben Polak" 
+        alt=""
+        src="https://img.youtube.com/vi/nM3rTU927io/0.jpg" 
+        data-video="https://www.youtube.com/embed/nM3rTU927io?autoplay=1"/>
+    <div id="gtyale-caption" class="captions">
+        <iframe class="cap" src="https://www.youtube.com/embed/qQ3kFydI_xQ?si=IudS5jVrHNpisnEi" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe class="cap" src="https://www.youtube.com/embed/kqDu0RVWTYw?si=jVrUI6Yjydb7b0oR" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe class="cap" src="https://www.youtube.com/embed/YYUPc-cfPyc?si=q3FPRAGvPfe8l6Fa" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe class="cap" src="https://www.youtube.com/embed/Ac2vCCuf8-s?si=qBVIJ3uadZMuUUCB" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe class="cap" src="https://www.youtube.com/embed/7oASpaBdDMs?si=kVQ-raT-BCHkwzcY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe class="cap" src="https://www.youtube.com/embed/pMRMYi1SoQs?si=fzdyuQDE8hxjGnvh" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+       
+       <img class="box boxacademic miscbio video-thumbnail" 
+        id="humanbrainmitocw"
+        title="The Human Brain by Nancy Kanwisher (MITOCW, 9.13)" 
+        alt=""
+        src="https://img.youtube.com/vi/ba-HMvDn_vU/0.jpg" 
+        data-video="https://www.youtube.com/embed/ba-HMvDn_vU?autoplay=1"/>
+    <div id="humanbrainmitocw-caption" class="captions">
+        <iframe class="cap" src="https://www.youtube.com/embed/bAkuNXtgrLA?si=IudS5jVrHNpisnEi" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe class="cap" src="https://www.youtube.com/embed/vFZY--lgmHs?si=q3FPRAGvPfe8l6Fa" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe class="cap" src="https://www.youtube.com/embed/YD7QG4G7WVg?si=qBVIJ3uadZMuUUCB" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+    
+    <img class="box boxsport workout video-thumbnail" 
+        title="10 MIN EXERCISE & STRETCH FOR SHOULDERS, NECK & THE COLLARBONE AREA ~ Emi" 
+        alt="10 MIN EXERCISE & STRETCH FOR SHOULDERS, NECK & THE COLLARBONE AREA ~ Emi"
+        src="https://img.youtube.com/vi/jXm0y-csiuE/0.jpg" 
+        data-video="https://www.youtube.com/embed/jXm0y-csiuE?autoplay=1"/>
+    
+    <img class="box boxschool igama video-thumbnail" 
+        title="All of iGCSE 0606 Add Maths Trigonometry In 60 Minutes!" 
+        alt="All of iGCSE 0606 Add Maths Trigonometry In 60 Minutes!"
+        src="https://img.youtube.com/vi/9gHwdgcDsTE/0.jpg" 
+        data-video="https://www.youtube.com/embed/9gHwdgcDsTE?autoplay=1"/>
+    
+    <img class="box boxschool igama video-thumbnail" 
+        title="All of iGCSE 0606 Add Maths!" 
+        alt="All of iGCSE 0606 Add Maths!"
+        src="https://img.youtube.com/vi/QQE3f_3VpVA/0.jpg" 
+        data-video="https://www.youtube.com/embed/QQE3f_3VpVA?autoplay=1"/>
+        
+    <img class="box boxmusic miscmusic video-thumbnail" 
+        title="[I-LAND2/9회 풀버전] '윤지윤, 최정은' ♬If I Were A Boy - Beyoncé @메인 포지션 테스트 '메인 보컬'" 
+        alt="[I-LAND2/9회 풀버전] '윤지윤, 최정은' ♬If I Were A Boy - Beyoncé @메인 포지션 테스트 '메인 보컬'"
+        src="https://img.youtube.com/vi/M_1iO3YLOrg/0.jpg" 
+        data-video="https://www.youtube.com/embed/M_1iO3YLOrg?autoplay=1"/>
+    
+    <img class="box boxacademic misccs video-thumbnail" 
+        title="Harvard CS50’s Introduction to Programming with Python – Full University Course" 
+        alt="Harvard CS50’s Introduction to Programming with Python – Full University Course | 4:29:09"
+        src="https://img.youtube.com/vi/nLRL_NcnK-4/0.jpg" 
+        data-video="https://www.youtube.com/embed/nLRL_NcnK-4?autoplay=1"/>
+    
+    <img class="box boxmisc bts video-thumbnail" 
+        title="[I-LAND2/9회 하이라이트] 화해는 레전드 무대를 낳고... 메인 보컬 유닛 〈If I Were A Boy〉 l 매주 목요일 밤 9시 30분 본방송" 
+        alt="[I-LAND2/9회 하이라이트] 화해는 레전드 무대를 낳고... 메인 보컬 유닛 〈If I Were A Boy〉 l 매주 목요일 밤 9시 30분 본방송"
+        src="https://img.youtube.com/vi/1Ci0-oFNzrg/0.jpg" 
+        data-video="https://www.youtube.com/embed/1Ci0-oFNzrg?autoplay=1"/>
+    
+    <img class="box boxsport figure-skating video-thumbnail" 
+        title="Yuzuru Hanyu - 羽生結弦 - One Summer's Day at GIFT" 
+        alt="Yuzuru Hanyu - 羽生結弦 - One Summer's Day at GIFT"
+        src="https://img.youtube.com/vi/imEIMbviDUk/0.jpg" 
+        data-video="https://www.youtube.com/embed/imEIMbviDUk?autoplay=1" allowfullscreen"/>
+        
+</main>
+  <div id="pop-up">
+    <button title="close pop-up!" onclick="closePopUp()">x</button>
+    <img id="pic" loading="lazy">
+    <iframe class="main" id="pop-up-iframe" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    <div id="popCap"></div>
+  </div>
+  </body>
+</html>
