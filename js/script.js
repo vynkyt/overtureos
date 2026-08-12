@@ -278,12 +278,12 @@ function initializeWindow(elementName) {
 }
 
 
-/////////////////////////// INITIALISE YOUR WINDOWS ///////////////////////////
+/////////////////////////// INITIALISE WINDOWS ///////////////////////////
 
 initializeWindow("photobook");
 initializeWindow("about");
 initializeWindow("videoarchive");
-
+initializeWindow("writingcorner");
 
 /////////////////////////// RESIZE START ///////////////////////////
 
