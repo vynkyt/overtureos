@@ -1,3 +1,17 @@
+/////////////////////////// Z-INDEX SETTINGS ///////////////////////////
+
+var biggestIndex = 1;
+
+var topBar = document.querySelector("#top");
+
+// Normal windows use these dynamically
+var TOPBAR_Z = 1000;
+
+// Fullscreen windows ALWAYS use this
+var FULLSCREEN_Z = 9999;
+
+
+
 /////////////////////////// DRAG START ///////////////////////////
 
 function dragElement(element) {
@@ -57,39 +71,59 @@ function dragElement(element) {
 }
 
 
+
 /////////////////////////// WINDOW OPEN / CLOSE ///////////////////////////
-
-var biggestIndex = 1;
-
-var topBar = document.querySelector("#top");
-
 
 function openWindow(element) {
     if (!element) return;
 
     element.style.display = "flex";
 
+    /*
+     * FULLSCREEN WINDOWS
+     * Always stay above the top bar.
+     */
+
+    if (element.classList.contains("window-fullscreen")) {
+
+        element.style.zIndex = FULLSCREEN_Z;
+
+        if (topBar) {
+            topBar.style.zIndex = TOPBAR_Z;
+        }
+
+        return;
+    }
+
+    /*
+     * NORMAL WINDOWS
+     */
+
     biggestIndex++;
+
     element.style.zIndex = biggestIndex;
 
-
     if (topBar) {
-        topBar.style.zIndex = biggestIndex + 1;
+        topBar.style.zIndex = TOPBAR_Z;
     }
 }
+
 
 function toggleWindow(element) {
     if (!element) return;
 
-    var targetName = element.getAttribute("data-window");
+    var targetName =
+        element.getAttribute("data-window");
 
     if (!targetName) return;
 
-    var targetWindow = document.getElementById(targetName);
+    var targetWindow =
+        document.getElementById(targetName);
 
     if (!targetWindow) return;
 
-    var isOpen = window.getComputedStyle(targetWindow).display !== "none";
+    var isOpen =
+        window.getComputedStyle(targetWindow).display !== "none";
 
     if (isOpen) {
         closeWindow(targetWindow);
@@ -102,7 +136,8 @@ function toggleWindow(element) {
 function closeWindow(element) {
     if (!element) return;
 
-    var windowElement = element.closest(".window");
+    var windowElement =
+        element.closest(".window");
 
     if (windowElement) {
         windowElement.style.display = "none";
@@ -110,17 +145,46 @@ function closeWindow(element) {
 }
 
 
+
 /////////////////////////// WINDOW Z-INDEX ///////////////////////////
 
 function handleWindowTap(element) {
     if (!element) return;
 
+    /*
+     * FULLSCREEN WINDOW
+     *
+     * Never let the top bar come above it.
+     */
+
+    if (element.classList.contains("window-fullscreen")) {
+
+        element.style.zIndex = FULLSCREEN_Z;
+
+        if (topBar) {
+            topBar.style.zIndex = TOPBAR_Z;
+        }
+
+        deselectIcon(selectedIcon);
+
+        return;
+    }
+
+
+    /*
+     * NORMAL WINDOW
+     */
+
     biggestIndex++;
 
     element.style.zIndex = biggestIndex;
 
+    /*
+     * Top bar stays above normal windows.
+     */
+
     if (topBar) {
-        topBar.style.zIndex = biggestIndex + 1;
+        topBar.style.zIndex = TOPBAR_Z;
     }
 
     // Deselect any selected desktop icon
@@ -137,10 +201,13 @@ function addWindowTapHandling(element) {
 }
 
 
+
 /////////////////////////// CLOSE BUTTONS ///////////////////////////
 
 function makeClosable(elementName) {
-    var windowElement = document.querySelector("#" + elementName);
+
+    var windowElement =
+        document.querySelector("#" + elementName);
 
     if (!windowElement) return;
 
@@ -150,7 +217,9 @@ function makeClosable(elementName) {
     if (!closeButton) return;
 
     closeButton.addEventListener("click", function (e) {
+
         e.stopPropagation();
+
         closeWindow(closeButton);
     });
 }
@@ -161,11 +230,16 @@ var closeButtons =
 
 
 closeButtons.forEach(function (button) {
+
     button.addEventListener("click", function (e) {
+
         e.stopPropagation();
+
         closeWindow(button);
     });
+
 });
+
 
 
 /////////////////////////// OPEN BUTTONS ///////////////////////////
@@ -173,12 +247,15 @@ closeButtons.forEach(function (button) {
 var openButtons =
     document.querySelectorAll(".openwindow");
 
+
 openButtons.forEach(function (button) {
 
     button.addEventListener("click", function (e) {
+
         e.stopPropagation();
 
         toggleWindow(button);
+
     });
 
 });
@@ -195,7 +272,9 @@ function selectIcon(element) {
 
     // Deselect previously selected icon
     if (selectedIcon && selectedIcon !== element) {
+
         selectedIcon.classList.remove("selected");
+
     }
 
     element.classList.add("selected");
@@ -205,6 +284,7 @@ function selectIcon(element) {
 
 
 function deselectIcon(element) {
+
     if (element) {
         element.classList.remove("selected");
     }
@@ -214,17 +294,20 @@ function deselectIcon(element) {
 
 
 function handleIconTap(element) {
+
     if (!element) return;
 
     if (element.classList.contains("selected")) {
 
         // Second click = open the window
+
         deselectIcon(element);
 
         var targetName =
             element.getAttribute("data-window");
 
         if (targetName) {
+
             var targetWindow =
                 document.getElementById(targetName);
 
@@ -234,9 +317,11 @@ function handleIconTap(element) {
     } else {
 
         // First click = select icon
+
         selectIcon(element);
     }
 }
+
 
 
 /////////////////////////// ICON INITIALISATION ///////////////////////////
@@ -246,11 +331,17 @@ var appIcons =
 
 
 appIcons.forEach(function (icon) {
+
     icon.addEventListener("click", function (e) {
+
         e.stopPropagation();
+
         handleIconTap(icon);
+
     });
+
 });
+
 
 
 /////////////////////////// WINDOW INITIALISATION ///////////////////////////
@@ -261,9 +352,11 @@ function initializeWindow(elementName) {
         document.querySelector("#" + elementName);
 
     if (!screen) {
+
         console.warn(
             "Window not found: #" + elementName
         );
+
         return;
     }
 
@@ -278,6 +371,7 @@ function initializeWindow(elementName) {
 }
 
 
+
 /////////////////////////// INITIALISE WINDOWS ///////////////////////////
 
 initializeWindow("photobook");
@@ -285,249 +379,396 @@ initializeWindow("about");
 initializeWindow("videoarchive");
 initializeWindow("writingcorner");
 
+
+
 /////////////////////////// RESIZE START ///////////////////////////
 
 document.querySelectorAll(".window").forEach(windowEl => {
 
-  const directions = [
-    "top",
-    "bottom",
-    "left",
-    "right",
-    "top-left",
-    "top-right",
-    "bottom-left",
-    "bottom-right"
-  ];
+    const directions = [
+        "top",
+        "bottom",
+        "left",
+        "right",
+        "top-left",
+        "top-right",
+        "bottom-left",
+        "bottom-right"
+    ];
 
-  directions.forEach(direction => {
-    const handle = document.createElement("div");
 
-    handle.className = `window-resize ${direction}`;
-    handle.dataset.direction = direction;
+    directions.forEach(direction => {
 
-    windowEl.appendChild(handle);
-  });
+        const handle =
+            document.createElement("div");
 
-  let resizing = false;
-  let direction = "";
+        handle.className =
+            `window-resize ${direction}`;
 
-  let startX = 0;
-  let startY = 0;
+        handle.dataset.direction =
+            direction;
 
-  let startWidth = 0;
-  let startHeight = 0;
+        windowEl.appendChild(handle);
 
-  let startLeft = 0;
-  let startTop = 0;
-
-  const minWidth = 260;
-  const minHeight = 180;
-
-  windowEl.querySelectorAll(".window-resize").forEach(handle => {
-
-    handle.addEventListener("mousedown", e => {
-    
-      if (windowEl.classList.contains("window-fullscreen")) {
-        return;
-    }
-
-      e.preventDefault();
-      e.stopPropagation();
-
-      resizing = true;
-      direction = handle.dataset.direction;
-
-      startX = e.clientX;
-      startY = e.clientY;
-
-      const rect = windowEl.getBoundingClientRect();
-
-      startWidth = rect.width;
-      startHeight = rect.height;
-
-      startLeft = rect.left;
-      startTop = rect.top;
-
-      document.body.style.userSelect = "none";
     });
 
-  });
 
-  document.addEventListener("mousemove", e => {
+    let resizing = false;
+    let direction = "";
 
-    if (!resizing) return;
+    let startX = 0;
+    let startY = 0;
 
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
+    let startWidth = 0;
+    let startHeight = 0;
 
-    let newWidth = startWidth;
-    let newHeight = startHeight;
+    let startLeft = 0;
+    let startTop = 0;
 
-    let newLeft = startLeft;
-    let newTop = startTop;
+    const minWidth = 260;
+    const minHeight = 180;
 
-    /* --------------------------------
-       RIGHT
-    -------------------------------- */
 
-    if (
-      direction === "right" ||
-      direction === "top-right" ||
-      direction === "bottom-right"
-    ) {
-      newWidth = startWidth + dx;
-    }
+    windowEl.querySelectorAll(".window-resize").forEach(handle => {
 
-    /* --------------------------------
-       LEFT
-    -------------------------------- */
+        handle.addEventListener("mousedown", e => {
 
-    if (
-      direction === "left" ||
-      direction === "top-left" ||
-      direction === "bottom-left"
-    ) {
-      newWidth = startWidth - dx;
-      newLeft = startLeft + dx;
-    }
+            /*
+             * Do not allow resizing fullscreen windows.
+             */
 
-    /* --------------------------------
-       BOTTOM
-    -------------------------------- */
+            if (
+                windowEl.classList.contains(
+                    "window-fullscreen"
+                )
+            ) {
+                return;
+            }
 
-    if (
-      direction === "bottom" ||
-      direction === "bottom-left" ||
-      direction === "bottom-right"
-    ) {
-      newHeight = startHeight + dy;
-    }
+            e.preventDefault();
+            e.stopPropagation();
 
-    /* --------------------------------
-       TOP
-    -------------------------------- */
+            /*
+             * Bring normal window to front
+             */
 
-    if (
-      direction === "top" ||
-      direction === "top-left" ||
-      direction === "top-right"
-    ) {
-      newHeight = startHeight - dy;
-      newTop = startTop + dy;
-    }
+            handleWindowTap(windowEl);
 
-    /* --------------------------------
-       MINIMUM SIZE
-    -------------------------------- */
+            resizing = true;
 
-    if (newWidth < minWidth) {
+            direction =
+                handle.dataset.direction;
 
-      if (
-        direction === "left" ||
-        direction === "top-left" ||
-        direction === "bottom-left"
-      ) {
-        newLeft = startLeft + (startWidth - minWidth);
-      }
+            startX = e.clientX;
+            startY = e.clientY;
 
-      newWidth = minWidth;
-    }
+            const rect =
+                windowEl.getBoundingClientRect();
 
-    if (newHeight < minHeight) {
+            startWidth = rect.width;
+            startHeight = rect.height;
 
-      if (
-        direction === "top" ||
-        direction === "top-left" ||
-        direction === "top-right"
-      ) {
-        newTop = startTop + (startHeight - minHeight);
-      }
+            startLeft = rect.left;
+            startTop = rect.top;
 
-      newHeight = minHeight;
-    }
+            document.body.style.userSelect =
+                "none";
 
-    /* --------------------------------
-       KEEP WINDOW INSIDE VIEWPORT
-    -------------------------------- */
+        });
 
-    const maxWidth = window.innerWidth - newLeft - 10;
-    const maxHeight = window.innerHeight - newTop - 10;
+    });
 
-    newWidth = Math.min(newWidth, maxWidth);
-    newHeight = Math.min(newHeight, maxHeight);
 
-    /* --------------------------------
-       APPLY
-    -------------------------------- */
+    document.addEventListener("mousemove", e => {
 
-    windowEl.style.width = `${newWidth}px`;
-    windowEl.style.height = `${newHeight}px`;
+        if (!resizing) return;
 
-    windowEl.style.left = `${newLeft}px`;
-    windowEl.style.top = `${newTop}px`;
+        const dx =
+            e.clientX - startX;
 
-  });
+        const dy =
+            e.clientY - startY;
 
-  document.addEventListener("mouseup", () => {
 
-    if (!resizing) return;
+        let newWidth =
+            startWidth;
 
-    resizing = false;
-    direction = "";
+        let newHeight =
+            startHeight;
 
-    document.body.style.userSelect = "";
+        let newLeft =
+            startLeft;
 
-  });
+        let newTop =
+            startTop;
+
+
+        /* --------------------------------
+           RIGHT
+        -------------------------------- */
+
+        if (
+            direction === "right" ||
+            direction === "top-right" ||
+            direction === "bottom-right"
+        ) {
+
+            newWidth =
+                startWidth + dx;
+
+        }
+
+
+        /* --------------------------------
+           LEFT
+        -------------------------------- */
+
+        if (
+            direction === "left" ||
+            direction === "top-left" ||
+            direction === "bottom-left"
+        ) {
+
+            newWidth =
+                startWidth - dx;
+
+            newLeft =
+                startLeft + dx;
+
+        }
+
+
+        /* --------------------------------
+           BOTTOM
+        -------------------------------- */
+
+        if (
+            direction === "bottom" ||
+            direction === "bottom-left" ||
+            direction === "bottom-right"
+        ) {
+
+            newHeight =
+                startHeight + dy;
+
+        }
+
+
+        /* --------------------------------
+           TOP
+        -------------------------------- */
+
+        if (
+            direction === "top" ||
+            direction === "top-left" ||
+            direction === "top-right"
+        ) {
+
+            newHeight =
+                startHeight - dy;
+
+            newTop =
+                startTop + dy;
+
+        }
+
+
+        /* --------------------------------
+           MINIMUM SIZE
+        -------------------------------- */
+
+        if (newWidth < minWidth) {
+
+            if (
+                direction === "left" ||
+                direction === "top-left" ||
+                direction === "bottom-left"
+            ) {
+
+                newLeft =
+                    startLeft +
+                    (startWidth - minWidth);
+
+            }
+
+            newWidth =
+                minWidth;
+
+        }
+
+
+        if (newHeight < minHeight) {
+
+            if (
+                direction === "top" ||
+                direction === "top-left" ||
+                direction === "top-right"
+            ) {
+
+                newTop =
+                    startTop +
+                    (startHeight - minHeight);
+
+            }
+
+            newHeight =
+                minHeight;
+
+        }
+
+
+        /* --------------------------------
+           KEEP WINDOW INSIDE VIEWPORT
+        -------------------------------- */
+
+        const maxWidth =
+            window.innerWidth -
+            newLeft -
+            10;
+
+        const maxHeight =
+            window.innerHeight -
+            newTop -
+            10;
+
+
+        newWidth =
+            Math.min(
+                newWidth,
+                maxWidth
+            );
+
+        newHeight =
+            Math.min(
+                newHeight,
+                maxHeight
+            );
+
+
+        /* --------------------------------
+           PREVENT NEGATIVE POSITION
+        -------------------------------- */
+
+        newLeft =
+            Math.max(
+                0,
+                newLeft
+            );
+
+        newTop =
+            Math.max(
+                0,
+                newTop
+            );
+
+
+        /* --------------------------------
+           APPLY
+        -------------------------------- */
+
+        windowEl.style.width =
+            `${newWidth}px`;
+
+        windowEl.style.height =
+            `${newHeight}px`;
+
+        windowEl.style.left =
+            `${newLeft}px`;
+
+        windowEl.style.top =
+            `${newTop}px`;
+
+    });
+
+
+    document.addEventListener("mouseup", () => {
+
+        if (!resizing) return;
+
+        resizing = false;
+
+        direction = "";
+
+        document.body.style.userSelect =
+            "";
+
+    });
 
 });
+
+
 
 /////////////////////////// FULLSCREEN BUTTONS ///////////////////////////
 
 function toggleFullscreenWindow(button) {
+
     if (!button) return;
 
-    var windowElement = button.closest(".window");
+    var windowElement =
+        button.closest(".window");
 
     if (!windowElement) return;
 
+
     /* --------------------------------
-   ENTER FULLSCREEN
--------------------------------- */
+       ENTER FULLSCREEN
+    -------------------------------- */
 
-if (!windowElement.classList.contains("window-fullscreen")) {
+    if (
+        !windowElement.classList.contains(
+            "window-fullscreen"
+        )
+    ) {
 
-    // Save current position and size
-    windowElement.dataset.oldWidth =
-        windowElement.offsetWidth + "px";
+        // Save current position and size
 
-    windowElement.dataset.oldHeight =
-        windowElement.offsetHeight + "px";
+        windowElement.dataset.oldWidth =
+            windowElement.offsetWidth + "px";
 
-    windowElement.dataset.oldLeft =
-        windowElement.offsetLeft + "px";
+        windowElement.dataset.oldHeight =
+            windowElement.offsetHeight + "px";
 
-    windowElement.dataset.oldTop =
-        windowElement.offsetTop + "px";
+        windowElement.dataset.oldLeft =
+            windowElement.offsetLeft + "px";
 
-
-    // Enter fullscreen
-    windowElement.classList.add("window-fullscreen");
+        windowElement.dataset.oldTop =
+            windowElement.offsetTop + "px";
 
 
-    // Bring fullscreen window ABOVE top bar
-    biggestIndex++;
+        // Enter fullscreen
 
-    windowElement.style.zIndex = biggestIndex + 2;
+        windowElement.classList.add(
+            "window-fullscreen"
+        );
 
-    if (topBar) {
-        topBar.style.zIndex = biggestIndex + 1;
+
+        /*
+         * FULLSCREEN ALWAYS ABOVE EVERYTHING
+         */
+
+        windowElement.style.zIndex =
+            FULLSCREEN_Z;
+
+
+        /*
+         * Top bar stays below fullscreen.
+         */
+
+        if (topBar) {
+
+            topBar.style.zIndex =
+                TOPBAR_Z;
+
+        }
+
+
+        // Change button icon
+
+        button.textContent =
+            "❐";
+
     }
 
-
-    // Change button icon
-    button.textContent = "❐";
-}
 
     /* --------------------------------
        EXIT FULLSCREEN
@@ -535,37 +776,76 @@ if (!windowElement.classList.contains("window-fullscreen")) {
 
     else {
 
-        windowElement.classList.remove("window-fullscreen");
+        windowElement.classList.remove(
+            "window-fullscreen"
+        );
+
 
         // Restore previous size
+
         windowElement.style.width =
             windowElement.dataset.oldWidth;
 
         windowElement.style.height =
             windowElement.dataset.oldHeight;
 
+
         // Restore previous position
+
         windowElement.style.left =
             windowElement.dataset.oldLeft;
 
         windowElement.style.top =
             windowElement.dataset.oldTop;
 
-        button.textContent = "□";
+
+        /*
+         * Return window to normal stacking.
+         */
+
+        biggestIndex++;
+
+        windowElement.style.zIndex =
+            biggestIndex;
+
+
+        if (topBar) {
+
+            topBar.style.zIndex =
+                TOPBAR_Z;
+
+        }
+
+
+        button.textContent =
+            "□";
+
     }
+
 }
 
 
+
+/////////////////////////// FULLSCREEN INITIALISATION ///////////////////////////
+
 var fullscreenButtons =
-    document.querySelectorAll(".fullscreenwindow");
+    document.querySelectorAll(
+        ".fullscreenwindow"
+    );
+
 
 fullscreenButtons.forEach(function (button) {
 
-    button.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
+    button.addEventListener(
+        "click",
+        function (e) {
 
-        toggleFullscreenWindow(button);
-    });
+            e.preventDefault();
+            e.stopPropagation();
+
+            toggleFullscreenWindow(button);
+
+        }
+    );
 
 });
