@@ -1,8 +1,39 @@
 # OvertureOS
 
-Fairytale-themed OS for personal productivity.
+Fairytale-themed OS for personal productivity. I initially intended to create a personal site to organise my life in a way that can be completely styled to my vision and liking, in this case in a whimsical fairytale theme (with many elements from *Ever After High*!).
 
 ---
+# Main Process
+
+## Foundation
+
+I started by following the Hack Club guide step-by-step so I could have a basic OS interface to add upon later, then just kept refining the style via css + adding apps that I thought might be useful for myself.
+
+## Deployment
+
+For deployment, I considered using GitHub pages to link all my projects onto one page but decided to learn how to import from GitHub to Vercel. This surprisingly took a while cuz I didn't have much experience in Vercel's interface.
+
+## Miscellaneous Challenges
+
+1. Forgot how to clone a GitHub repo properly 😭 Ended up creating a new branch, *master*, while Vercel deployment was reading from *main* branch. Deleted the *master* branch and dealth with git pull and merging issues. Spent majority of time just figuring this out!
+2. I SPENT 2 HOURS wondering why my windows weren’t draggable. I spent that time tweaking my html and js files, but I DIDN’T EVEN ATTACH THE SCRIPT to my main html. L
+---
+
+# Tech Stack
+
+- HTML/CSS/JS
+- Local Storage
+- YouTube Embeds
+
+## Tools
+
+- Visual Studio Code
+
+## Hosting
+
+- Vercel
+---
+
 # Top Bar
 
 Features the name, *OvertureOS*, a reload button (to reload the page in fullscreen), my main signature, as well as the time!
