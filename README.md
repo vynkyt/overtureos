@@ -4,6 +4,7 @@ Welcome to *OvertureOS*!
 <div style="text-align">
 <img src="https://i.pinimg.com/1200x/80/6d/33/806d331cd9a571ae2f362186763e71ad.jpg" style="width:100%">
 </div>
+
 Fairytale-themed OS for personal productivity. I initially intended to create a personal site to organise my life in a way that can be completely styled to my vision and liking, in this case in a whimsical fairytale theme (with many elements from *Ever After High*!).
 
 ---
