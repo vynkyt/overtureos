@@ -21,7 +21,7 @@ Features the name, *OvertureOS*, a reload button (to reload the page in fullscre
 
 Aka apps that didn't make it to the deployment stage.
 
-- MP3 player: I tried to add an MP3 player that I built for my old site as an iframe but there were many broken links and images that it was too much of a hassle. Might add it in afterwards or rebuild it from scratch.
+- **MP3 player**: I tried to add an MP3 player that I built for my old site as an iframe but there were many broken links and images that it was too much of a hassle. Might add it in afterwards or rebuild it from scratch.
 ---
 
 # Guide to OvertureOS
