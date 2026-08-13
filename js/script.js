@@ -378,7 +378,7 @@ initializeWindow("photobook");
 initializeWindow("about");
 initializeWindow("videoarchive");
 initializeWindow("writingcorner");
-
+initializeWindow("CV");
 
 
 /////////////////////////// RESIZE START ///////////////////////////
@@ -764,8 +764,8 @@ function toggleFullscreenWindow(button) {
 
         // Change button icon
 
-        button.textContent =
-            "❐";
+        // button.textContent =
+        //     "❐";
 
     }
 
@@ -817,8 +817,8 @@ function toggleFullscreenWindow(button) {
         }
 
 
-        button.textContent =
-            "□";
+        // button.textContent =
+        //     "□";
 
     }
 

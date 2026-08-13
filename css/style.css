@@ -64,20 +64,48 @@ iframe {
 	border: none;
 }
 
-.windowcontent::-webkit-scrollbar {
+#s-m-t-tooltip {
+    max-width: 300px;
+
+    font-family: "BalsamiqSans", Georgia, serif;
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+
+    z-index: 9999;
+
+    margin: 30px 15px 7px 12px;
+    padding: 7px 10px;
+
+    border-radius: 10px;
+    border: 2px solid rgba(255, 175, 204, 0.6);
+
+    color: #70243f;
+
+    background: rgba(255, 245, 249, 0.92);
+
+    /* box-shadow:
+        0 8px 25px rgba(50, 12, 28, 0.18),
+        0 0 0 1px rgba(255, 255, 255, 0.5) inset; */
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+::-webkit-scrollbar {
   width: 6px;
 }
 
-.windowcontent::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: rgba(255, 220, 235, 0.25);
 }
 
-.windowcontent::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
   background: rgba(255, 150, 190, 0.55);
   border-radius: 10px;
 }
 
-.windowcontent::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover {
   background: rgba(200, 80, 120, 0.7);
 }
 
@@ -359,7 +387,7 @@ iframe {
 }
 
 /* The three dots decorative header accent */
-.windowheader::before {
+/* .windowheader::before {
     content: '';
     position: absolute;
     left: 14px;
@@ -370,6 +398,68 @@ iframe {
     border-radius: 50%;
     background: rgba(255, 150, 190, 0.7);
     box-shadow: 12px 0 0 rgba(255, 200, 220, 0.6), 24px 0 0 rgba(255, 230, 240, 0.5);
+} */
+
+.window-dots {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    z-index: 10;
+}
+
+.window-dots span,
+.window-dots .fullscreenwindow {
+    width: 8px;
+    height: 8px;
+
+    min-width: 8px;
+    min-height: 8px;
+
+    padding: 0;
+    margin: 0;
+
+    border-radius: 50%;
+    border: none;
+
+    box-sizing: border-box;
+}
+
+/* First dot = fullscreen */
+.window-dots .fullscreenwindow {
+    position: relative;
+
+    top: auto;
+    right: auto;
+
+    transform: none;
+
+    background: rgba(255, 150, 190, 0.7);
+
+    cursor: pointer;
+
+    display: block;
+}
+
+/* Other two decorative dots */
+.window-dots span:nth-child(2) {
+    background: rgba(255, 200, 220, 0.6);
+}
+
+.window-dots span:nth-child(3) {
+    background: rgba(255, 230, 240, 0.5);
+}
+
+/* Hover effect on fullscreen dot */
+.window-dots .fullscreenwindow:hover {
+    background: rgba(255, 120, 170, 0.95);
+    border: none;
+    box-shadow: 0 0 8px rgba(255, 150, 190, 0.6);
 }
 
 .closewindow {
@@ -399,7 +489,7 @@ iframe {
     border-color: rgba(200, 80, 120, 0.6);
 }
 
-.fullscreenwindow {
+/* .fullscreenwindow {
     position: absolute;
 
     right: 42px;
@@ -434,7 +524,7 @@ iframe {
     transition:
         background 0.15s ease,
         border-color 0.15s ease;
-}
+} */
 
 .fullscreenwindow:hover {
     background: rgba(255, 150, 190, 0.4);
@@ -471,7 +561,7 @@ iframe {
     margin: 0;
     border-bottom-left-radius: 18px;
     border-bottom-right-radius: 18px;
-    padding: 22px 24px;
+    padding: 22px 25px;
     color: #3a1020;
     font-size: 13px;
     line-height: 1.7;
@@ -511,7 +601,7 @@ iframe {
 }
 
 .windowiframe {
-	display: block;
+	display: flex;
     flex: 1 1 auto;
     width: 100%;
     height: 0;

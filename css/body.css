@@ -208,7 +208,7 @@ figcaption {
 	}
 }
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
 	width: 8px;
 	height: 8px;
 }
@@ -225,4 +225,4 @@ figcaption {
 
 ::-webkit-scrollbar-track {
 	background-color: #fffcdc;
-}
+} */

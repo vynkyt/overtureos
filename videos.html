@@ -10,25 +10,26 @@
 	<link href="./fonts/stylesheet.css" rel="stylesheet" type="text/css" media="all">
 	<link href="./css/body.css" rel="stylesheet" type="text/css" media="all">
 	<link href="./css/entry.css" rel="stylesheet" type="text/css" media="all">
+    <link href="./css/style.css" rel="stylesheet" type="text/css" media="all">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
     <script src="./js/tooltip.js"></script>
     
 
 <style>
+body {
+    overflow: auto;
+    background: url("https://tora7.ciao.jp/sozai322/sozai-hana/happa-p.jpg") repeat fixed top left;
+    background-size: auto;
+    color: #872A4E;
+    font-family: "balsamiq sans";
+}
 @font-face {
     font-family: "balsamiq sans";
     src: url("https://imp.neocities.org/layouts/spacehey/sickly-sweet/BalsamiqSans-Regular.ttf");
 }
 
 * {cursor: url(https://cur.cursors-4u.net/others/oth-4/oth305.cur), auto !important;} /* End https://www.cursors-4u.com */
-                         
-                            
-body {
-    background-image: url("https://tora7.ciao.jp/sozai322/sozai-hana/happa-p.jpg");
-    color: #872A4E;
-    font-family: "balsamiq sans";
-}
-
+                    
 
 h1 {
     text-align: center;
@@ -75,7 +76,11 @@ aside {
     overflow-wrap: anywhere;
 }
 
-#sidebar button {
+button {
+    font-size: 12px;
+    text-align: left;
+}
+/* #sidebar button {
     font-family: "balsamiq sans";
     position: relative;
 	background: #ffafcc;
@@ -90,7 +95,7 @@ aside {
 #sidebar button.active {
 	background: #FFE6F0;
 	color: #ffafcc;
-}
+} */
 
 img.center {
   display: block;
