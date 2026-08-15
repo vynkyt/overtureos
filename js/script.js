@@ -849,3 +849,11 @@ fullscreenButtons.forEach(function (button) {
     );
 
 });
+
+/////////////////////////// NOTICEBOARD ///////////////////////////
+const noticeboard = document.getElementById("noticeboard");
+const noticeboardToggle = document.getElementById("noticeboardToggle");
+
+noticeboardToggle.addEventListener("click", () => {
+    noticeboard.classList.toggle("noticeboard-open");
+});
