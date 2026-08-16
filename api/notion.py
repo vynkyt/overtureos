@@ -893,6 +893,42 @@ class handler(BaseHTTPRequestHandler):
 
 
             # -------------------------------------------------
+            # DEBUG SEARCH RAW
+            # -------------------------------------------------
+
+            if action == "raw_search":
+
+                result = notion_request(
+                    "POST",
+                    "/search",
+                    {
+                        "page_size": 100,
+                    }
+                )
+
+                summary = []
+
+                for item in result.get("results", []):
+
+                    summary.append({
+                        "object": item.get("object"),
+                        "id": item.get("id"),
+                        "json": json.dumps(item)[:600],
+                    })
+
+                send_json(
+                    self,
+                    200,
+                    {
+                        "ok": True,
+                        "items": summary
+                    }
+                )
+
+                return
+
+
+            # -------------------------------------------------
             # DEBUG BLOCKS
             # -------------------------------------------------
 
