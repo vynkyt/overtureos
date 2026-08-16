@@ -472,7 +472,7 @@
         if (hasChildren) {
 
             /*
-             * Collapse toggle. Default is expanded.
+             * Collapse toggle. Default is collapsed.
              */
 
             const toggle =
@@ -486,7 +486,7 @@
                 "notion-toggle";
 
             toggle.textContent =
-                "▾";
+                "▸";
 
             toggle.title =
                 "Collapse / expand";
@@ -521,7 +521,7 @@
                 );
 
             childrenEl.className =
-                "notion-tree-children";
+                "notion-tree-children collapsed";
 
             node.children.forEach(
                 child => {
