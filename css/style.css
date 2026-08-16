@@ -2261,3 +2261,131 @@ li {
 
     font-weight: 600;
 }
+
+
+/* =========================================================
+   NOTION: COLLAPSIBLE TREE
+========================================================= */
+
+.notion-tree-row {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: stretch;
+}
+
+
+.notion-toggle {
+
+    flex: 0 0 auto;
+
+    width: 16px;
+
+    height: 16px;
+
+    margin-left: -3px;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 3px;
+
+    background: transparent;
+
+    color: #8a877f;
+
+    font-size: 10px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    font-family: inherit;
+}
+
+
+.notion-toggle:hover {
+
+    background: rgba(0,0,0,.10);
+
+    color: #222;
+}
+
+
+.notion-tree-children {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: stretch;
+}
+
+
+.notion-tree-children.collapsed {
+
+    display: none;
+}
+
+
+/* =========================================================
+   NOTION: EMBEDDED DATABASE (inside a page)
+========================================================= */
+
+.notion-embedded-db {
+
+    margin: 10px 0 18px;
+
+    padding: 0;
+
+    color: #4c4943;
+}
+
+
+.notion-embedded-db-head {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 8px;
+
+    font-size: 13px;
+}
+
+
+.notion-embedded-db-icon {
+
+    font-size: 14px;
+}
+
+
+.notion-embedded-db-title {
+
+    font-weight: 600;
+}
+
+
+.notion-embedded-db > .notion-db-table {
+
+    font-size: 11px;
+}
+
+
+.notion-embedded-db .notion-db-table th {
+
+    font-size: 10px;
+
+    padding: 6px 9px;
+}
+
+
+.notion-embedded-db .notion-db-table td {
+
+    padding: 5px 9px;
+}

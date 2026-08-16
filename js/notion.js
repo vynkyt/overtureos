@@ -345,7 +345,8 @@
 
     function renderPageNode(
         node,
-        depth
+        depth,
+        container
     ) {
 
         const page =
@@ -353,6 +354,21 @@
 
         const isDatabase =
             page.type === "database";
+
+        const hasChildren =
+            node.children.length > 0;
+
+        const parent =
+            container || pageList;
+
+
+        const row =
+            document.createElement(
+                "div"
+            );
+
+        row.className =
+            "notion-tree-row";
 
 
         const button =
@@ -418,24 +434,89 @@
         );
 
 
-        pageList.appendChild(
+        row.appendChild(
             button
         );
 
 
-        /*
-         * Children
-         */
+        let childrenEl = null;
 
-        node.children.forEach(
-            child => {
+        if (hasChildren) {
 
-                renderPageNode(
-                    child,
-                    depth + 1
+            /*
+             * Collapse toggle. Default is expanded.
+             */
+
+            const toggle =
+                document.createElement(
+                    "button"
                 );
 
-            }
+            toggle.type = "button";
+
+            toggle.className =
+                "notion-toggle";
+
+            toggle.textContent =
+                "▾";
+
+            toggle.title =
+                "Collapse / expand";
+
+            toggle.addEventListener(
+                "click",
+                function (event) {
+
+                    event.stopPropagation();
+
+                    const collapsed =
+                        childrenEl.classList.toggle(
+                            "collapsed"
+                        );
+
+                    toggle.textContent =
+                        collapsed ? "▸" : "▾";
+
+                }
+            );
+
+
+            button.insertBefore(
+                toggle,
+                button.firstChild
+            );
+
+
+            childrenEl =
+                document.createElement(
+                    "div"
+                );
+
+            childrenEl.className =
+                "notion-tree-children";
+
+            node.children.forEach(
+                child => {
+
+                    renderPageNode(
+                        child,
+                        depth + 1,
+                        childrenEl
+                    );
+
+                }
+            );
+
+
+            row.appendChild(
+                childrenEl
+            );
+
+        }
+
+
+        parent.appendChild(
+            row
         );
 
     }
@@ -552,6 +633,65 @@
 
 
     /* =====================================================
+       ORDER COLUMNS (from NOTION_CONFIG)
+    ===================================================== */
+
+    function orderColumns(db, props) {
+
+        const config =
+            window.NOTION_CONFIG;
+
+        if (
+            !config ||
+            !config.columnOrder
+        ) {
+            return props;
+        }
+
+        const order =
+            config.columnOrder[db.id] ||
+            config.columnOrder[db.title] ||
+            null;
+
+        if (!order || !order.length) {
+            return props;
+        }
+
+        const ordered = [];
+        const leftovers = [];
+
+        props.forEach(col => {
+
+            const index =
+                order.indexOf(
+                    col.name
+                );
+
+            if (index === -1) {
+
+                leftovers.push(
+                    col
+                );
+
+            } else {
+
+                ordered[index] =
+                    col;
+
+            }
+
+        });
+
+        return ordered
+            .filter(Boolean)
+            .concat(
+                leftovers
+            );
+
+    }
+
+
+    /* =====================================================
        RENDER DATABASE
     ===================================================== */
 
@@ -561,7 +701,10 @@
             data.database || {};
 
         const props =
-            data.properties || [];
+            orderColumns(
+                db,
+                data.properties || []
+            );
 
         const rows =
             data.rows || [];
@@ -592,6 +735,33 @@
 
         });
 
+
+        const statusOptionsRef =
+            statusOptions;
+
+        content.innerHTML =
+            buildDatabaseHtml(
+                db,
+                props,
+                rows
+            );
+
+
+        wireDatabaseToggles(
+            content,
+            props,
+            rows,
+            statusOptionsRef
+        );
+
+    }
+
+
+    /* =====================================================
+       BUILD DATABASE HTML
+    ===================================================== */
+
+    function buildDatabaseHtml(db, props, rows) {
 
         let tableHtml = "";
 
@@ -670,9 +840,9 @@
             }).join("");
 
 
-        content.innerHTML =
+        return `
 
-            `<div class="notion-database">
+            <div class="notion-database">
 
                 ${rows.length === 0
                     ? `<div class="notion-loading">
@@ -688,13 +858,9 @@
                     `
                 }
 
-            </div>`;
+            </div>
 
-
-        wireDatabaseToggles(
-            props,
-            rows
-        );
+        `;
 
     }
 
@@ -953,8 +1119,10 @@
     ===================================================== */
 
     function wireDatabaseToggles(
+        container,
         props,
-        rows
+        rows,
+        statusOptionsRef
     ) {
 
         /*
@@ -962,7 +1130,7 @@
          */
 
         const checkboxes =
-            content.querySelectorAll(
+            container.querySelectorAll(
                 ".notion-db-checkbox"
             );
 
@@ -1048,7 +1216,7 @@
          */
 
         const statuses =
-            content.querySelectorAll(
+            container.querySelectorAll(
                 ".notion-db-status"
             );
 
@@ -1071,7 +1239,7 @@
                         st.textContent.trim();
 
                     const options =
-                        statusOptions[propId] || ["Not started", "In progress", "Done"];
+                        (statusOptionsRef || statusOptions)[propId] || ["Not started", "In progress", "Done"];
 
                     const next =
                         options[
@@ -1200,6 +1368,37 @@
         });
 
 
+        /*
+         * Embedded databases.
+         *
+         * Notion's enhanced markdown embeds inline databases
+         * as `<database url="..." data-source-url="collection://<id>">
+         * Title</database>`. Swap each one for a placeholder
+         * div that gets filled in below.
+         */
+
+        const embeddedDBs = [];
+
+        markdown = markdown.replace(
+            /<database\b[^>]*?(?:data-source-url="collection:\/\/([0-9a-f-]+)")[^>]*>([\s\S]*?)<\/database>/gi,
+            function (match, dbId, titleText) {
+
+                const index =
+                    embeddedDBs.length;
+
+                embeddedDBs.push({
+                    id: (dbId || "").trim(),
+                    title: (titleText || "").trim()
+                });
+
+                return (
+                    `<div class="notion-embedded-db" data-db-index="${index}">loading…</div>`
+                );
+
+            }
+        );
+
+
         const rawHTML =
             marked.parse(
                 markdown
@@ -1232,6 +1431,31 @@
             </div>
 
         `;
+
+
+        /*
+         * Fill the embedded database placeholders.
+         */
+
+        embeddedDBs.forEach(
+            (entry, index) => {
+
+                const holder =
+                    content.querySelector(
+                        `.notion-embedded-db[data-db-index="${index}"]`
+                    );
+
+                if (holder) {
+
+                    loadEmbeddedDatabase(
+                        holder,
+                        entry
+                    );
+
+                }
+
+            }
+        );
 
 
         /*
@@ -1454,6 +1678,140 @@
          */
 
         content.scrollTop = 0;
+
+    }
+
+
+    /* =====================================================
+       EMBEDDED DATABASE (inside a page)
+    ===================================================== */
+
+    const embeddedCache = {};
+
+    async function loadEmbeddedDatabase(
+        holder,
+        entry
+    ) {
+
+        if (!entry.id) {
+
+            holder.textContent =
+                "(database unavailable)";
+
+            return;
+
+        }
+
+        if (embeddedCache[entry.id]) {
+
+            renderEmbeddedDatabase(
+                holder,
+                entry,
+                embeddedCache[entry.id]
+            );
+
+            return;
+
+        }
+
+        try {
+
+            const data =
+                await notionAPI(
+                    "database",
+                    {
+                        id: entry.id
+                    }
+                );
+
+            embeddedCache[entry.id] =
+                data;
+
+            renderEmbeddedDatabase(
+                holder,
+                entry,
+                data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Notion embedded database error:",
+                error
+            );
+
+            holder.textContent =
+                "Couldn't load database.";
+
+        }
+
+    }
+
+
+    function renderEmbeddedDatabase(
+        holder,
+        entry,
+        data
+    ) {
+
+        const db =
+            data.database || {};
+
+        const props =
+            orderColumns(
+                db,
+                data.properties || []
+            );
+
+        const rows =
+            data.rows || [];
+
+        const statusOptionsRef = {};
+
+        props.forEach(col => {
+
+            if (
+                col.type === "status" &&
+                Array.isArray(col.options)
+            ) {
+
+                statusOptionsRef[col.id] =
+                    col.options;
+
+            }
+
+        });
+
+        const title =
+            entry.title ||
+            db.title ||
+            "Untitled";
+
+        holder.innerHTML =
+
+            `<div class="notion-embedded-db-head">
+
+                <span class="notion-embedded-db-icon">🗄️</span>
+
+                <span class="notion-embedded-db-title">
+                    ${escapeHTML(title)}
+                </span>
+
+            </div>
+
+            ${buildDatabaseHtml(
+                db,
+                props,
+                rows
+            )}`;
+
+
+        wireDatabaseToggles(
+            holder,
+            props,
+            rows,
+            statusOptionsRef
+        );
 
     }
 

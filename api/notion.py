@@ -296,11 +296,25 @@ def extract_property_value(prop):
 # ---------------------------------------------------------
 
 def normalise_database(database):
+    parent_id = extract_parent(database)
+
+    # data_source objects carry both `parent` (the internal
+    # child_database block) and `database_parent` (the page or
+    # database that actually contains this inline database).
+    # The frontend builds its tree from parent_id, so use the
+    # real container to nest databases under their subject page.
+    database_parent = database.get("database_parent") or {}
+
+    if database_parent.get("type") == "page_id":
+        parent_id = database_parent.get("page_id")
+    elif database_parent.get("type") == "database_id":
+        parent_id = database_parent.get("database_id")
+
     return {
         "id": database.get("id"),
         "title": extract_title(database),
         "icon": extract_icon(database),
-        "parent_id": extract_parent(database),
+        "parent_id": parent_id,
         "url": database.get("url"),
         "last_edited_time": database.get("last_edited_time"),
         "in_trash": database.get("in_trash", False),
@@ -463,6 +477,35 @@ def get_database(database_id):
 
 
 # ---------------------------------------------------------
+# ROW SORTING
+# ---------------------------------------------------------
+
+import re
+
+_NUMBER_PREFIX = re.compile(r"(\d+)")
+
+def natural_sort_key(row):
+    """
+    Sort key for database rows.
+
+    Orders rows by the numbers found in the title so that
+    "Chapter 11" comes after "Chapter 9". Rows without a
+    number fall back to the whole title, lowercased.
+    """
+
+    title = row.get("title") or ""
+
+    numbers = [
+        int(part)
+        for part in _NUMBER_PREFIX.findall(title)
+    ]
+
+    number = numbers[0] if numbers else 0
+
+    return (number, title.lower())
+
+
+# ---------------------------------------------------------
 # QUERY DATABASE (PAGES INSIDE IT)
 # ---------------------------------------------------------
 
@@ -528,6 +571,8 @@ def query_database(database_id):
 
         if len(rows) >= 1000:
             break
+
+    rows.sort(key=natural_sort_key)
 
     return rows
 
@@ -1212,8 +1257,22 @@ class handler(BaseHTTPRequestHandler):
                 body = json.loads(raw_body)
 
 
-            action = body.get(
-                "action"
+            parsed = urllib.parse.urlparse(
+                self.path
+            )
+
+            query_params = urllib.parse.parse_qs(
+                parsed.query
+            )
+
+            action = (
+                query_params.get(
+                    "action",
+                    [None]
+                )[0]
+                or body.get(
+                    "action"
+                )
             )
 
 
