@@ -1980,3 +1980,31 @@ li {
     }
 
 }
+
+.notion-rendered .notion-image-fallback {
+
+    display: inline-block;
+
+    margin: 12px 0;
+
+    padding: 8px 14px;
+
+    border: 1px dashed #bcb7ad;
+
+    border-radius: 6px;
+
+    background: #faf9f6;
+
+    color: #746b9d;
+
+    font-size: 12px;
+
+    text-decoration: none;
+}
+
+
+.notion-rendered .notion-image-fallback:hover {
+
+    background: #f0eee9;
+
+}

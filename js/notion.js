@@ -512,6 +512,28 @@
 
 
         /*
+         * Make sure the libraries are actually loaded.
+         *
+         * They are vendored locally (js/marked.min.js and
+         * js/purify.min.js), but if they ever fail to load,
+         * show a clear message instead of crashing silently.
+         */
+
+        if (
+            typeof window.marked === "undefined" ||
+            typeof window.DOMPurify === "undefined"
+        ) {
+
+            showContentError(
+                "The Markdown libraries could not be loaded. Please refresh the page."
+            );
+
+            return;
+
+        }
+
+
+        /*
          * Configure marked.
          */
 
@@ -560,6 +582,91 @@
             </div>
 
         `;
+
+
+        /*
+         * Harden images.
+         *
+         * Notion serves files from signed S3 URLs that can
+         * react badly to referrers, so strip the referrer.
+         * Lazy loading keeps large pages fast.
+         */
+
+        content.querySelectorAll(
+            "img"
+        ).forEach(img => {
+
+            img.loading = "lazy";
+
+            img.referrerPolicy = "no-referrer";
+
+        });
+
+
+        /*
+         * Graceful image fallback.
+         *
+         * Notion's signed URLs expire (roughly 1 hour).
+         * When that happens the image simply fails to load
+         * and leaves a blank gap. Replace it with a link
+         * so the image is still reachable.
+         */
+
+        content.querySelectorAll(
+            "img"
+        ).forEach(img => {
+
+            const src =
+                img.getAttribute(
+                    "src"
+                );
+
+            if (!src) {
+                return;
+            }
+
+            img.addEventListener(
+                "error",
+                function () {
+
+                    if (
+                        img.dataset.onerrorHandled ===
+                        "true"
+                    ) {
+                        return;
+                    }
+
+                    img.dataset.onerrorHandled =
+                        "true";
+
+                    const link =
+                        document.createElement(
+                            "a"
+                        );
+
+                    link.href = src;
+
+                    link.target =
+                        "_blank";
+
+                    link.rel =
+                        "noopener noreferrer";
+
+                    link.className =
+                        "notion-image-fallback";
+
+                    link.textContent =
+                        "🔗 click to open this image";
+
+                    img.parentNode.replaceChild(
+                        link,
+                        img
+                    );
+
+                }
+            );
+
+        });
 
 
         /*
