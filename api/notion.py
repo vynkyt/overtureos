@@ -930,7 +930,7 @@ class handler(BaseHTTPRequestHandler):
                         "id": block.get("id"),
                         "type": block_type,
                         "has_children": block.get("has_children", False),
-                        "json": json.dumps(block)[:500],
+                        "json": json.dumps(block),
                     })
 
                 send_json(
