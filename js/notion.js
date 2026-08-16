@@ -18,6 +18,8 @@
 
     let searchTimeout = null;
 
+    let statusOptions = {};
+
 
     /* =====================================================
        ELEMENTS
@@ -46,7 +48,7 @@
        API
     ===================================================== */
 
-    async function notionAPI(action, params = {}) {
+    async function notionAPI(action, params = {}, method = "GET") {
 
         const query =
             new URLSearchParams();
@@ -78,11 +80,17 @@
             await fetch(
                 `/api/notion?${query.toString()}`,
                 {
-                    method: "GET",
+                    method: method,
                     headers: {
                         "Accept":
+                            "application/json",
+                        "Content-Type":
                             "application/json"
-                    }
+                    },
+                    body:
+                        method === "PATCH"
+                            ? JSON.stringify(params)
+                            : undefined
                 }
             );
 
@@ -343,6 +351,9 @@
         const page =
             node.page;
 
+        const isDatabase =
+            page.type === "database";
+
 
         const button =
             document.createElement(
@@ -353,11 +364,15 @@
         button.type = "button";
 
         button.className =
-            "notion-page";
+            "notion-page" +
+            (isDatabase ? " notion-database-item" : "");
 
 
         button.dataset.pageId =
             page.id;
+
+        button.dataset.type =
+            page.type || "page";
 
 
         button.style.paddingLeft =
@@ -368,7 +383,7 @@
 
             <span class="notion-page-icon">
                 ${escapeHTML(
-                    page.icon || "📄"
+                    page.icon || (isDatabase ? "🗄️" : "📄")
                 )}
             </span>
 
@@ -385,9 +400,19 @@
             "click",
             function () {
 
-                openNotionPage(
-                    page.id
-                );
+                if (isDatabase) {
+
+                    openNotionDatabase(
+                        page.id
+                    );
+
+                } else {
+
+                    openNotionPage(
+                        page.id
+                    );
+
+                }
 
             }
         );
@@ -469,6 +494,631 @@
             );
 
         }
+
+    }
+
+
+    /* =====================================================
+       OPEN DATABASE
+    ===================================================== */
+
+    async function openNotionDatabase(
+        databaseId
+    ) {
+
+        currentPageId =
+            databaseId;
+
+
+        setActivePage(
+            databaseId
+        );
+
+
+        showContentLoading();
+
+
+        try {
+
+            const data =
+                await notionAPI(
+                    "database",
+                    {
+                        id: databaseId
+                    }
+                );
+
+
+            renderDatabase(
+                data
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Notion database error:",
+                error
+            );
+
+
+            showContentError(
+                error.message
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       RENDER DATABASE
+    ===================================================== */
+
+    function renderDatabase(data) {
+
+        const db =
+            data.database || {};
+
+        const props =
+            data.properties || [];
+
+        const rows =
+            data.rows || [];
+
+
+        breadcrumb.textContent =
+            db.title || "Untitled";
+
+
+        status.classList.remove(
+            "show"
+        );
+
+
+        statusOptions = {};
+
+        props.forEach(col => {
+
+            if (
+                col.type === "status" &&
+                Array.isArray(col.options)
+            ) {
+
+                statusOptions[col.id] =
+                    col.options;
+
+            }
+
+        });
+
+
+        let tableHtml = "";
+
+        if (props.length) {
+
+            tableHtml =
+
+                `<thead>
+                    <tr>
+                        <th class="notion-db-title-col">Title</th>
+                        ${props.map(col => `
+
+                            <th>
+                                ${escapeHTML(col.name)}
+                            </th>
+
+                        `).join("")}
+                    </tr>
+                </thead>`;
+
+
+        }
+
+
+        const bodyHtml =
+            rows.map(row => {
+
+                const rowProps =
+                    row.properties || {};
+
+
+                const titleProp =
+                    Object.values(rowProps)
+                        .find(p => p.type === "title");
+
+
+                const titleValue =
+                    titleProp
+                        ? titleProp.value
+                        : row.title ||
+                          "Untitled";
+
+
+                return `
+
+                    <tr class="notion-db-row" data-row-id="${escapeHTML(row.id)}">
+
+                        <td class="notion-db-title-col">
+
+                            <span class="notion-page-icon">
+                                ${escapeHTML(
+                                    row.icon || "📄"
+                                )}
+                            </span>
+
+                            <span class="notion-db-title-text">
+                                ${escapeHTML(titleValue)}
+                            </span>
+
+                        </td>
+
+                        ${props.map(col => `
+
+                            <td class="notion-db-cell notion-db-cell-${escapeHTML(col.type)}">
+
+                                ${renderPropCell(col, rowProps[col.id])}
+
+                            </td>
+
+                        `).join("")}
+
+                    </tr>
+
+                `;
+
+            }).join("");
+
+
+        content.innerHTML =
+
+            `<div class="notion-database">
+
+                ${rows.length === 0
+                    ? `<div class="notion-loading">
+                            no rows found
+                       </div>`
+                    : `
+                        <table class="notion-db-table">
+                            ${tableHtml}
+                            <tbody>
+                                ${bodyHtml}
+                            </tbody>
+                        </table>
+                    `
+                }
+
+            </div>`;
+
+
+        wireDatabaseToggles(
+            props,
+            rows
+        );
+
+    }
+
+
+    /* =====================================================
+       RENDER PROPERTY CELL
+    ===================================================== */
+
+    function renderPropCell(col, prop) {
+
+        const type =
+            col.type;
+
+        const value =
+            prop
+                ? prop.value
+                : undefined;
+
+
+        if (type === "checkbox") {
+
+            const checked =
+                Boolean(value);
+
+            return `
+
+                <button
+                    class="notion-db-checkbox"
+                    data-prop-id="${escapeHTML(col.id)}"
+                    data-prop-type="checkbox"
+                    data-checked="${checked ? "1" : "0"}"
+                    aria-pressed="${checked ? "true" : "false"}"
+                    type="button"
+                >
+                    ${checked ? "☑" : "☐"}
+                </button>
+
+            `;
+
+        }
+
+
+        if (type === "status") {
+
+            const name =
+                value && value.name
+                    ? value.name
+                    : "—";
+
+            const color =
+                value && value.color
+                    ? value.color
+                    : "";
+
+            return `
+
+                <span
+                    class="notion-db-status"
+                    style="--status-color: var(--notion-color-${escapeHTML(color)}, #e9e9ee);"
+                    data-prop-id="${escapeHTML(col.id)}"
+                    data-prop-type="status"
+                >
+                    ${escapeHTML(name)}
+                </span>
+
+            `;
+
+        }
+
+
+        if (type === "select") {
+
+            const name =
+                value && value.name
+                    ? value.name
+                    : "—";
+
+            const color =
+                value && value.color
+                    ? value.color
+                    : "";
+
+            return `
+
+                <span
+                    class="notion-db-tag notion-db-tag-${escapeHTML(color)}"
+                >
+                    ${escapeHTML(name)}
+                </span>
+
+            `;
+
+        }
+
+
+        if (type === "multi_select") {
+
+            const items =
+                Array.isArray(value)
+                    ? value
+                    : [];
+
+            return items.map(item => `
+
+                <span class="notion-db-tag notion-db-tag-${escapeHTML(item.color || "")}">
+                    ${escapeHTML(item.name || "")}
+                </span>
+
+            `).join("") || "—";
+
+        }
+
+
+        if (type === "date") {
+
+            if (!value || !value.start) {
+                return "—";
+            }
+
+            const start =
+                new Date(value.start);
+
+            let text =
+                start.toLocaleDateString(
+                    undefined,
+                    {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric"
+                    }
+                );
+
+            if (value.end) {
+
+                const end =
+                    new Date(value.end);
+
+                text +=
+                    " → " +
+                    end.toLocaleDateString(
+                        undefined,
+                        {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric"
+                        }
+                    );
+
+            }
+
+            return escapeHTML(text);
+
+        }
+
+
+        if (type === "url") {
+
+            if (!value) {
+                return "—";
+            }
+
+            return `
+
+                <a
+                    href="${escapeHTML(value)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="notion-db-link"
+                >
+                    ${escapeHTML(value.replace(/^https?:\/\//, ""))}
+                </a>
+
+            `;
+
+        }
+
+
+        if (type === "number") {
+
+            return value === undefined || value === null
+                ? "—"
+                : escapeHTML(String(value));
+
+        }
+
+
+        if (type === "people") {
+
+            const names =
+                Array.isArray(value) && value.length
+                    ? value
+                    : [];
+
+            return names
+                .map(name =>
+                    `<span class="notion-db-tag">${escapeHTML(name || "")}</span>`
+                )
+                .join(" ") || "—";
+
+        }
+
+
+        if (type === "formula") {
+
+            return value === undefined || value === null || value === ""
+                ? "—"
+                : escapeHTML(String(value));
+
+        }
+
+
+        if (type === "relation") {
+
+            const count =
+                Array.isArray(value)
+                    ? value.length
+                    : 0;
+
+            return escapeHTML(
+                count ? `${count} linked` : "—"
+            );
+
+        }
+
+
+        if (type === "rollup") {
+
+            return value === undefined || value === null
+                ? "—"
+                : escapeHTML(String(value));
+
+        }
+
+
+        if (Array.isArray(value)) {
+
+            return escapeHTML(
+                value.join(", ")
+            );
+
+        }
+
+
+        if (value === undefined || value === null || value === "") {
+            return "—";
+        }
+
+
+        return escapeHTML(String(value));
+
+    }
+
+
+    /* =====================================================
+       WIRE DATABASE TOGGLES
+    ===================================================== */
+
+    function wireDatabaseToggles(
+        props,
+        rows
+    ) {
+
+        /*
+         * Checkboxes → PATCH immediately.
+         */
+
+        const checkboxes =
+            content.querySelectorAll(
+                ".notion-db-checkbox"
+            );
+
+
+        checkboxes.forEach(cb => {
+
+            cb.addEventListener(
+                "click",
+                function () {
+
+                    const pageId =
+                        cb.closest(
+                            ".notion-db-row"
+                        ).dataset.rowId;
+
+                    const propId =
+                        cb.dataset.propId;
+
+                    const checked =
+                        cb.dataset.checked === "1";
+
+
+                    cb.dataset.checked =
+                        checked ? "0" : "1";
+
+                    cb.setAttribute(
+                        "aria-pressed",
+                        checked ? "false" : "true"
+                    );
+
+                    cb.textContent =
+                        checked ? "☐" : "☑";
+
+                    cb.disabled = true;
+
+                    notionAPI(
+                        "prop",
+                        {
+                            id: pageId,
+                            property: propId,
+                            type: "checkbox",
+                            value: !checked
+                        },
+                        "PATCH"
+                    ).then(() => {
+
+                        cb.disabled = false;
+
+                    }).catch(error => {
+
+                        console.error(
+                            "Notion toggle error:",
+                            error
+                        );
+
+                        cb.dataset.checked =
+                            checked ? "1" : "0";
+
+                        cb.setAttribute(
+                            "aria-pressed",
+                            checked ? "true" : "false"
+                        );
+
+                        cb.textContent =
+                            checked ? "☑" : "☐";
+
+                        cb.disabled = false;
+
+                        showStatus(
+                            "Couldn't update: " + error.message
+                        );
+
+                    });
+
+                }
+            );
+
+        });
+
+
+        /*
+         * Status → cycle through the database's status options.
+         */
+
+        const statuses =
+            content.querySelectorAll(
+                ".notion-db-status"
+            );
+
+
+        statuses.forEach(st => {
+
+            st.addEventListener(
+                "click",
+                function () {
+
+                    const pageId =
+                        st.closest(
+                            ".notion-db-row"
+                        ).dataset.rowId;
+
+                    const propId =
+                        st.dataset.propId;
+
+                    const current =
+                        st.textContent.trim();
+
+                    const options =
+                        statusOptions[propId] || ["Not started", "In progress", "Done"];
+
+                    const next =
+                        options[
+                            (Math.max(
+                                options.indexOf(current),
+                                0
+                            ) + 1) % options.length
+                        ];
+
+
+                    st.disabled = true;
+
+                    notionAPI(
+                        "prop",
+                        {
+                            id: pageId,
+                            property: propId,
+                            type: "status",
+                            value: next
+                        },
+                        "PATCH"
+                    ).then(() => {
+
+                        st.textContent =
+                            next;
+
+                        st.disabled = false;
+
+                    }).catch(error => {
+
+                        console.error(
+                            "Notion status error:",
+                            error
+                        );
+
+                        st.disabled = false;
+
+                        showStatus(
+                            "Couldn't update: " + error.message
+                        );
+
+                    });
+
+                }
+            );
+
+        });
 
     }
 
@@ -708,6 +1358,95 @@
             }
 
         });
+
+
+        /*
+         * Interactive to-do checkboxes.
+         *
+         * Notion's to_do blocks are rendered as markdown
+         * task lists (`- [ ]`). They come back disabled —
+         * we enable them and PATCH Notion when clicked.
+         */
+
+        const todoBlocks =
+            page.todo_blocks || [];
+
+        const renderedBoxes =
+            content.querySelectorAll(
+                ".notion-rendered input[type=checkbox]"
+            );
+
+
+        if (
+            todoBlocks.length &&
+            renderedBoxes.length
+        ) {
+
+            renderedBoxes.forEach((box, index) => {
+
+                const todo =
+                    todoBlocks[
+                        Math.min(
+                            index,
+                            todoBlocks.length - 1
+                        )
+                    ];
+
+                const blockId =
+                    todo && todo.id;
+
+                if (!blockId) {
+                    return;
+                }
+
+                box.disabled = false;
+
+                box.title = "Tick to update Notion";
+
+                box.addEventListener(
+                    "change",
+                    function () {
+
+                        const checked =
+                            box.checked;
+
+                        box.disabled = true;
+
+                        notionAPI(
+                            "todo",
+                            {
+                                id: blockId,
+                                checked: checked
+                            },
+                            "PATCH"
+                        ).then(() => {
+
+                            box.disabled = false;
+
+                        }).catch(error => {
+
+                            console.error(
+                                "Notion todo error:",
+                                error
+                            );
+
+                            box.checked =
+                                !checked;
+
+                            box.disabled = false;
+
+                            showStatus(
+                                "Couldn't update: " + error.message
+                            );
+
+                        });
+
+                    }
+                );
+
+            });
+
+        }
 
 
         /*
