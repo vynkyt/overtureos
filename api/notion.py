@@ -893,6 +893,59 @@ class handler(BaseHTTPRequestHandler):
 
 
             # -------------------------------------------------
+            # DEBUG BLOCKS
+            # -------------------------------------------------
+
+            if action == "blocks":
+
+                block_id = params.get(
+                    "id",
+                    [None]
+                )[0]
+
+                if not block_id:
+
+                    send_json(
+                        self,
+                        400,
+                        {
+                            "ok": False,
+                            "error": "Missing block ID."
+                        }
+                    )
+
+                    return
+
+                blocks = get_block_children(
+                    block_id
+                )
+
+                summary = []
+
+                for block in blocks:
+
+                    block_type = block.get("type")
+
+                    summary.append({
+                        "id": block.get("id"),
+                        "type": block_type,
+                        "has_children": block.get("has_children", False),
+                        "json": json.dumps(block)[:500],
+                    })
+
+                send_json(
+                    self,
+                    200,
+                    {
+                        "ok": True,
+                        "blocks": summary
+                    }
+                )
+
+                return
+
+
+            # -------------------------------------------------
             # SEARCH
             # -------------------------------------------------
 
