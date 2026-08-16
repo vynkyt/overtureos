@@ -17,6 +17,10 @@ made w/ wings, made to fly
 	<!-- tooltip -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 	<script src="./js/tooltip.js"></script>
+
+	<!-- Notion -->
+	<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
     
 
 
@@ -624,6 +628,140 @@ made w/ wings, made to fly
 </div>
 </div>
 
+<!-- =========================================================
+     NOTION WINDOW
+========================================================= -->
+
+<div class="window notion-window" id="notion">
+
+    <div class="windowheader" id="notionheader">
+
+        <div class="window-dots">
+
+            <button
+                title="fullscreen"
+                class="fullscreenwindow"
+                aria-label="Fullscreen">
+            </button>
+
+            <span></span>
+            <span></span>
+
+        </div>
+
+        <p>Notion</p>
+
+        <button
+            class="closewindow"
+            type="button">
+            x
+        </button>
+
+    </div>
+
+
+    <div class="notion-app">
+
+
+        <!-- ================================================
+             SIDEBAR
+        ================================================= -->
+
+        <aside class="notion-sidebar">
+
+            <div class="notion-sidebar-top">
+
+                <div class="notion-sidebar-title">
+                    <span>♡</span>
+                    <span>my workspace</span>
+                </div>
+
+
+                <button
+                    id="notionRefresh"
+                    class="notion-small-button"
+                    title="Refresh pages"
+                    type="button">
+                    ↻
+                </button>
+
+            </div>
+
+
+            <!-- Search -->
+
+            <div class="notion-search">
+
+                <input
+                    id="notionSearch"
+                    type="search"
+                    placeholder="search notion..."
+                    autocomplete="off">
+
+            </div>
+
+
+            <!-- Page list -->
+
+            <div
+                id="notionPageList"
+                class="notion-page-list">
+
+                <div class="notion-loading">
+                    loading...
+                </div>
+
+            </div>
+
+        </aside>
+
+
+
+        <!-- ================================================
+             CONTENT
+        ================================================= -->
+
+        <main class="notion-main">
+
+            <div
+                id="notionBreadcrumb"
+                class="notion-breadcrumb">
+            </div>
+
+
+            <div
+                id="notionStatus"
+                class="notion-status">
+            </div>
+
+
+            <article
+                id="notionContent"
+                class="notion-content">
+
+                <div class="notion-welcome">
+
+                    <div class="notion-welcome-icon">
+                        ♡
+                    </div>
+
+                    <h1>Notion</h1>
+
+                    <p>
+                        Select a page from the sidebar.
+                    </p>
+
+                </div>
+
+            </article>
+
+        </main>
+
+    </div>
+
+</div>
+
+
 <div id="desktopApps">
     <div class="app">
       <img class="openwindow" data-window="about" src="https://i.pinimg.com/1200x/6b/79/cd/6b79cd95e5d6005e158b9b1eea7931f4.jpg" style=>
@@ -649,6 +787,11 @@ made w/ wings, made to fly
       <img class="openwindow" data-window="writingcorner" src="https://i.pinimg.com/736x/c8/9b/80/c89b80118e106ca64f3c10b8fc41cb7d.jpg">
       <p style="margin: 0px; color: #fff; ">Writing Corner</p>
     </div>
+
+    <div class="app">
+      <img class="openwindow" data-window="notion" src="https://i.pinimg.com/1200x/6b/79/cd/6b79cd95e5d6005e158b9b1eea7931f4.jpg">
+      <p style="margin: 0px; color: #fff; ">Notion</p>
+    </div>
     
 </div>
 
@@ -663,5 +806,6 @@ made w/ wings, made to fly
 </div>
 <script src="./js/script.js"></script>
 <script src="./js/time.js"></script>
+<script src="./js/notion.js"></script>
 </body>
 </html>

@@ -1,1 +1,4 @@
 .env
+img/*.mp4
+__pycache__/
+api/__pycache__/

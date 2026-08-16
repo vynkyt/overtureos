@@ -379,6 +379,7 @@ initializeWindow("about");
 initializeWindow("videoarchive");
 initializeWindow("writingcorner");
 initializeWindow("CV");
+initializeWindow("notion");
 
 
 /////////////////////////// RESIZE START ///////////////////////////
