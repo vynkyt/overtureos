@@ -918,9 +918,14 @@ class handler(BaseHTTPRequestHandler):
 
                 try:
 
+                    path = endpoint
+
+                    if not path.startswith("/"):
+                        path = "/" + path
+
                     result = notion_request(
                         "GET",
-                        endpoint
+                        path
                     )
 
                     send_json(
