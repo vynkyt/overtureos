@@ -893,6 +893,60 @@ class handler(BaseHTTPRequestHandler):
 
 
             # -------------------------------------------------
+            # DEBUG RAW ENDPOINT
+            # -------------------------------------------------
+
+            if action == "probe":
+
+                endpoint = params.get(
+                    "e",
+                    [""]
+                )[0]
+
+                if not endpoint:
+
+                    send_json(
+                        self,
+                        400,
+                        {
+                            "ok": False,
+                            "error": "Missing endpoint."
+                        }
+                    )
+
+                    return
+
+                try:
+
+                    result = notion_request(
+                        "GET",
+                        endpoint
+                    )
+
+                    send_json(
+                        self,
+                        200,
+                        {
+                            "ok": True,
+                            "result": result
+                        }
+                    )
+
+                except Exception as error:
+
+                    send_json(
+                        self,
+                        200,
+                        {
+                            "ok": False,
+                            "error": str(error)
+                        }
+                    )
+
+                return
+
+
+            # -------------------------------------------------
             # DEBUG SEARCH RAW
             # -------------------------------------------------
 
