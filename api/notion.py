@@ -913,7 +913,7 @@ class handler(BaseHTTPRequestHandler):
                     summary.append({
                         "object": item.get("object"),
                         "id": item.get("id"),
-                        "json": json.dumps(item)[:600],
+                        "json": json.dumps(item),
                     })
 
                 send_json(
