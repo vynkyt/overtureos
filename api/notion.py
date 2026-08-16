@@ -83,6 +83,23 @@ def extract_title(page):
     Find the title of a Notion page.
     """
 
+    # data_source objects store the title as a top-level
+    # array of rich text objects, not as a property.
+    top_title = page.get("title")
+
+    if isinstance(top_title, list) and top_title:
+
+        text = ""
+
+        for part in top_title:
+            plain_text = part.get("plain_text")
+
+            if plain_text:
+                text += plain_text
+
+        if text.strip():
+            return text.strip()
+
     properties = page.get("properties", {})
 
     for _, prop in properties.items():
@@ -290,7 +307,6 @@ def normalise_database(database):
         "type": "database",
     }
 
-
 # ---------------------------------------------------------
 # SEARCH / LIST ALL PAGES
 # ---------------------------------------------------------
@@ -344,7 +360,10 @@ def get_all_items(query=None):
 
             seen.add(item_id)
 
-            if item.get("object") == "database":
+            if item.get("object") in (
+                "database",
+                "data_source"
+            ):
                 all_items.append(
                     normalise_database(item)
                 )
@@ -412,16 +431,33 @@ def get_page_markdown(page_id):
 # ---------------------------------------------------------
 
 def get_database(database_id):
+    """
+    Retrieve a database container OR a data source.
+
+    Since API version 2025-09-03, inline databases are
+    represented as `data_source` objects. The search result
+    IDs point at data sources, so try that endpoint first
+    and fall back to the database container endpoint.
+    """
 
     encoded_id = urllib.parse.quote(
         database_id,
         safe=""
     )
 
-    database = notion_request(
-        "GET",
-        f"/databases/{encoded_id}"
-    )
+    try:
+
+        database = notion_request(
+            "GET",
+            f"/data_sources/{encoded_id}"
+        )
+
+    except Exception:
+
+        database = notion_request(
+            "GET",
+            f"/databases/{encoded_id}"
+        )
 
     return database
 
@@ -451,7 +487,7 @@ def query_database(database_id):
 
         result = notion_request(
             "POST",
-            f"/databases/{encoded_id}/query",
+            f"/data_sources/{encoded_id}/query",
             body,
         )
 
