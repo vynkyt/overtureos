@@ -306,17 +306,45 @@
 
 
         /*
-         * Sort alphabetically.
+         * Sort naturally (Chapter 2 before Chapter 10).
          */
+
+        function naturalCompare(a, b) {
+
+            const titleA =
+                a.page.title || "";
+
+            const titleB =
+                b.page.title || "";
+
+            const numA =
+                titleA.match(/\d+/);
+
+            const numB =
+                titleB.match(/\d+/);
+
+            if (numA && numB) {
+
+                const diff =
+                    parseInt(numA[0], 10) -
+                    parseInt(numB[0], 10);
+
+                if (diff !== 0) {
+                    return diff;
+                }
+
+            }
+
+            return titleA.localeCompare(
+                titleB
+            );
+
+        }
 
         function sortNodes(list) {
 
             list.sort(
-                (a, b) =>
-                    a.page.title
-                        .localeCompare(
-                            b.page.title
-                        )
+                naturalCompare
             );
 
 
