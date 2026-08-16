@@ -52,6 +52,8 @@ Features the name, *OvertureOS*, a reload button (to reload the page in fullscre
 - **Photobook**: showcases my art and figurines, and hovering above each image reveals a unique caption for that image!
 - **Video Archive**: a set of videos from yt that I collected to have a curated video feed. It features embeds, and the buttons on the sidebar of this app act as navigation based on relevant categories.
 - **Writing Corner**: a WYSIWYG text editor that stores typed documents and their version history in local storage.
+- **Files**: a file explorer that browses and opens local files inside its own window. Uses the File System Access API (Chrome/Edge) to pick a folder, with a folder-picker and drag-and-drop fallbacks elsewhere. Double-click a file to preview images, videos, audio, PDFs, markdown, and text/code files; folders can be navigated with the back / forward / up buttons. The ↗ button in a preview opens the file in a new, fully draggable/resizable OS window.
+- **Browser**: browses the internet inside a window via an embedded iframe, with back / forward / reload / home buttons, an address bar (auto-adds https or falls back to a web search), and quick links. Sites that block iframe embedding (Google, YouTube, etc.) are fetched through a server-side proxy (`api/browse.py`) that strips `X-Frame-Options` / CSP `frame-ancestors` and rewrites links, so they render inside the window.
 
 ## Dead Apps
 

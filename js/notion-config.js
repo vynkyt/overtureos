@@ -43,18 +43,18 @@
             "Physics AS-Levels": [
                 "Lecture",
                 "Notes",
+                "Anki",
                 "Anki review",
                 "Cheated review",
-                "Anki",
                 "Tutorial"
             ],
 
             "Physics A2-Level": [
                 "Lecture",
                 "Notes",
+                "Anki",
                 "Anki review",
                 "Cheated review",
-                "Anki",
                 "Tutorial"
             ]
 

@@ -380,11 +380,106 @@ initializeWindow("videoarchive");
 initializeWindow("writingcorner");
 initializeWindow("CV");
 initializeWindow("notion");
+initializeWindow("fileexplorer");
+initializeWindow("browser");
+
+
+/////////////////////////// DYNAMIC WINDOWS ///////////////////////////
+
+function createOSWindow(id, title) {
+
+    var desktop =
+        document.getElementById("desktop");
+
+    if (!desktop) return null;
+
+    var screen =
+        document.createElement("div");
+
+    screen.className = "window";
+    screen.id = id;
+
+    var header =
+        document.createElement("div");
+
+    header.className = "windowheader";
+    header.id = id + "header";
+
+    var dots =
+        document.createElement("div");
+
+    dots.className = "window-dots";
+
+    var fullscreen =
+        document.createElement("button");
+
+    fullscreen.className = "fullscreenwindow";
+    fullscreen.title = "fullscreen";
+    fullscreen.setAttribute("aria-label", "Fullscreen");
+
+    var dot1 = document.createElement("span");
+    var dot2 = document.createElement("span");
+
+    dots.appendChild(fullscreen);
+    dots.appendChild(dot1);
+    dots.appendChild(dot2);
+
+    var titleEl =
+        document.createElement("p");
+
+    titleEl.textContent = title;
+
+    var close =
+        document.createElement("button");
+
+    close.className = "closewindow";
+    close.type = "button";
+    close.textContent = "x";
+
+    header.appendChild(dots);
+    header.appendChild(titleEl);
+    header.appendChild(close);
+
+    var content =
+        document.createElement("div");
+
+    content.className = "windowcontent";
+
+    screen.appendChild(header);
+    screen.appendChild(content);
+
+    desktop.appendChild(screen);
+
+    // Resize handles
+    enableWindowResize(screen);
+
+    // Drag / close / bring-to-front
+    initializeWindow(id);
+
+    // Fullscreen
+    fullscreen.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleFullscreenWindow(fullscreen);
+    });
+
+    // Show the window
+    openWindow(screen);
+
+    return {
+        window: screen,
+        header: header,
+        content: content,
+        close: close
+    };
+}
 
 
 /////////////////////////// RESIZE START ///////////////////////////
 
-document.querySelectorAll(".window").forEach(windowEl => {
+function enableWindowResize(windowEl) {
+
+    if (!windowEl) return;
 
     const directions = [
         "top",
@@ -694,6 +789,12 @@ document.querySelectorAll(".window").forEach(windowEl => {
             "";
 
     });
+
+}
+
+document.querySelectorAll(".window").forEach(windowEl => {
+
+    enableWindowResize(windowEl);
 
 });
 

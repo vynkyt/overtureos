@@ -194,9 +194,12 @@ iframe {
 #desktopApps {
     display: flex;
     flex-direction: column;
+    flex-wrap: wrap;
     align-items: flex-start;
+    align-content: flex-start;
+    height: 100%;
     padding: 30px 24px;
-    gap: 0;
+    gap: 0 36px;
 }
 
 .app, .folder {
@@ -1293,11 +1296,10 @@ li {
 ========================================================= */
 
 .notion-window {
-    width: 850px;
-    height: 600px;
+    width: 420px;
+    height: 350px;
 
-    min-width: 600px;
-    min-height: 400px;
+    min-width: 420px;
 
     overflow: hidden;
 }

@@ -1,0 +1,437 @@
+/* =========================================================
+   FILE EXPLORER WINDOW
+========================================================= */
+
+.filex-window {
+    width: 700px;
+    height: 460px;
+
+    min-width: 380px;
+    min-height: 300px;
+
+    left: calc(50% - 350px);
+    top: calc(50% - 230px);
+
+    overflow: hidden;
+}
+
+/* =========================================================
+   MAIN APP
+========================================================= */
+
+.filex-app {
+    flex: 1 1 auto;
+
+    width: 100%;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    background: rgba(255, 250, 253, 0.92);
+    color: #4a1a2e;
+
+    font-family: "BalsamiqSans", Georgia, serif;
+
+    overflow: hidden;
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.filex-toolbar {
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 8px 10px;
+
+    background: rgba(255, 220, 235, 0.35);
+
+    border-bottom: 1px solid rgba(255, 175, 204, 0.35);
+}
+
+.filex-nav,
+.filex-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.filex-toolbar button {
+    font-size: 12px;
+    line-height: 1;
+    padding: 4px 9px;
+    border-radius: 7px;
+}
+
+.filex-toolbar button.filex-primary {
+    background: rgba(255, 150, 190, 0.45);
+    font-weight: 700;
+}
+
+.filex-toolbar button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.filex-pathwrap {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.filex-path {
+    display: block;
+
+    padding: 4px 10px;
+
+    border-radius: 7px;
+
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(255, 175, 204, 0.35);
+
+    color: #70243f;
+    font-size: 11px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =========================================================
+   BODY (grid + preview)
+========================================================= */
+
+.filex-body {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    display: flex;
+    overflow: hidden;
+}
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.filex-grid {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 4px;
+
+    padding: 12px;
+}
+
+.filex-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 92px;
+
+    padding: 10px 6px 8px;
+
+    border-radius: 12px;
+    border: 1px solid transparent;
+
+    cursor: pointer;
+    text-align: center;
+
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.filex-tile:hover {
+    background: rgba(255, 220, 235, 0.55);
+}
+
+.filex-tile.selected {
+    background: rgba(255, 175, 204, 0.5);
+    border-color: rgba(200, 80, 120, 0.35);
+}
+
+.filex-tile-icon {
+    font-size: 32px;
+    line-height: 1;
+
+    filter: drop-shadow(0 2px 4px rgba(80, 20, 45, 0.25));
+}
+
+.filex-tile-name {
+    margin-top: 6px;
+
+    font-size: 10.5px;
+    line-height: 1.25;
+
+    color: #70243f;
+
+    word-break: break-word;
+    overflow-wrap: anywhere;
+
+    max-width: 100%;
+}
+
+.filex-empty {
+    width: 100%;
+    margin: auto;
+    padding: 30px;
+
+    text-align: center;
+
+    color: rgba(112, 36, 63, 0.55);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+/* =========================================================
+   PREVIEW
+========================================================= */
+
+.filex-preview {
+    display: none;
+    flex-direction: column;
+
+    width: 46%;
+    min-width: 210px;
+
+    border-left: 1px solid rgba(255, 175, 204, 0.35);
+
+    background: rgba(255, 245, 250, 0.5);
+
+    overflow: hidden;
+}
+
+.filex-preview.open {
+    display: flex;
+}
+
+.filex-preview-head {
+    flex: 0 0 auto;
+
+    padding: 8px 12px;
+
+    background: rgba(255, 220, 235, 0.35);
+    border-bottom: 1px solid rgba(255, 175, 204, 0.3);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+
+    color: #4a1a2e;
+
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.filex-preview-head button {
+    float: right;
+    margin-left: 4px;
+    padding: 0 6px;
+    font-size: 12px;
+    line-height: 1.3;
+    border-radius: 50%;
+}
+
+.filex-preview-meta {
+    flex: 0 0 auto;
+
+    padding: 4px 12px 8px;
+
+    font-size: 10px;
+
+    color: rgba(112, 36, 63, 0.7);
+}
+
+.filex-preview-body {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    overflow: auto;
+
+    padding: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+}
+
+.filex-preview-body img,
+.filex-preview-body video {
+    max-width: 100%;
+    max-height: 100%;
+
+    border-radius: 8px;
+}
+
+.filex-preview-body audio {
+    width: 100%;
+}
+
+.filex-preview-body iframe {
+    width: 100%;
+    height: 100%;
+
+    border: none;
+    border-radius: 8px;
+
+    background: white;
+}
+
+.filex-preview-body pre {
+    width: 100%;
+    margin: 0;
+
+    white-space: pre-wrap;
+    word-break: break-word;
+
+    font-size: 11px;
+    line-height: 1.5;
+
+    color: #3a1020;
+}
+
+/* =========================================================
+   MARKDOWN PREVIEW
+========================================================= */
+
+.filex-md {
+    width: 100%;
+
+    font-size: 12px;
+    line-height: 1.7;
+
+    color: #3a1020;
+
+    text-align: left;
+}
+
+.filex-md h1,
+.filex-md h2,
+.filex-md h3,
+.filex-md h4 {
+    all: unset;
+
+    display: block;
+
+    margin: 14px 0 6px;
+
+    font-weight: 700;
+    letter-spacing: 0.04em;
+
+    color: #4a1a2e;
+}
+
+.filex-md h1 { font-size: 17px; }
+.filex-md h2 { font-size: 15px; }
+.filex-md h3 { font-size: 13px; }
+.filex-md h4 { font-size: 12px; }
+
+.filex-md p {
+    margin: 6px 0;
+}
+
+.filex-md ul,
+.filex-md ol {
+    margin: 6px 0;
+    padding-left: 20px;
+}
+
+.filex-md a {
+    color: #872a4e;
+}
+
+.filex-md blockquote {
+    margin: 10px 0;
+    padding: 6px 12px;
+
+    border-left: 3px solid #ffafcc;
+
+    background: rgba(255, 220, 235, 0.35);
+}
+
+.filex-md code {
+    background: rgba(255, 220, 235, 0.5);
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.filex-md pre {
+    background: #4a1a2e;
+    color: #ffe6f0;
+
+    padding: 10px;
+    border-radius: 8px;
+
+    overflow: auto;
+}
+
+.filex-md pre code {
+    background: transparent;
+    padding: 0;
+}
+
+.filex-md img {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.filex-md hr {
+    border: none;
+    border-top: 1px dashed rgba(255, 150, 190, 0.6);
+    margin: 14px 0;
+}
+
+/* =========================================================
+   STATUS BAR
+========================================================= */
+
+.filex-status {
+    flex: 0 0 auto;
+
+    padding: 5px 12px;
+
+    border-top: 1px solid rgba(255, 175, 204, 0.35);
+
+    background: rgba(255, 220, 235, 0.3);
+
+    font-size: 10px;
+    letter-spacing: 0.04em;
+
+    color: rgba(112, 36, 63, 0.75);
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =========================================================
+   MOBILE / SMALL WINDOW
+========================================================= */
+
+@media (max-width: 700px) {
+    .filex-window {
+        width: 95vw;
+        height: 80vh;
+
+        left: calc(50% - 47.5vw);
+        top: calc(50% - 40vh);
+
+        min-width: 0;
+    }
+
+    .filex-preview {
+        width: 50%;
+        min-width: 160px;
+    }
+}

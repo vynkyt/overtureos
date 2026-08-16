@@ -13,6 +13,8 @@ made w/ wings, made to fly
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="icon" type="image/x-icon" href="https://sleepysprout.neocities.org/sitegraphics/you/honeybears%20(2).png">
 	<link href="./css/style.css" rel="stylesheet" type="text/css" media="all">
+	<link href="./css/fileexplorer.css" rel="stylesheet" type="text/css" media="all">
+	<link href="./css/browser.css" rel="stylesheet" type="text/css" media="all">
 
 	<!-- tooltip -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
@@ -396,8 +398,7 @@ made w/ wings, made to fly
   </div>
   <div class="windowcontent">
 <p>Some stuff I’ve done so far in my life lol</p>
-<img style="border-radius: 5px; margin-bottom: 15px;" src="https://i.pinimg.com/1200x/80/6d/33/806d331cd9a571ae2f362186763e71ad.jpg">
-    <div class="social-links">
+<div class="social-links">
   <a href="https://www.instagram.com/polymathiclens" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="social-icon instagram">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <rect x="3" y="3" width="18" height="18" rx="5"></rect>
@@ -762,10 +763,176 @@ made w/ wings, made to fly
 </div>
 
 
+<!-- =========================================================
+     FILE EXPLORER WINDOW
+========================================================= -->
+
+<div class="window filex-window" id="fileexplorer">
+
+    <div class="windowheader" id="fileexplorerheader">
+
+        <div class="window-dots">
+
+            <button
+                title="fullscreen"
+                class="fullscreenwindow"
+                aria-label="Fullscreen">
+            </button>
+
+            <span></span>
+            <span></span>
+
+        </div>
+
+        <p>Files</p>
+
+        <button
+            class="closewindow"
+            type="button">
+            x
+        </button>
+
+    </div>
+
+    <div class="filex-app">
+
+        <input
+            type="file"
+            id="filexPicker"
+            webkitdirectory
+            multiple
+            hidden>
+
+        <!-- Toolbar -->
+
+        <div class="filex-toolbar">
+
+            <div class="filex-nav">
+                <button id="filexBack" title="back" type="button">←</button>
+                <button id="filexFwd" title="forward" type="button">→</button>
+                <button id="filexUp" title="up" type="button">↑</button>
+            </div>
+
+            <div class="filex-pathwrap">
+                <span id="filexPath" class="filex-path">choose a folder to start</span>
+            </div>
+
+            <div class="filex-actions">
+                <button id="filexRefresh" title="refresh" type="button">↻</button>
+                <button id="filexOpen" class="filex-primary" type="button">open folder</button>
+            </div>
+
+        </div>
+
+        <!-- Body -->
+
+        <div class="filex-body">
+
+            <div id="filexGrid" class="filex-grid"></div>
+
+            <aside id="filexPreview" class="filex-preview"></aside>
+
+        </div>
+
+        <!-- Status bar -->
+
+        <div id="filexStatus" class="filex-status"></div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     BROWSER WINDOW
+========================================================= -->
+
+<div class="window browser-window" id="browser">
+
+    <div class="windowheader" id="browserheader">
+
+        <div class="window-dots">
+
+            <button
+                title="fullscreen"
+                class="fullscreenwindow"
+                aria-label="Fullscreen">
+            </button>
+
+            <span></span>
+            <span></span>
+
+        </div>
+
+        <p>Browser</p>
+
+        <button
+            class="closewindow"
+            type="button">
+            x
+        </button>
+
+    </div>
+
+    <div class="browser-app">
+
+        <!-- Toolbar -->
+
+        <div class="browser-toolbar">
+
+            <div class="browser-nav">
+                <button id="browserBack" title="back" type="button">←</button>
+                <button id="browserFwd" title="forward" type="button">→</button>
+                <button id="browserReload" title="reload" type="button">↻</button>
+                <button id="browserHome" title="home" type="button">⌂</button>
+            </div>
+
+            <input
+                id="browserUrl"
+                class="browser-url"
+                type="text"
+                placeholder="type a url or search..."
+                autocomplete="off"
+                spellcheck="false">
+
+            <button id="browserGo" type="button">go</button>
+
+        </div>
+
+        <!-- Quick links -->
+
+        <div id="browserQuick" class="browser-quick"></div>
+
+        <!-- Page -->
+
+        <iframe
+            id="browserFrame"
+            class="browser-frame"
+            src="about:blank"></iframe>
+
+        <!-- Status -->
+
+        <div id="browserStatus" class="browser-status"></div>
+
+    </div>
+
+</div>
+
+
 <div id="desktopApps">
     <div class="app">
       <img class="openwindow" data-window="about" src="https://i.pinimg.com/1200x/6b/79/cd/6b79cd95e5d6005e158b9b1eea7931f4.jpg" style=>
       <p style="margin: 0px; color: #fff; ">About Me</p>
+    </div>
+
+    <div class="app">
+      <img class="openwindow" data-window="fileexplorer" src="./img/Untitled144_20260812202603.PNG">
+      <p style="margin: 0px; color: #fff; ">Files</p>
+    </div>
+
+    <div class="app">
+      <img class="openwindow" data-window="browser" src="https://i.pinimg.com/1200x/6b/79/cd/6b79cd95e5d6005e158b9b1eea7931f4.jpg">
+      <p style="margin: 0px; color: #fff; ">Browser</p>
     </div>
 
     <div class="app">
@@ -808,5 +975,7 @@ made w/ wings, made to fly
 	<script src="./js/time.js"></script>
 	<script src="./js/notion-config.js"></script>
 	<script src="./js/notion.js"></script>
+	<script src="./js/fileexplorer.js"></script>
+	<script src="./js/browser.js"></script>
 </body>
 </html>
