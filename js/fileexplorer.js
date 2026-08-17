@@ -717,8 +717,41 @@
         render();
     });
 
-    split.addEventListener("input", function () {
-        preview.style.width = split.value + "%";
+    /* =========================================================
+       SPLIT RESIZE (drag between grid and preview)
+    ========================================================= */
+
+    var splitting = false;
+    var splitStartX = 0;
+    var splitStartW = 0;
+
+    split.addEventListener("mousedown", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        splitting = true;
+        splitStartX = e.clientX;
+        splitStartW = preview.offsetWidth;
+        split.classList.add("dragging");
+        document.body.style.userSelect = "none";
+    });
+
+    document.addEventListener("mousemove", function (e) {
+        if (!splitting) return;
+
+        var bodyW = win.offsetWidth;
+        var w = splitStartW + (e.clientX - splitStartX);
+
+        w = Math.max(210, Math.min(w, bodyW * 0.75));
+        preview.style.width = w + "px";
+    });
+
+    document.addEventListener("mouseup", function () {
+        if (!splitting) return;
+
+        splitting = false;
+        split.classList.remove("dragging");
+        document.body.style.userSelect = "";
     });
 
     /* =========================================================
