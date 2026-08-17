@@ -1,3 +1,8 @@
+* {
+  box-sizing: border-box;
+  cursor: url("https://cur.cursors-4u.net/others/oth-4/oth305.cur"), auto !important;
+}
+
 /* =========================================================
    FILE EXPLORER WINDOW
 ========================================================= */
@@ -118,7 +123,7 @@
 
 .filex-split {
     flex: 0 0 5px;
-    cursor: col-resize;
+    cursor: col-resize !important;
 
     background: rgba(255, 175, 204, 0.25);
     border-left: 1px solid rgba(255, 175, 204, 0.35);
@@ -213,6 +218,8 @@
 .filex-preview {
     display: none;
     flex-direction: column;
+
+    flex: 0 0 auto;
 
     width: 46%;
     min-width: 210px;

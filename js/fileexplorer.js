@@ -195,7 +195,11 @@
         return render();
     }
 
+    var renderToken = 0;
+
     async function render() {
+        var token = ++renderToken;
+
         updateButtons();
 
         pathEl.textContent = current
@@ -214,6 +218,8 @@
         }
 
         var entries = sortEntries(await childrenOf(current));
+
+        if (token !== renderToken) return;
 
         if (!entries.length) {
             grid.appendChild(emptyEl("this folder is empty ♡"));
@@ -436,7 +442,13 @@
     }
 
     async function previewFile(entry) {
-        var f = await fileOf(entry);
+        var f;
+        try {
+            f = await fileOf(entry);
+        } catch (err) {
+            statusEl.textContent = "couldn't read " + entry.name;
+            return;
+        }
         if (!f) {
             statusEl.textContent = "couldn't read " + entry.name;
             return;
@@ -695,6 +707,7 @@
         if (histIndex > 0) {
             histIndex--;
             current = history[histIndex];
+            selectedEntry = null;
             render();
         }
     });
@@ -703,6 +716,7 @@
         if (histIndex < history.length - 1) {
             histIndex++;
             current = history[histIndex];
+            selectedEntry = null;
             render();
         }
     });
@@ -714,6 +728,7 @@
     });
 
     refreshBtn.addEventListener("click", function () {
+        selectedEntry = null;
         render();
     });
 
@@ -724,6 +739,9 @@
     var splitting = false;
     var splitStartX = 0;
     var splitStartW = 0;
+    var splitMax = 0;
+    var splitTarget = 0;
+    var splitRaf = false;
 
     split.addEventListener("mousedown", function (e) {
         e.preventDefault();
@@ -732,18 +750,27 @@
         splitting = true;
         splitStartX = e.clientX;
         splitStartW = preview.offsetWidth;
+        splitMax = win.offsetWidth * 0.85;
         split.classList.add("dragging");
         document.body.style.userSelect = "none";
     });
 
     document.addEventListener("mousemove", function (e) {
         if (!splitting) return;
+        e.preventDefault();
 
-        var bodyW = win.offsetWidth;
-        var w = splitStartW + (e.clientX - splitStartX);
+        splitTarget = Math.max(
+            210,
+            Math.min(splitStartW - (e.clientX - splitStartX), splitMax)
+        );
 
-        w = Math.max(210, Math.min(w, bodyW * 0.75));
-        preview.style.width = w + "px";
+        if (!splitRaf) {
+            splitRaf = true;
+            requestAnimationFrame(function () {
+                splitRaf = false;
+                preview.style.width = splitTarget + "px";
+            });
+        }
     });
 
     document.addEventListener("mouseup", function () {
@@ -759,7 +786,7 @@
     ========================================================= */
 
     document.addEventListener("keydown", function (e) {
-        if (!win || win.style.display === "none") return;
+        if (!win || getComputedStyle(win).display === "none") return;
 
         var t = e.target;
         if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
