@@ -77,6 +77,13 @@
     cursor: default;
 }
 
+.filex-split {
+    width: 84px;
+    margin: 0 2px;
+    accent-color: #e07ba6;
+    cursor: pointer;
+}
+
 .filex-pathwrap {
     flex: 1 1 auto;
     min-width: 0;

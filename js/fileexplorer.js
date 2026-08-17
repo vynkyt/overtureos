@@ -23,6 +23,7 @@
     var upBtn = $("filexUp");
     var refreshBtn = $("filexRefresh");
     var openBtn = $("filexOpen");
+    var split = $("filexSplit");
 
     var history = [];
     var histIndex = -1;
@@ -714,6 +715,10 @@
 
     refreshBtn.addEventListener("click", function () {
         render();
+    });
+
+    split.addEventListener("input", function () {
+        preview.style.width = split.value + "%";
     });
 
     /* =========================================================
