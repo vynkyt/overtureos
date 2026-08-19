@@ -147,7 +147,7 @@
         { name: "google", url: "https://www.google.com" },
         { name: "wikipedia", url: "https://www.wikipedia.org" },
         { name: "archive", url: "https://archive.org" },
-        { name: "example", url: "https://example.com" },
+        { name: "mistako", url: "https://mistako.app" },
         { name: "overture", url: "./index.html" }
     ];
 
