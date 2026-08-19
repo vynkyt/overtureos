@@ -23,7 +23,7 @@
     var quickBar = $("browserQuick");
     var statusEl = $("browserStatus");
 
-    var HOME = "https://mistako.app";
+    var HOME = "https://www.mistako.app";
 
     var history = [];
     var index = -1;
@@ -147,7 +147,7 @@
         { name: "google", url: "https://www.google.com" },
         { name: "wikipedia", url: "https://www.wikipedia.org" },
         { name: "archive", url: "https://archive.org" },
-        { name: "mistako", url: "https://mistako.app" },
+        { name: "mistako", url: "https://www.mistako.app" },
         { name: "overture", url: "./index.html" }
     ];
 
