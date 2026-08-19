@@ -23,7 +23,7 @@
     var quickBar = $("browserQuick");
     var statusEl = $("browserStatus");
 
-    var HOME = "https://www.wikipedia.org";
+    var HOME = "https://mistako.app";
 
     var history = [];
     var index = -1;
