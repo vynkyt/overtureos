@@ -173,7 +173,7 @@
             if (href && href !== "about:blank") {
                 // Proxied pages report the proxy URL; unwrap it to
                 // show the real address.
-                var m = href.match(/\/api\/browse\?url=([^#]+)/);
+                var m = href.match(/\/api\/browse\?url=([^#&]+)/);
                 urlInput.value = m ? decodeURIComponent(m[1]) : href;
             }
         } catch (e) {
