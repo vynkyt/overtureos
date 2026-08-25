@@ -953,9 +953,18 @@ fullscreenButtons.forEach(function (button) {
 });
 
 /////////////////////////// NOTICEBOARD ///////////////////////////
-const noticeboard = document.getElementById("noticeboard");
-const noticeboardToggle = document.getElementById("noticeboardToggle");
+// Noticeboard markup lives in noticeboard.html and is injected
+// into the placeholder in index.html at the same position.
+fetch("./noticeboard.html")
+    .then((response) => response.text())
+    .then((html) => {
+        const placeholder = document.getElementById("noticeboard-placeholder");
+        placeholder.outerHTML = html;
 
-noticeboardToggle.addEventListener("click", () => {
-    noticeboard.classList.toggle("noticeboard-open");
-});
+        const noticeboard = document.getElementById("noticeboard");
+        const noticeboardToggle = document.getElementById("noticeboardToggle");
+
+        noticeboardToggle.addEventListener("click", () => {
+            noticeboard.classList.toggle("noticeboard-open");
+        });
+    });

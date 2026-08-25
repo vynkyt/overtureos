@@ -5,6 +5,7 @@ function updateTime() {
 
     var currentTime = new Date().toLocaleString();
     var timeText = document.querySelector("#time");
+    if (!timeText) return;
     timeText.innerHTML = currentTime;
 
 }
