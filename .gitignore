@@ -2,3 +2,4 @@
 img/*.mp4
 __pycache__/
 api/__pycache__/
+docs/*
