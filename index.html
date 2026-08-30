@@ -15,6 +15,7 @@ made w/ wings, made to fly
 	<link href="./css/style.css" rel="stylesheet" type="text/css" media="all">
 	<link href="./css/fileexplorer.css" rel="stylesheet" type="text/css" media="all">
 	<link href="./css/browser.css" rel="stylesheet" type="text/css" media="all">
+	<link href="./css/auth.css" rel="stylesheet" type="text/css" media="all">
 
 	<!-- tooltip -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
@@ -35,7 +36,20 @@ made w/ wings, made to fly
             <p class="bar-brand">
             OvertureOS <button class="reloadbutton" onclick="window.top.location.reload()">↻</button>
         </p>
-        
+        <div class="top-settings">
+            <button class="settings-btn" id="settingsBtn" title="Settings">⚙</button>
+            <div class="settings-dropdown" id="settingsDropdown">
+                <div class="settings-header" id="settingsUser">Logged in as...</div>
+                <div class="settings-divider"></div>
+                <button class="settings-item" id="settingsExportUSB">Export Data to USB</button>
+                <button class="settings-item" id="settingsImportUSB">Import Data from USB</button>
+                <div class="settings-divider"></div>
+                <button class="settings-item" id="settingsSwitchUSB">Switch to USB Passkey</button>
+                <button class="settings-item" id="settingsSwitchPass">Switch to Password</button>
+                <div class="settings-divider"></div>
+                <button class="settings-item settings-logout" id="settingsLogout">Logout</button>
+            </div>
+        </div>
     </div>
 <!-- Noticeboard (content lives in noticeboard.html) -->
 <div id="noticeboard-placeholder"></div>
@@ -733,11 +747,230 @@ made w/ wings, made to fly
 -->
 
 </div>
+<script src="./js/auth.js"></script>
+<script src="./js/datastore.js"></script>
 <script src="./js/script.js"></script>
 	<script src="./js/time.js"></script>
 	<script src="./js/notion-config.js"></script>
 	<script src="./js/notion.js"></script>
 	<script src="./js/fileexplorer.js"></script>
 	<script src="./js/browser.js"></script>
+	<script>
+		OvertureAuth.init().then(function (result) {
+			if (result.loggedIn && typeof OvertureStore !== "undefined") {
+				OvertureStore.init(result.userId);
+				initSettings();
+			}
+		}).catch(function (err) {
+			console.error("Auth init failed:", err);
+			var desktop = document.getElementById("desktop");
+			if (desktop) desktop.style.display = "";
+		});
+
+		// Re-init store after unlock (key becomes available)
+		setInterval(function () {
+			if (OvertureAuth.isKeyReady() && typeof OvertureStore !== "undefined") {
+				var uid = OvertureAuth.getUser();
+				if (uid) {
+					OvertureStore.init(uid);
+				}
+			}
+		}, 500);
+
+		function initSettings() {
+			var btn = document.getElementById("settingsBtn");
+			var dropdown = document.getElementById("settingsDropdown");
+			var userEl = document.getElementById("settingsUser");
+
+			btn.addEventListener("click", function (e) {
+				e.stopPropagation();
+				dropdown.classList.toggle("open");
+				if (dropdown.classList.contains("open")) {
+					var user = OvertureAuth.getUser();
+					var method = OvertureAuth.getMethod();
+					userEl.textContent = user + " (" + method + ")";
+				}
+			});
+
+			document.addEventListener("click", function () {
+				dropdown.classList.remove("open");
+			});
+
+			dropdown.addEventListener("click", function (e) {
+				e.stopPropagation();
+			});
+
+			// Export to USB
+			document.getElementById("settingsExportUSB").addEventListener("click", function () {
+				dropdown.classList.remove("open");
+				if (!window.showDirectoryPicker) {
+					alert("USB export requires Chrome or Edge.");
+					return;
+				}
+				OvertureStore.exportToUSB()
+					.then(function () {
+						alert("Data exported to USB successfully.");
+					})
+					.catch(function (err) {
+						if (err.name === "AbortError") return;
+						alert("Export failed: " + err.message);
+					});
+			});
+
+			// Import from USB
+			document.getElementById("settingsImportUSB").addEventListener("click", function () {
+				dropdown.classList.remove("open");
+				if (!window.showDirectoryPicker) {
+					alert("USB import requires Chrome or Edge.");
+					return;
+				}
+				if (!confirm("This will merge data from your USB drive. Continue?")) return;
+				OvertureStore.importFromUSB()
+					.then(function () {
+						alert("Data imported from USB successfully.");
+					})
+					.catch(function (err) {
+						if (err.name === "AbortError") return;
+						alert("Import failed: " + err.message);
+					});
+			});
+
+			// Switch to USB Passkey
+			document.getElementById("settingsSwitchUSB").addEventListener("click", function () {
+				dropdown.classList.remove("open");
+				if (!window.showDirectoryPicker) {
+					alert("USB passkey requires Chrome or Edge.");
+					return;
+				}
+				showMethodSwitchModal("usb");
+			});
+
+			// Switch to Password
+			document.getElementById("settingsSwitchPass").addEventListener("click", function () {
+				dropdown.classList.remove("open");
+				showMethodSwitchModal("password");
+			});
+
+			// Logout
+			document.getElementById("settingsLogout").addEventListener("click", function () {
+				dropdown.classList.remove("open");
+				OvertureAuth.logout().then(function () {
+					OvertureAuth.showLoginScreen();
+				});
+			});
+		}
+
+		function showMethodSwitchModal(targetMethod) {
+			var existing = document.querySelector(".auth-modal-overlay");
+			if (existing) existing.remove();
+
+			var overlay = document.createElement("div");
+			overlay.className = "auth-modal-overlay";
+
+			var isSwitchToUSB = targetMethod === "usb";
+
+			overlay.innerHTML = [
+				'<div class="auth-modal">',
+				'  <h2>' + (isSwitchToUSB ? "Switch to USB Passkey" : "Switch to Password") + '</h2>',
+				isSwitchToUSB
+					? '  <p style="color:rgba(255,255,255,0.6);font-size:13px;text-align:center;margin:0 0 16px;">Your data will be exported to the USB drive. You\'ll login with just your email + USB drive going forward.</p>'
+					: '  <div class="auth-field"><label>New Password</label><input type="password" id="switchNewPass" placeholder="At least 6 characters"></div>',
+				'  <div class="auth-error" id="switchError"></div>',
+				'  <div class="auth-loading" id="switchLoading">Processing...</div>',
+				'  <button class="auth-btn auth-btn-primary" id="switchConfirm">' + (isSwitchToUSB ? "Select USB Drive & Switch" : "Set Password & Switch") + '</button>',
+				'  <button class="auth-btn" id="switchCancel" style="margin-top:8px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.15);">Cancel</button>',
+				'</div>',
+			].join("\n");
+
+			document.body.appendChild(overlay);
+
+			var errorEl = document.getElementById("switchError");
+			var loadingEl = document.getElementById("switchLoading");
+			var confirmBtn = document.getElementById("switchConfirm");
+			var cancelBtn = document.getElementById("switchCancel");
+
+			function showError(msg) {
+				errorEl.textContent = msg;
+				errorEl.className = "auth-error visible";
+			}
+
+			cancelBtn.addEventListener("click", function () {
+				overlay.remove();
+			});
+
+			overlay.addEventListener("click", function (e) {
+				if (e.target === overlay) overlay.remove();
+			});
+
+			if (isSwitchToUSB) {
+
+				confirmBtn.addEventListener("click", function () {
+					errorEl.className = "auth-error";
+					loadingEl.className = "auth-loading visible";
+
+					OvertureAuth.readUSBKeyFile()
+						.then(function (keyData) {
+							loadingEl.textContent = "Exporting data to USB...";
+							return OvertureStore.exportToUSB().then(function () {
+								return keyData;
+							});
+						})
+						.then(function (keyData) {
+							loadingEl.textContent = "Setting up USB passkey...";
+							return OvertureAuth.setupUSB(keyData.token);
+						})
+						.then(function () {
+							loadingEl.textContent = "Deriving encryption key...";
+							return OvertureAuth.readUSBKeyFile();
+						})
+						.then(function (keyData) {
+							return OvertureStore.setEncryptionKeyFromToken(keyData.token);
+						})
+						.then(function () {
+							overlay.remove();
+							alert("Switched to USB passkey. You can now login with your email + USB drive.");
+						})
+						.catch(function (err) {
+							if (err.name === "AbortError") { overlay.remove(); return; }
+							loadingEl.className = "auth-loading";
+							showError(err.message);
+						});
+				});
+
+			} else {
+
+				var passInput = document.getElementById("switchNewPass");
+
+				confirmBtn.addEventListener("click", function () {
+					var newPass = passInput.value;
+					errorEl.className = "auth-error";
+
+					if (!newPass || newPass.length < 6) {
+						showError("Password must be at least 6 characters.");
+						return;
+					}
+
+					loadingEl.className = "auth-loading visible";
+
+					OvertureAuth.switchToPassword(newPass)
+						.then(function () {
+							return OvertureStore.setEncryptionKey(newPass);
+						})
+						.then(function () {
+							overlay.remove();
+							alert("Switched to password login. You can now login with your email + password.");
+						})
+						.catch(function (err) {
+							loadingEl.className = "auth-loading";
+							showError(err.message);
+						});
+				});
+
+				passInput.addEventListener("keydown", function (e) {
+					if (e.key === "Enter") confirmBtn.click();
+				});
+			}
+		}
+	</script>
 </body>
 </html>

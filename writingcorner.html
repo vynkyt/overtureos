@@ -114,6 +114,19 @@ const textColor = document.getElementById('textColor');
 const savedDocsDiv = document.getElementById('savedDocs');
 let currentFile = null;
 
+// Access parent OvertureStore (same-origin iframe)
+const store = window.parent.OvertureStore;
+
+function storeGet(key) {
+    return store ? store.get('writing-corner', key) : Promise.resolve(null);
+}
+function storeSet(key, val) {
+    return store ? store.set('writing-corner', key, val) : Promise.resolve();
+}
+function storeDelete(key) {
+    return store ? store.delete('writing-corner', key) : Promise.resolve();
+}
+
 // Ensure clean paragraphs for Enter
 editor.addEventListener("keydown", function(e) {
     if(e.key === "Enter"){
@@ -123,121 +136,126 @@ editor.addEventListener("keydown", function(e) {
 });
 
 // Load last autosave
-editor.innerHTML = localStorage.getItem('myCuteDoc') || '';
-updateSavedDocs();
+storeGet('myCuteDoc').then(function(val) {
+    editor.innerHTML = val || '';
+    return updateSavedDocs();
+});
 
 // Save Doc (new file, versions, new file after clear)
 function saveDoc(){
-    let saves = JSON.parse(localStorage.getItem('savedDocs') || '{}');
+    storeGet('savedDocs').then(function(saves) {
+        saves = saves || {};
 
-    if(currentFile === null){
-        // First save → ask for name
-        const name = prompt('Enter a name for this new file:');
-        if(!name) return;
+        if(currentFile === null){
+            const name = prompt('Enter a name for this new file:');
+            if(!name) return;
 
-        currentFile = name;
-        saves[name] = {
-            history: [{
+            currentFile = name;
+            saves[name] = {
+                history: [{
+                    timestamp: new Date().toLocaleString(),
+                    content: editor.innerHTML
+                }]
+            };
+            alert(`Created new file: "${name}"`);
+        } else {
+            if(!saves[currentFile]){
+                saves[currentFile] = { history: [] };
+            }
+            saves[currentFile].history.push({
                 timestamp: new Date().toLocaleString(),
                 content: editor.innerHTML
-            }]
-        };
-        alert(`Created new file: "${name}"`);
-    } else {
-        // Ensure file exists before pushing
-        if(!saves[currentFile]){
-            saves[currentFile] = { history: [] };
+            });
+            alert(`Saved as new version of "${currentFile}"`);
         }
-        saves[currentFile].history.push({
-            timestamp: new Date().toLocaleString(),
-            content: editor.innerHTML
+
+        return storeSet('savedDocs', saves).then(function() {
+            return updateSavedDocs();
         });
-        alert(`Saved as new version of "${currentFile}"`);
-    }
-
-    // Update storage + UI
-    localStorage.setItem('savedDocs', JSON.stringify(saves));
-    updateSavedDocs();
-    document.getElementById('headerTitle').textContent = currentFile || '˗ˋˏ ♡ ˎˊ˗';
+    }).then(function() {
+        document.getElementById('headerTitle').textContent = currentFile || '˗ˋˏ ♡ ˎˊ˗';
+    });
 }
-
 
 // Update saved docs list
 function updateSavedDocs(){
     savedDocsDiv.innerHTML = '';
-    let saves = JSON.parse(localStorage.getItem('savedDocs') || '{}');
+    return storeGet('savedDocs').then(function(saves) {
+        saves = saves || {};
 
-    Object.keys(saves).forEach(name => {
-        const wrapper = document.createElement('div');
+        Object.keys(saves).forEach(name => {
+            const wrapper = document.createElement('div');
 
-        // Load button
-        const btn = document.createElement('button');
-        btn.textContent = `Load: ${name}`;
-btn.onclick = () => {
-    currentFile = name;
-    const latest = saves[name].history[saves[name].history.length - 1];
-    editor.innerHTML = latest.content;
-    localStorage.setItem('myCuteDoc', editor.innerHTML);
-    document.getElementById('headerTitle').textContent = currentFile;
-};
+            // Load button
+            const btn = document.createElement('button');
+            btn.textContent = `Load: ${name}`;
+            btn.onclick = () => {
+                currentFile = name;
+                const latest = saves[name].history[saves[name].history.length - 1];
+                editor.innerHTML = latest.content;
+                storeSet('myCuteDoc', editor.innerHTML);
+                document.getElementById('headerTitle').textContent = currentFile;
+            };
 
-
-        // Delete button
-        const del = document.createElement('button');
-        del.textContent = 'Delete';
-        del.onclick = () => {
-            if(confirm(`Delete document "${name}"?`)){
-                delete saves[name];
-                localStorage.setItem('savedDocs', JSON.stringify(saves));
-                if(currentFile===name) currentFile=null;
-                updateSavedDocs();
-            }
-        };
-
-        // Version history
-        const historyBtn = document.createElement('button');
-        historyBtn.textContent = 'Versions';
-        historyBtn.onclick = () => {
-            const existing = wrapper.querySelector('.versionDropdown');
-            if(existing){
-                existing.remove();
-                return;
-            }
-            const dropdown = document.createElement('div');
-            dropdown.className = 'versionDropdown';
-            dropdown.style.border = '2px dashed #ffafcc';
-            dropdown.style.borderRadius = '10px';
-            dropdown.style.padding = '5px';
-            dropdown.style.marginTop = '5px';
-            dropdown.style.backgroundColor = '#fff0f6';
-            dropdown.style.textAlign = 'center';
-
-            saves[name].history.forEach(v => {
-                const verBtn = document.createElement('button');
-                verBtn.textContent = v.timestamp;
-                verBtn.style.fontSize = '12px';
-                verBtn.style.margin = '3px';
-                verBtn.onclick = () => {
-                    if(confirm(`Restore version from ${v.timestamp}?`)){
-                        editor.innerHTML = v.content;
-                        localStorage.setItem('myCuteDoc', editor.innerHTML);
-                        saves[name].history.push({
-                            timestamp: new Date().toLocaleString(),
-                            content: v.content
-                        });
-                        localStorage.setItem('savedDocs', JSON.stringify(saves));
+            // Delete button
+            const del = document.createElement('button');
+            del.textContent = 'Delete';
+            del.onclick = () => {
+                if(confirm(`Delete document "${name}"?`)){
+                    delete saves[name];
+                    storeSet('savedDocs', saves).then(function() {
+                        if(currentFile===name) currentFile=null;
                         updateSavedDocs();
-                    }
-                };
-                dropdown.appendChild(verBtn);
-            });
-            wrapper.appendChild(dropdown);
-        };
+                    });
+                }
+            };
 
-        wrapper.appendChild(btn);
-        wrapper.appendChild(del);
-        wrapper.appendChild(historyBtn);
-        savedDocsDiv.appendChild(wrapper);
+            // Version history
+            const historyBtn = document.createElement('button');
+            historyBtn.textContent = 'Versions';
+            historyBtn.onclick = () => {
+                const existing = wrapper.querySelector('.versionDropdown');
+                if(existing){
+                    existing.remove();
+                    return;
+                }
+                const dropdown = document.createElement('div');
+                dropdown.className = 'versionDropdown';
+                dropdown.style.border = '2px dashed #ffafcc';
+                dropdown.style.borderRadius = '10px';
+                dropdown.style.padding = '5px';
+                dropdown.style.marginTop = '5px';
+                dropdown.style.backgroundColor = '#fff0f6';
+                dropdown.style.textAlign = 'center';
+
+                saves[name].history.forEach(v => {
+                    const verBtn = document.createElement('button');
+                    verBtn.textContent = v.timestamp;
+                    verBtn.style.fontSize = '12px';
+                    verBtn.style.margin = '3px';
+                    verBtn.onclick = () => {
+                        if(confirm(`Restore version from ${v.timestamp}?`)){
+                            editor.innerHTML = v.content;
+                            storeSet('myCuteDoc', editor.innerHTML);
+                            saves[name].history.push({
+                                timestamp: new Date().toLocaleString(),
+                                content: v.content
+                            });
+                            storeSet('savedDocs', saves).then(function() {
+                                updateSavedDocs();
+                            });
+                        }
+                    };
+                    dropdown.appendChild(verBtn);
+                });
+                wrapper.appendChild(dropdown);
+            };
+
+            wrapper.appendChild(btn);
+            wrapper.appendChild(del);
+            wrapper.appendChild(historyBtn);
+            savedDocsDiv.appendChild(wrapper);
+        });
     });
 }
 
@@ -245,7 +263,7 @@ btn.onclick = () => {
 document.getElementById('clear').addEventListener('click', () => {
     if(confirm('Are you sure you want to clear your doc?')){
         editor.innerHTML = '';
-        localStorage.removeItem('myCuteDoc');
+        storeDelete('myCuteDoc');
         currentFile = null;
         document.getElementById('headerTitle').textContent = '˗ˋˏ ♡ ˎˊ˗';
     }
