@@ -200,11 +200,18 @@ def query_user_by_email(email):
         },
     }
 
-    result = notion_request(
-        "POST",
-        f"/data_sources/{encoded_id}/query",
-        body,
-    )
+    try:
+        result = notion_request(
+            "POST",
+            f"/data_sources/{encoded_id}/query",
+            body,
+        )
+    except Exception:
+        result = notion_request(
+            "POST",
+            f"/databases/{encoded_id}/query",
+            body,
+        )
 
     results = result.get("results", [])
 
