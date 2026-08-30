@@ -494,11 +494,16 @@ var OvertureStore = (function () {
        PUBLIC API
     -------------------------------------------------- */
 
+    function isReady() {
+        return !!(db && encKey);
+    }
+
     return {
         init: init,
         setEncryptionKey: setEncryptionKey,
         setEncryptionKeyFromToken: setEncryptionKeyFromToken,
         clearKey: clearKey,
+        isReady: isReady,
         get: get,
         set: set,
         delete: del,

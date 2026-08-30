@@ -148,6 +148,10 @@ editor.addEventListener("keydown", function(e) {
 // Load last autosave (retry until store is ready)
 function loadInitialData() {
     refreshStore();
+    if (!store || !store.isReady || !store.isReady()) {
+        setTimeout(loadInitialData, 200);
+        return;
+    }
     storeGet('myCuteDoc').then(function(val) {
         editor.innerHTML = val || '';
         return updateSavedDocs();
@@ -155,6 +159,15 @@ function loadInitialData() {
         setTimeout(loadInitialData, 200);
     });
 }
+
+// Also re-load when page becomes visible (covers iframe lazy-init case)
+document.addEventListener("visibilitychange", function() {
+    if (!document.hidden) {
+        refreshStore();
+        updateSavedDocs();
+    }
+});
+
 loadInitialData();
 
 // Save Doc (new file, versions, new file after clear)
