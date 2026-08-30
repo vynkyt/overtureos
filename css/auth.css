@@ -225,18 +225,27 @@
 }
 
 .settings-btn {
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 175, 204, 0.35);
-    border-radius: 8px;
-    color: #fff;
-    font-size: 16px;
-    padding: 4px 10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 150, 190, 0.5);
+    background: rgba(255, 200, 220, 0.25);
+    color: #872A4E;
+    font-size: 13px;
     cursor: pointer;
-    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-family: "BalsamiqSans", Georgia, serif;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
 }
 
 .settings-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 150, 190, 0.4);
+    border-color: rgba(200, 80, 120, 0.6);
 }
 
 .settings-dropdown {
