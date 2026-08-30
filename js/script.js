@@ -382,6 +382,7 @@ initializeWindow("CV");
 initializeWindow("notion");
 initializeWindow("fileexplorer");
 initializeWindow("browser");
+initializeWindow("mealtracker");
 
 
 /////////////////////////// DYNAMIC WINDOWS ///////////////////////////

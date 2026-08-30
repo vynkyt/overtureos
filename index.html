@@ -15,6 +15,7 @@ made w/ wings, made to fly
 	<link href="./css/style.css" rel="stylesheet" type="text/css" media="all">
 	<link href="./css/fileexplorer.css" rel="stylesheet" type="text/css" media="all">
 	<link href="./css/browser.css" rel="stylesheet" type="text/css" media="all">
+	<link href="./css/mealtracker.css" rel="stylesheet" type="text/css" media="all">
 	<link href="./css/auth.css" rel="stylesheet" type="text/css" media="all">
 
 	<!-- tooltip -->
@@ -695,6 +696,25 @@ made w/ wings, made to fly
 </div>
 
 
+<!-- =========================================================
+     MEAL TRACKER WINDOW
+========================================================= -->
+
+<div class="window" id="mealtracker">
+    <div class="windowheader" id="mealtrackerheader">
+      <div class="window-dots">
+        <button title="fullscreen" class="fullscreenwindow" aria-label="Fullscreen"></button>
+        <span></span>
+        <span></span>
+      </div>
+      <p>Meal Tracker</p>
+      <button class="closewindow">x</button>
+    </div>
+    <div class="windowcontent" id="mealtracker-content">
+    </div>
+</div>
+
+
 <div id="desktopApps">
     <div class="app">
       <img class="openwindow" data-window="about" src="https://i.pinimg.com/1200x/6b/79/cd/6b79cd95e5d6005e158b9b1eea7931f4.jpg" style=>
@@ -735,6 +755,11 @@ made w/ wings, made to fly
       <img class="openwindow" data-window="notion" src="https://i.pinimg.com/736x/a5/52/14/a552147138fff429fde08002af9b90ab.jpg">
       <p style="margin: 0px; color: #fff; ">Notion</p>
     </div>
+
+    <div class="app">
+      <img class="openwindow" data-window="mealtracker" src="https://i.pinimg.com/736x/94/ea/85/94ea85b6e51e5e6b0e1a2f8f3b7c4d5e.jpg">
+      <p style="margin: 0px; color: #fff; ">Meal Tracker</p>
+    </div>
     
 </div>
 
@@ -755,11 +780,13 @@ made w/ wings, made to fly
 	<script src="./js/notion.js"></script>
 	<script src="./js/fileexplorer.js"></script>
 	<script src="./js/browser.js"></script>
+	<script src="./js/mealtracker.js"></script>
 	<script>
 		OvertureAuth.init().then(function (result) {
 			if (result.loggedIn && typeof OvertureStore !== "undefined") {
 				OvertureStore.init(result.userId);
 				initSettings();
+				if (typeof MealTracker !== "undefined") MealTracker.init();
 			} else {
 				OvertureAuth.onUnlock(function () {
 					var uid = OvertureAuth.getUser();
@@ -767,6 +794,7 @@ made w/ wings, made to fly
 						OvertureStore.init(uid);
 					}
 					initSettings();
+					if (typeof MealTracker !== "undefined") MealTracker.init();
 				});
 			}
 		}).catch(function (err) {
@@ -777,6 +805,7 @@ made w/ wings, made to fly
 					OvertureStore.init(uid);
 				}
 				initSettings();
+				if (typeof MealTracker !== "undefined") MealTracker.init();
 			});
 			OvertureAuth.showLoginScreen();
 		});
