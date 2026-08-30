@@ -508,26 +508,44 @@ class handler(BaseHTTPRequestHandler):
                     return
 
                 db_id = NOTION_USERS_DB_ID.strip().replace("-", "")
-                errors = []
+                results_log = []
 
+                # Test GET endpoints
                 for ep in [f"/databases/{db_id}", f"/data_sources/{db_id}"]:
                     try:
                         result = notion_request("GET", ep)
-                        send_json(self, 200, {
+                        results_log.append({
+                            "endpoint": "GET " + ep,
                             "ok": True,
-                            "endpoint": ep,
                             "title": extract_title(result),
-                            "id": result.get("id"),
                         })
-                        return
                     except Exception as e:
-                        errors.append(f"{ep}: {str(e)}")
+                        results_log.append({
+                            "endpoint": "GET " + ep,
+                            "ok": False,
+                            "error": str(e),
+                        })
+
+                # Test POST query endpoints
+                for ep in [f"/databases/{db_id}/query", f"/data_sources/{db_id}/query"]:
+                    try:
+                        result = notion_request("POST", ep, {"page_size": 5})
+                        results_log.append({
+                            "endpoint": "POST " + ep,
+                            "ok": True,
+                            "count": len(result.get("results", [])),
+                        })
+                    except Exception as e:
+                        results_log.append({
+                            "endpoint": "POST " + ep,
+                            "ok": False,
+                            "error": str(e),
+                        })
 
                 send_json(self, 200, {
-                    "ok": False,
-                    "db_id_raw": NOTION_USERS_DB_ID,
-                    "db_id_clean": db_id,
-                    "errors": errors,
+                    "ok": True,
+                    "db_id": db_id,
+                    "tests": results_log,
                 })
 
                 return
