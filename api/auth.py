@@ -187,36 +187,46 @@ def query_user_by_email(email):
         raise RuntimeError("NOTION_USERS_DB_ID is not configured.")
 
     db_id = NOTION_USERS_DB_ID.strip().replace("-", "")
+    target = email.strip().lower()
 
     body = {
-        "page_size": 1,
-        "filter": {
-            "property": "title",
-            "title": {
-                "equals": email.strip().lower(),
-            },
-        },
+        "page_size": 100,
     }
 
-    try:
-        result = notion_request(
-            "POST",
-            f"/databases/{db_id}/query",
-            body,
-        )
-    except Exception:
-        result = notion_request(
-            "POST",
-            f"/data_sources/{db_id}/query",
-            body,
-        )
+    result = None
 
-    results = result.get("results", [])
+    for endpoint in [f"/databases/{db_id}/query", f"/data_sources/{db_id}/query"]:
 
-    if not results:
-        return None
+        try:
+            result = notion_request("POST", endpoint, body)
+            break
+        except Exception:
+            continue
 
-    return results[0]
+    if result is None:
+        raise RuntimeError("Could not query Users database.")
+
+    for page in result.get("results", []):
+
+        if page.get("in_trash"):
+            continue
+
+        title = get_user_property(page, "title")
+
+        if title.lower() == target:
+            return page
+
+    return None
+
+
+def extract_title(page):
+    top_title = page.get("title")
+    if isinstance(top_title, list) and top_title:
+        return "".join(p.get("plain_text", "") for p in top_title).strip()
+    for prop in page.get("properties", {}).values():
+        if prop.get("type") == "title":
+            return "".join(p.get("plain_text", "") for p in prop.get("title", [])).strip()
+    return ""
 
 
 def get_user_property(page, prop_name):
@@ -480,6 +490,44 @@ class handler(BaseHTTPRequestHandler):
                 send_json(self, 200, {
                     "ok": True,
                     "service": "auth",
+                })
+
+                return
+
+            # -----------------------------------------
+            # DEBUG - test Notion DB access
+            # -----------------------------------------
+
+            if action == "debug-db":
+
+                if not NOTION_USERS_DB_ID:
+                    send_json(self, 200, {
+                        "ok": False,
+                        "error": "NOTION_USERS_DB_ID is not set.",
+                    })
+                    return
+
+                db_id = NOTION_USERS_DB_ID.strip().replace("-", "")
+                errors = []
+
+                for ep in [f"/databases/{db_id}", f"/data_sources/{db_id}"]:
+                    try:
+                        result = notion_request("GET", ep)
+                        send_json(self, 200, {
+                            "ok": True,
+                            "endpoint": ep,
+                            "title": extract_title(result),
+                            "id": result.get("id"),
+                        })
+                        return
+                    except Exception as e:
+                        errors.append(f"{ep}: {str(e)}")
+
+                send_json(self, 200, {
+                    "ok": False,
+                    "db_id_raw": NOTION_USERS_DB_ID,
+                    "db_id_clean": db_id,
+                    "errors": errors,
                 })
 
                 return
