@@ -16,7 +16,7 @@ from http.server import BaseHTTPRequestHandler
 # ---------------------------------------------------------
 
 NOTION_API_KEY = os.environ.get("NOTION_API_KEY")
-NOTION_VERSION = "2026-03-11"
+NOTION_VERSION = "2022-06-28"
 NOTION_BASE = "https://api.notion.com/v1"
 NOTION_USERS_DB_ID = os.environ.get("NOTION_USERS_DB_ID")
 SESSION_SECRET = os.environ.get("SESSION_SECRET", "")
