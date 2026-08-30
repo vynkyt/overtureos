@@ -340,7 +340,7 @@ var OvertureAuth = (function () {
 
                 readUSBKeyFile()
                     .then(function (keyData) {
-                        return OvertureStore.setEncryptionKeyFromToken(keyData.token);
+                        return OvertureStore.setEncryptionKeyFromToken(keyData.token, currentUser);
                     })
                     .then(function () {
                         encKeyReady = true;
@@ -370,7 +370,7 @@ var OvertureAuth = (function () {
 
                 loadingEl.className = "auth-loading visible";
 
-                OvertureStore.setEncryptionKey(password)
+                OvertureStore.setEncryptionKey(password, currentUser)
                     .then(function () {
                         encKeyReady = true;
                         hideLoginScreen();
@@ -526,7 +526,7 @@ var OvertureAuth = (function () {
 
             action
                 .then(function () {
-                    return OvertureStore.setEncryptionKey(password);
+                    return OvertureStore.setEncryptionKey(password, email);
                 })
                 .then(function () {
                     encKeyReady = true;
@@ -563,7 +563,7 @@ var OvertureAuth = (function () {
                     return loginWithUSB(email, keyData.token);
                 })
                 .then(function () {
-                    return OvertureStore.setEncryptionKeyFromToken(keyData.token);
+                    return OvertureStore.setEncryptionKeyFromToken(keyData.token, email);
                 })
                 .then(function () {
                     encKeyReady = true;

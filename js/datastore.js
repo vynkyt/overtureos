@@ -60,7 +60,11 @@ var OvertureStore = (function () {
        ENCRYPTION KEY (set after login)
     -------------------------------------------------- */
 
-    function setEncryptionKey(password) {
+    function setEncryptionKey(password, uid) {
+
+        if (uid) {
+            userId = uid;
+        }
 
         var enc = new TextEncoder();
 
@@ -93,7 +97,11 @@ var OvertureStore = (function () {
         });
     }
 
-    function setEncryptionKeyFromToken(usbToken) {
+    function setEncryptionKeyFromToken(usbToken, uid) {
+
+        if (uid) {
+            userId = uid;
+        }
 
         var enc = new TextEncoder();
 
