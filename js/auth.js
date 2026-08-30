@@ -28,7 +28,12 @@ var OvertureAuth = (function () {
         }
 
         return fetch(url, opts).then(function (res) {
-            return res.json().then(function (data) {
+            return res.text().then(function (text) {
+                try {
+                    var data = JSON.parse(text);
+                } catch (e) {
+                    throw new Error("Server error. Please try again later.");
+                }
                 if (!data.ok) {
                     throw new Error(data.error || "Auth request failed.");
                 }
@@ -47,7 +52,10 @@ var OvertureAuth = (function () {
             credentials: "include",
         })
         .then(function (res) {
-            return res.json();
+            return res.text().then(function (text) {
+                try { return JSON.parse(text); }
+                catch (e) { return { ok: false }; }
+            });
         })
         .then(function (data) {
             if (data.ok) {
@@ -597,7 +605,7 @@ var OvertureAuth = (function () {
         var desktop = document.getElementById("desktop");
 
         if (desktop) {
-            desktop.style.display = "";
+            desktop.style.display = "block";
         }
     }
 
@@ -609,7 +617,13 @@ var OvertureAuth = (function () {
             desktop.style.display = "none";
         }
 
-        renderLoginScreen();
+        var overlay = document.getElementById("auth-overlay");
+
+        if (overlay) {
+            overlay.classList.remove("hidden");
+        } else {
+            renderLoginScreen();
+        }
     }
 
     /* --------------------------------------------------

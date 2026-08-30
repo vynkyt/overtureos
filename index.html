@@ -763,8 +763,7 @@ made w/ wings, made to fly
 			}
 		}).catch(function (err) {
 			console.error("Auth init failed:", err);
-			var desktop = document.getElementById("desktop");
-			if (desktop) desktop.style.display = "";
+			OvertureAuth.showLoginScreen();
 		});
 
 		// Re-init store after unlock (key becomes available)

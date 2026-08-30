@@ -183,6 +183,9 @@ def verify_session_token(token):
 
 def query_user_by_email(email):
 
+    if not NOTION_USERS_DB_ID:
+        raise RuntimeError("NOTION_USERS_DB_ID is not configured.")
+
     encoded_id = urllib.parse.quote(
         NOTION_USERS_DB_ID, safe=""
     )
@@ -245,6 +248,9 @@ def get_user_property(page, prop_name):
 
 
 def create_user_page(email, password_hash="", usb_key_hash="", auth_method="password"):
+
+    if not NOTION_USERS_DB_ID:
+        raise RuntimeError("NOTION_USERS_DB_ID is not configured.")
 
     encoded_id = urllib.parse.quote(
         NOTION_USERS_DB_ID, safe=""
