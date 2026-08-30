@@ -151,6 +151,22 @@
     letter-spacing: 0.1em;
 }
 
+.auth-remember {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: #4a1a2e;
+    text-align: left;
+}
+.auth-remember label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+.auth-remember input[type="checkbox"] {
+    accent-color: #ff69b4;
+}
+
 .auth-toggle {
     margin-top: 18px;
     font-size: 12px;
@@ -218,7 +234,7 @@
    -------------------------------------------------- */
 
 .top-settings {
-    position: fixed;
+    position: relative;
     /* right: 16px;
     top: 18px; */
     z-index: 101;

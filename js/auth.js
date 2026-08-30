@@ -444,6 +444,9 @@ var OvertureAuth = (function () {
                 '      <label for="auth-password">Password</label>',
                 '      <input type="password" id="auth-password" placeholder="Your password" autocomplete="current-password">',
                 '    </div>',
+                '    <div class="auth-remember">',
+                '      <label><input type="checkbox" id="auth-remember-cb"> Remember me</label>',
+                '    </div>',
                 '    <div class="auth-error" id="auth-error"></div>',
                 '    <div class="auth-success" id="auth-success"></div>',
                 '    <div class="auth-loading" id="auth-loading">Loading...</div>',
@@ -467,8 +470,19 @@ var OvertureAuth = (function () {
         var errorEl = document.getElementById("auth-error");
         var successEl = document.getElementById("auth-success");
         var loadingEl = document.getElementById("auth-loading");
+        var rememberCb = document.getElementById("auth-remember-cb");
 
         var isSignUp = false;
+
+        var savedCreds = null;
+        try { savedCreds = JSON.parse(localStorage.getItem("overtureos_saved")); } catch (e) {}
+        if (savedCreds && savedCreds.email) {
+            emailInput.value = savedCreds.email;
+            if (savedCreds.password) {
+                passwordInput.value = savedCreds.password;
+                rememberCb.checked = true;
+            }
+        }
 
         function clearMessages() {
             errorEl.className = "auth-error";
@@ -526,6 +540,11 @@ var OvertureAuth = (function () {
 
             action
                 .then(function () {
+                    if (rememberCb.checked) {
+                        localStorage.setItem("overtureos_saved", JSON.stringify({ email: email, password: password }));
+                    } else {
+                        localStorage.removeItem("overtureos_saved");
+                    }
                     return OvertureStore.setEncryptionKey(password, email);
                 })
                 .then(function () {
