@@ -211,7 +211,7 @@ def query_user_by_email(email):
         if page.get("in_trash"):
             continue
 
-        title = get_user_property(page, "title")
+        title = get_title_property(page)
 
         if title.lower() == target:
             return page
@@ -258,6 +258,21 @@ def get_user_property(page, prop_name):
             if ptype == "date":
                 d = prop.get("date")
                 return d.get("start", "") if d else ""
+
+    return ""
+
+
+def get_title_property(page):
+
+    props = page.get("properties", {})
+
+    for prop in props.values():
+
+        if prop.get("type") == "title":
+            parts = prop.get("title", [])
+            return "".join(
+                p.get("plain_text", "") for p in parts
+            ).strip()
 
     return ""
 
