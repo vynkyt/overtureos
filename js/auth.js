@@ -386,6 +386,14 @@ var OvertureAuth = (function () {
                     unlockBtn.click();
                 }
             });
+
+            var saved = null;
+            try { saved = JSON.parse(localStorage.getItem("overtureos_saved")); } catch (e) {}
+            if (saved && saved.password) {
+                passwordInput.value = saved.password;
+                loadingEl.className = "auth-loading visible";
+                unlockBtn.click();
+            }
         }
 
         switchLink.addEventListener("click", function () {
