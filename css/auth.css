@@ -219,8 +219,8 @@
 
 .top-settings {
     position: fixed;
-    right: 16px;
-    top: 18px;
+    /* right: 16px;
+    top: 18px; */
     z-index: 101;
 }
 

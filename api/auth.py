@@ -509,62 +509,6 @@ class handler(BaseHTTPRequestHandler):
 
                 return
 
-            # -----------------------------------------
-            # DEBUG - test Notion DB access
-            # -----------------------------------------
-
-            if action == "debug-db":
-
-                if not NOTION_USERS_DB_ID:
-                    send_json(self, 200, {
-                        "ok": False,
-                        "error": "NOTION_USERS_DB_ID is not set.",
-                    })
-                    return
-
-                db_id = NOTION_USERS_DB_ID.strip().replace("-", "")
-                results_log = []
-
-                # Test GET endpoints
-                for ep in [f"/databases/{db_id}", f"/data_sources/{db_id}"]:
-                    try:
-                        result = notion_request("GET", ep)
-                        results_log.append({
-                            "endpoint": "GET " + ep,
-                            "ok": True,
-                            "title": extract_title(result),
-                        })
-                    except Exception as e:
-                        results_log.append({
-                            "endpoint": "GET " + ep,
-                            "ok": False,
-                            "error": str(e),
-                        })
-
-                # Test POST query endpoints
-                for ep in [f"/databases/{db_id}/query", f"/data_sources/{db_id}/query"]:
-                    try:
-                        result = notion_request("POST", ep, {"page_size": 5})
-                        results_log.append({
-                            "endpoint": "POST " + ep,
-                            "ok": True,
-                            "count": len(result.get("results", [])),
-                        })
-                    except Exception as e:
-                        results_log.append({
-                            "endpoint": "POST " + ep,
-                            "ok": False,
-                            "error": str(e),
-                        })
-
-                send_json(self, 200, {
-                    "ok": True,
-                    "db_id": db_id,
-                    "tests": results_log,
-                })
-
-                return
-
             send_json(self, 404, {
                 "ok": False,
                 "error": "Unknown action.",
