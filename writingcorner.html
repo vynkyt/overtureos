@@ -115,16 +115,26 @@ const savedDocsDiv = document.getElementById('savedDocs');
 let currentFile = null;
 
 // Access parent OvertureStore (same-origin iframe)
-const store = window.parent.OvertureStore;
+var store = window.parent.OvertureStore;
+
+function refreshStore() {
+    if (!store || !store.get) {
+        store = window.parent.OvertureStore;
+    }
+    return !!(store && store.get);
+}
 
 function storeGet(key) {
-    return store ? store.get('writing-corner', key).catch(function() { return null; }) : Promise.resolve(null);
+    if (!store || !store.get) return Promise.reject(new Error("Store not ready"));
+    return store.get('writing-corner', key);
 }
 function storeSet(key, val) {
-    return store ? store.set('writing-corner', key, val).catch(function() { return null; }) : Promise.resolve();
+    if (!store || !store.set) return Promise.reject(new Error("Store not ready"));
+    return store.set('writing-corner', key, val);
 }
 function storeDelete(key) {
-    return store ? store.delete('writing-corner', key).catch(function() { return null; }) : Promise.resolve();
+    if (!store || !store.delete) return Promise.reject(new Error("Store not ready"));
+    return store.delete('writing-corner', key);
 }
 
 // Ensure clean paragraphs for Enter
@@ -137,6 +147,7 @@ editor.addEventListener("keydown", function(e) {
 
 // Load last autosave (retry until store is ready)
 function loadInitialData() {
+    refreshStore();
     storeGet('myCuteDoc').then(function(val) {
         editor.innerHTML = val || '';
         return updateSavedDocs();
@@ -148,6 +159,7 @@ loadInitialData();
 
 // Save Doc (new file, versions, new file after clear)
 function saveDoc(){
+    refreshStore();
     storeGet('savedDocs').then(function(saves) {
         saves = saves || {};
 
@@ -185,6 +197,7 @@ function saveDoc(){
 // Update saved docs list
 function updateSavedDocs(){
     savedDocsDiv.innerHTML = '';
+    refreshStore();
     return storeGet('savedDocs').then(function(saves) {
         saves = saves || {};
 
