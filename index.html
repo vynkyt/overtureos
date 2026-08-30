@@ -760,9 +760,16 @@ made w/ wings, made to fly
 			if (result.loggedIn && typeof OvertureStore !== "undefined") {
 				OvertureStore.init(result.userId);
 				initSettings();
+			} else {
+				OvertureAuth.onUnlock(function () {
+					initSettings();
+				});
 			}
 		}).catch(function (err) {
 			console.error("Auth init failed:", err);
+			OvertureAuth.onUnlock(function () {
+				initSettings();
+			});
 			OvertureAuth.showLoginScreen();
 		});
 

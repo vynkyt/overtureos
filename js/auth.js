@@ -594,6 +594,8 @@ var OvertureAuth = (function () {
         overlay.classList.remove("hidden");
     }
 
+    var onUnlockCallback = null;
+
     function hideLoginScreen() {
 
         var overlay = document.getElementById("auth-overlay");
@@ -606,6 +608,11 @@ var OvertureAuth = (function () {
 
         if (desktop) {
             desktop.style.display = "block";
+        }
+
+        if (onUnlockCallback) {
+            onUnlockCallback();
+            onUnlockCallback = null;
         }
     }
 
@@ -670,6 +677,7 @@ var OvertureAuth = (function () {
         writeUSBDataFile: writeUSBDataFile,
         showLoginScreen: showLoginScreen,
         hideLoginScreen: hideLoginScreen,
+        onUnlock: function (fn) { onUnlockCallback = fn; },
         getUser: function () { return currentUser; },
         getMethod: function () { return currentMethod; },
         isKeyReady: function () { return encKeyReady; },
