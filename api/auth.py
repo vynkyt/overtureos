@@ -186,9 +186,7 @@ def query_user_by_email(email):
     if not NOTION_USERS_DB_ID:
         raise RuntimeError("NOTION_USERS_DB_ID is not configured.")
 
-    encoded_id = urllib.parse.quote(
-        NOTION_USERS_DB_ID, safe=""
-    )
+    db_id = NOTION_USERS_DB_ID.strip().replace("-", "")
 
     body = {
         "page_size": 1,
@@ -203,13 +201,13 @@ def query_user_by_email(email):
     try:
         result = notion_request(
             "POST",
-            f"/data_sources/{encoded_id}/query",
+            f"/databases/{db_id}/query",
             body,
         )
     except Exception:
         result = notion_request(
             "POST",
-            f"/databases/{encoded_id}/query",
+            f"/data_sources/{db_id}/query",
             body,
         )
 
@@ -259,9 +257,7 @@ def create_user_page(email, password_hash="", usb_key_hash="", auth_method="pass
     if not NOTION_USERS_DB_ID:
         raise RuntimeError("NOTION_USERS_DB_ID is not configured.")
 
-    encoded_id = urllib.parse.quote(
-        NOTION_USERS_DB_ID, safe=""
-    )
+    db_id = NOTION_USERS_DB_ID.strip().replace("-", "")
 
     now_iso = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
 
@@ -311,14 +307,12 @@ def create_user_page(email, password_hash="", usb_key_hash="", auth_method="pass
         },
     }
 
-    body = {"properties": properties}
-
     return notion_request(
         "POST",
-        f"/pages",
+        "/pages",
         {
             "parent": {
-                "database_id": NOTION_USERS_DB_ID,
+                "database_id": db_id,
             },
             "properties": properties,
         },
