@@ -130,6 +130,10 @@ var OvertureStore = (function () {
         encKey = null;
     }
 
+    function userNs(namespace) {
+        return namespace + ":" + (userId || "_anon");
+    }
+
     /* --------------------------------------------------
        ENCRYPT / DECRYPT
     -------------------------------------------------- */
@@ -213,7 +217,8 @@ var OvertureStore = (function () {
             var tx = db.transaction(STORE_NAME, "readonly");
             var store = tx.objectStore(STORE_NAME);
             var index = store.index("ns_key");
-            var request = index.get([namespace, key]);
+            var ns = userNs(namespace);
+            var request = index.get([ns, key]);
 
             request.onsuccess = function () {
 
@@ -251,8 +256,9 @@ var OvertureStore = (function () {
                 var tx = db.transaction(STORE_NAME, "readwrite");
                 var store = tx.objectStore(STORE_NAME);
                 var index = store.index("ns_key");
+                var ns = userNs(namespace);
 
-                var getReq = index.get([namespace, key]);
+                var getReq = index.get([ns, key]);
 
                 getReq.onsuccess = function () {
 
@@ -262,7 +268,7 @@ var OvertureStore = (function () {
                     if (existing) {
                         record = {
                             id: existing.id,
-                            namespace: namespace,
+                            namespace: ns,
                             key: key,
                             ciphertext: encrypted.ciphertext,
                             iv: encrypted.iv,
@@ -271,7 +277,7 @@ var OvertureStore = (function () {
                         };
                     } else {
                         record = {
-                            namespace: namespace,
+                            namespace: ns,
                             key: key,
                             ciphertext: encrypted.ciphertext,
                             iv: encrypted.iv,
@@ -310,7 +316,8 @@ var OvertureStore = (function () {
             var tx = db.transaction(STORE_NAME, "readwrite");
             var store = tx.objectStore(STORE_NAME);
             var index = store.index("ns_key");
-            var request = index.get([namespace, key]);
+            var ns = userNs(namespace);
+            var request = index.get([ns, key]);
 
             request.onsuccess = function () {
 
@@ -343,7 +350,8 @@ var OvertureStore = (function () {
             var tx = db.transaction(STORE_NAME, "readonly");
             var store = tx.objectStore(STORE_NAME);
             var index = store.index("namespace");
-            var request = index.getAllKeys(namespace);
+            var ns = userNs(namespace);
+            var request = index.getAllKeys(ns);
 
             request.onsuccess = function () {
                 resolve(request.result || []);
@@ -368,21 +376,25 @@ var OvertureStore = (function () {
                 return;
             }
 
+            var prefix = (userId || "_anon") + ":";
             var tx = db.transaction(STORE_NAME, "readonly");
             var store = tx.objectStore(STORE_NAME);
             var request = store.getAll();
 
             request.onsuccess = function () {
 
-                var records = request.result || [];
+                var records = (request.result || []).filter(function (rec) {
+                    return rec.namespace && rec.namespace.indexOf(prefix) === 0;
+                });
                 var exportData = {};
 
                 var decryptPromises = records.map(function (rec) {
                     return decryptValue(rec).then(function (val) {
-                        if (!exportData[rec.namespace]) {
-                            exportData[rec.namespace] = {};
+                        var rawNs = rec.namespace.substring(prefix.length);
+                        if (!exportData[rawNs]) {
+                            exportData[rawNs] = {};
                         }
-                        exportData[rec.namespace][rec.key] = val;
+                        exportData[rawNs][rec.key] = val;
                     });
                 });
 
@@ -449,11 +461,18 @@ var OvertureStore = (function () {
                 return;
             }
 
+            var prefix = (userId || "_anon") + ":";
             var tx = db.transaction(STORE_NAME, "readwrite");
             var store = tx.objectStore(STORE_NAME);
-            var request = store.clear();
+            var request = store.getAll();
 
             request.onsuccess = function () {
+                var records = request.result || [];
+                records.forEach(function (rec) {
+                    if (rec.namespace && rec.namespace.indexOf(prefix) === 0) {
+                        store.delete(rec.id);
+                    }
+                });
                 resolve();
             };
 
