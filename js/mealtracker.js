@@ -464,7 +464,7 @@ var MealTracker = (function () {
             var img = uploadedDataUrl || "img/food/custom.jpg";
 
             // Add to FOODS list dynamically
-            var newFood = { name: name, img: img, cal: cal, cat: "custom", isCustom: false };
+            var newFood = { name: name, img: img, cal: cal, cat: "custom", isCustom: false, userAdded: true };
             FOODS.push(newFood);
 
             // Add to today's selected meal
@@ -533,6 +533,26 @@ var MealTracker = (function () {
                     day[targetMeal].push({ name: name, calories: cal, img: img });
                     saveData(d, function () { render(); });
                 });
+            });
+
+            // Right-click to delete custom foods
+            card.addEventListener("contextmenu", function (e) {
+                var name = card.getAttribute("data-name");
+                var isCustomPlaceholder = card.getAttribute("data-custom") === "1";
+                if (isCustomPlaceholder) return;
+
+                // Find if this is a user-added food
+                var idx = -1;
+                for (var i = 0; i < FOODS.length; i++) {
+                    if (FOODS[i].name === name && FOODS[i].userAdded) { idx = i; break; }
+                }
+                if (idx === -1) return;
+
+                e.preventDefault();
+                if (confirm('Remove "' + name + '" from your food list?')) {
+                    FOODS.splice(idx, 1);
+                    render();
+                }
             });
         });
 
