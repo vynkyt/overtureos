@@ -170,8 +170,7 @@
     position: relative;
 }
 .mt-food-card:hover {
-    transform: perspective(500px) rotateY(5deg) rotateX(-3deg) scale(1.06);
-    filter: drop-shadow(0 3px 8px rgba(232, 67, 147, 0.2));
+    transform: rotate(-3deg) scale(1.05);
 }
 .mt-food-card:active {
     transform: scale(0.95);
