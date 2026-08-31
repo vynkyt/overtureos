@@ -386,7 +386,7 @@ var MealTracker = (function () {
        CUSTOM FOOD MODAL
     -------------------------------------------------- */
 
-    function showCustomModal(data) {
+    function showCustomModal() {
         var existing = document.getElementById("mt-custom-modal");
         if (existing) existing.remove();
 
@@ -434,12 +434,12 @@ var MealTracker = (function () {
         var imgPreview = document.getElementById("mt-custom-img-preview");
         var uploadedDataUrl = null;
 
-        // Close
-        modal.querySelector(".mt-modal-close").onclick = function () { modal.remove(); };
-        modal.querySelector(".mt-modal-cancel").onclick = function () { modal.remove(); };
-        modal.addEventListener("click", function (e) { if (e.target === modal) modal.remove(); });
+        function closeModal() { modal.remove(); }
 
-        // Image upload
+        modal.querySelector(".mt-modal-close").addEventListener("click", closeModal);
+        modal.querySelector(".mt-modal-cancel").addEventListener("click", closeModal);
+        modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+
         imgArea.addEventListener("click", function () { imgInput.click(); });
         imgInput.addEventListener("change", function () {
             var file = imgInput.files[0];
@@ -454,8 +454,7 @@ var MealTracker = (function () {
             reader.readAsDataURL(file);
         });
 
-        // Confirm
-        modal.querySelector(".mt-modal-confirm").onclick = function () {
+        modal.querySelector(".mt-modal-confirm").addEventListener("click", function () {
             var name = nameInput.value.trim();
             var cal = parseInt(calInput.value, 10);
             if (!name) { nameInput.focus(); return; }
@@ -463,20 +462,18 @@ var MealTracker = (function () {
 
             var img = uploadedDataUrl || "img/food/custom.jpg";
 
-            // Add to FOODS list
             FOODS.push({ name: name, img: img, cal: cal, cat: "custom", isCustom: false, userAdded: true });
 
-            // Add to today's meal
-            var day = getDayData(data, currentDate);
-            if (!day[activeMeal]) day[activeMeal] = [];
-            day[activeMeal].push({ name: name, calories: cal, img: img });
-
-            // Save and re-render
-            saveData(data, function () {
-                modal.remove();
-                render();
+            loadData(function (freshData) {
+                var day = getDayData(freshData, currentDate);
+                if (!day[activeMeal]) day[activeMeal] = [];
+                day[activeMeal].push({ name: name, calories: cal, img: img });
+                saveData(freshData, function () {
+                    closeModal();
+                    render();
+                });
             });
-        };
+        });
 
         nameInput.focus();
     }
@@ -517,7 +514,7 @@ var MealTracker = (function () {
             card.addEventListener("click", function () {
                 var isCustom = card.getAttribute("data-custom") === "1";
                 if (isCustom) {
-                    showCustomModal(data);
+                    showCustomModal();
                     return;
                 }
 
