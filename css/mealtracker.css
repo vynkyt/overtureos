@@ -1,7 +1,10 @@
 /* --------------------------------------------------
    MEAL TRACKER — OvertureOS
    -------------------------------------------------- */
-
+@font-face {
+    font-family: "Balsamiq Sans";
+    src: url("https://imp.neocities.org/layouts/spacehey/sickly-sweet/BalsamiqSans-Regular.ttf");
+}
 .mt-container {
     font-family: "Balsamiq Sans", Georgia, serif;
     color: #4a1a2e;
