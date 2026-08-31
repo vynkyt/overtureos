@@ -263,7 +263,7 @@ var MealTracker = (function () {
                 '<div class="mt-container">',
 
                 // Header
-                '<p>~to fuel my eating disorder~</p>',
+                '<p class="mt-subtitle">~ to fuel my eating disorder ~</p>',
                 '  <div class="mt-header">',
                 '    <div class="mt-date">' + formatDate(currentDate) + '</div>',
                 '    <div class="mt-total"><span class="mt-total-num">' + totalCals + '</span> cal today</div>',

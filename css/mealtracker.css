@@ -11,6 +11,11 @@
     padding: 0;
 }
 
+.mt-subtitle {
+    text-align: center;
+    font-size: 11px;
+}
+
 .mt-header {
     display: flex;
     justify-content: space-between;
