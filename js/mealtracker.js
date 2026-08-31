@@ -766,5 +766,4 @@ var MealTracker = (function () {
     return { init: init, render: render };
 
 })();
- 
- 
+
