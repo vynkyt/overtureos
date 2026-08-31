@@ -11,44 +11,42 @@ var MealTracker = (function () {
     var FOODS = [
         // Drinks
         { name: "Bubble Tea (no sugar)", img: "img/food/1bubbletea.png", cal: 360, cat: "drinks" },
-        { name: "Bubble Tea (2, no sugar)",       img: "img/food/2bubbletea.png", cal: 720, cat: "drinks" },
-        { name: "Green Tea Frappe (no sugar)",       img: "img/food/greenteafrappe.png", cal: 200, cat: "drinks" },
+        { name: "Bubble Tea (2, no sugar)", img: "img/food/2bubbletea.png", cal: 720, cat: "drinks" },
+        { name: "Green Tea Frappe (no sugar)", img: "img/food/greenteafrappe.png", cal: 200, cat: "drinks" },
 
         // Snacks
-        { name: "Chocolate Bar",           img: "img/food/chocolate-bar.png", cal: 105, cat: "snacks" },
-        { name: "Strawberries",            img: "img/food/strawberries.png", cal: 49, cat: "snacks" },
-        { name: "Mamee",            img: "img/food/mamee.png", cal: 120, cat: "snacks" },
+        { name: "Chocolate Bar", img: "img/food/chocolate-bar.png", cal: 105, cat: "snacks" },
+        { name: "Strawberries", img: "img/food/strawberries.png", cal: 49, cat: "snacks" },
+        { name: "Mamee", img: "img/food/mamee.png", cal: 120, cat: "snacks" },
 
         // Meals
-        { name: "Wrap",                    img: "img/food/wrap.png", cal: 300, cat: "meals" },
+        { name: "Wrap", img: "img/food/wrap.png", cal: 300, cat: "meals" },
 
         // Custom placeholder
-        { name: "Custom",                  img: "img/food/custom.jpg", cal: 0, cat: "custom", isCustom: true },
+        { name: "Custom", img: "img/food/custom.jpg", cal: 0, cat: "custom", isCustom: true },
     ];
 
     var MEALS = [
         { id: "breakfast", label: "Breakfast", color: "#fdcb6e" },
-        { id: "lunch",     label: "Lunch",     color: "#55efc4" },
-        { id: "dinner",    label: "Dinner",    color: "#a29bfe" },
-        { id: "snacks",    label: "Snacks",    color: "#fd79a8" },
+        { id: "lunch", label: "Lunch", color: "#55efc4" },
+        { id: "dinner", label: "Dinner", color: "#a29bfe" },
+        { id: "snacks", label: "Snacks", color: "#fd79a8" },
     ];
 
     var TABS = [
-        { id: "add",          label: "Add Food" },
-        { id: "ingredients",  label: "Add Ingredients" },
-        { id: "today",        label: "Chart" },
+        { id: "add", label: "Add Food" },
+        { id: "ingredients", label: "Add Ingredients" },
+        { id: "today", label: "Chart" },
     ];
 
     var INGREDIENTS = [
-        { name: "White Rice (~1/2 cup cooked)", cal: 206, cat: "grains" },
+        { name: "White Rice (~1/2 cup cooked)", cal: 150, cat: "grains" },
         { name: "Brown Rice (1 cup cooked)", cal: 216, cat: "grains" },
         { name: "Bread (1 slice)", cal: 79, cat: "grains" },
         { name: "Tortilla (1 medium)", cal: 140, cat: "grains" },
         { name: "Oats (1/2 cup dry)", cal: 150, cat: "grains" },
-        { name: "Chicken Breast (100g)", cal: 165, cat: "protein" },
-        { name: "Chicken Thigh (100g)", cal: 209, cat: "protein" },
-        { name: "Ground Beef (100g)", cal: 254, cat: "protein" },
         { name: "Salmon (100g)", cal: 208, cat: "protein" },
+        { name: "Fish Fillet (100g)", cal: 100, cat: "protein" },
         { name: "Shrimp (100g)", cal: 85, cat: "protein" },
         { name: "Egg (1 large)", cal: 78, cat: "protein" },
         { name: "Tofu (100g)", cal: 76, cat: "protein" },
@@ -63,8 +61,9 @@ var MealTracker = (function () {
         { name: "Strawberries (1 cup)", cal: 49, cat: "fruit" },
         { name: "Blueberries (1 cup)", cal: 84, cat: "fruit" },
         { name: "Avocado (1 medium)", cal: 240, cat: "fruit" },
-        { name: "Broccoli (1 cup)", cal: 55, cat: "vegetable" },
-        { name: "Carrot (1 medium)", cal: 25, cat: "vegetable" },
+        { name: "Broccoli (1 cup)", cal: 20, cat: "vegetable" },
+        { name: "Baby Corns (~5 pcs)", cal: 20, cat: "vegetable" },
+        { name: "Carrot (1 medium)", cal: 20, cat: "vegetable" },
         { name: "Spinach (1 cup raw)", cal: 7, cat: "vegetable" },
         { name: "Tomato (1 medium)", cal: 22, cat: "vegetable" },
         { name: "Potato (1 medium)", cal: 161, cat: "vegetable" },
@@ -80,10 +79,6 @@ var MealTracker = (function () {
         { name: "Ketchup (1 tbsp)", cal: 20, cat: "condiment" },
         { name: "Mayonnaise (1 tbsp)", cal: 94, cat: "condiment" },
         { name: "Hot Sauce (1 tbsp)", cal: 0, cat: "condiment" },
-        { name: "Coca-Cola (1 can)", cal: 140, cat: "drinks" },
-        { name: "Orange Juice (1 cup)", cal: 112, cat: "drinks" },
-        { name: "Coffee (black, 1 cup)", cal: 2, cat: "drinks" },
-        { name: "Green Tea (1 cup)", cal: 2, cat: "drinks" },
         { name: "Almond Milk (1 cup)", cal: 39, cat: "drinks" },
         { name: "Protein Powder (1 scoop)", cal: 120, cat: "drinks" },
         { name: "Peanut Butter (1 tbsp)", cal: 94, cat: "other" },
@@ -372,25 +367,25 @@ var MealTracker = (function () {
         if (range === "weekly") {
             for (var i = 6; i >= 0; i--) {
                 var d = new Date(now); d.setDate(d.getDate() - i);
-                var key = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
-                labels.push(["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()] + "\n" + d.getDate() + "/" + (d.getMonth()+1));
+                var key = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+                labels.push(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()] + "\n" + d.getDate() + "/" + (d.getMonth() + 1));
                 values.push(dayTotalFromData(data, key));
             }
         } else if (range === "monthly") {
             for (var i = 29; i >= 0; i--) {
                 var d = new Date(now); d.setDate(d.getDate() - i);
-                var key = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
-                labels.push(d.getDate() + "/" + (d.getMonth()+1));
+                var key = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+                labels.push(d.getDate() + "/" + (d.getMonth() + 1));
                 values.push(dayTotalFromData(data, key));
             }
         } else {
-            var mn = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+            var mn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             var cm = now.getMonth(), cy = now.getFullYear();
             for (var i = 11; i >= 0; i--) {
                 var m = (cm - i + 12) % 12, y = cm - i < 0 ? cy - 1 : cy;
-                var total = 0, count = 0, dim = new Date(y, m+1, 0).getDate();
+                var total = 0, count = 0, dim = new Date(y, m + 1, 0).getDate();
                 for (var dd = 1; dd <= dim; dd++) {
-                    var key = y + "-" + String(m+1).padStart(2,"0") + "-" + String(dd).padStart(2,"0");
+                    var key = y + "-" + String(m + 1).padStart(2, "0") + "-" + String(dd).padStart(2, "0");
                     var t = dayTotalFromData(data, key);
                     if (t > 0) { total += t; count++; }
                 }
@@ -488,7 +483,7 @@ var MealTracker = (function () {
 
         // Stats
         var nonZero = values.filter(function (v) { return v > 0; });
-        var avg = nonZero.length ? Math.round(nonZero.reduce(function (a,b) { return a+b; }, 0) / nonZero.length) : 0;
+        var avg = nonZero.length ? Math.round(nonZero.reduce(function (a, b) { return a + b; }, 0) / nonZero.length) : 0;
         var peak = Math.max.apply(null, values);
         var least = nonZero.length ? Math.min.apply(null, nonZero) : 0;
 
@@ -668,68 +663,6 @@ var MealTracker = (function () {
                 if (confirm('Remove "' + name + '" from your food list?')) {
                     FOODS.splice(idx, 1);
                     render();
-                }
-            });
-        });
-
-        // Ingredient search
-        var searchInput = document.getElementById("mt-ingredient-search");
-        var ingredientList = container.querySelector(".mt-ingredient-list");
-        if (searchInput && ingredientList) {
-            searchInput.addEventListener("input", function () {
-                ingredientSearch = searchInput.value;
-                var query = ingredientSearch.toLowerCase();
-                var filtered = INGREDIENTS.filter(function (ing) {
-                    return !query || ing.name.toLowerCase().indexOf(query) !== -1;
-                });
-                var listHtml = '';
-                if (filtered.length === 0) {
-                    listHtml = '<div class="mt-empty">No ingredients found</div>';
-                }
-                filtered.forEach(function (ing) {
-                    listHtml += '<div class="mt-ingredient-row" data-name="' + ing.name + '" data-cal="' + ing.cal + '" data-meal-target="' + activeMeal + '">';
-                    listHtml += '<div class="mt-ingredient-name">' + ing.name + '</div>';
-                    listHtml += '<div class="mt-ingredient-cal">' + ing.cal + ' cal</div>';
-                    listHtml += '</div>';
-                });
-                ingredientList.innerHTML = listHtml;
-
-                // Re-bind ingredient row clicks
-                ingredientList.querySelectorAll(".mt-ingredient-row").forEach(function (row) {
-                    row.addEventListener("click", function () {
-                        var name = row.getAttribute("data-name");
-                        var cal = parseInt(row.getAttribute("data-cal"), 10);
-                        var targetMeal = row.getAttribute("data-meal-target") || activeMeal;
-                        if (cachedData) {
-                            var day = getDayData(cachedData, currentDate);
-                            if (!day[targetMeal]) day[targetMeal] = [];
-                            day[targetMeal].push({ name: name, calories: cal, img: "" });
-                            saveData(cachedData, function () { render(); });
-                        }
-                    });
-                });
-            });
-            searchInput.addEventListener("keydown", function (e) {
-                if (e.key === "Enter") e.preventDefault();
-            });
-            if (ingredientSearch) {
-                searchInput.setSelectionRange(ingredientSearch.length, ingredientSearch.length);
-            }
-            searchInput.focus();
-        }
-
-        // Ingredient rows — click to add
-        container.querySelectorAll(".mt-ingredient-row").forEach(function (row) {
-            row.addEventListener("click", function () {
-                var name = row.getAttribute("data-name");
-                var cal = parseInt(row.getAttribute("data-cal"), 10);
-                var targetMeal = row.getAttribute("data-meal-target") || activeMeal;
-
-                if (cachedData) {
-                    var day = getDayData(cachedData, currentDate);
-                    if (!day[targetMeal]) day[targetMeal] = [];
-                    day[targetMeal].push({ name: name, calories: cal, img: "" });
-                    saveData(cachedData, function () { render(); });
                 }
             });
         });
