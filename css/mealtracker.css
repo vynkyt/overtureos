@@ -211,3 +211,103 @@
     background: rgba(255, 175, 204, 0.4);
     border-radius: 2px;
 }
+
+/* --------------------------------------------------
+   CHART
+   -------------------------------------------------- */
+
+.mt-chart-section {
+    margin-top: 16px;
+    border: 1px solid rgba(255, 175, 204, 0.35);
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(255, 245, 249, 0.5);
+}
+
+.mt-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    background: rgba(255, 220, 235, 0.25);
+    border-bottom: 1px solid rgba(255, 175, 204, 0.2);
+}
+
+.mt-chart-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #4a1a2e;
+}
+
+.mt-chart-toggles {
+    display: flex;
+    gap: 4px;
+}
+
+.mt-chart-btn {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 175, 204, 0.3);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-family: "Balsamiq Sans", Georgia, serif;
+    color: #872A4E;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.mt-chart-btn:hover {
+    background: rgba(255, 200, 220, 0.4);
+}
+
+.mt-chart-btn.active {
+    background: #e84393;
+    color: #fff;
+    border-color: #e84393;
+}
+
+.mt-chart-wrap {
+    padding: 10px 10px 0;
+}
+
+.mt-chart-wrap canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.mt-chart-stats {
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 14px 12px;
+}
+
+.mt-stat {
+    text-align: center;
+}
+
+.mt-stat-val {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: #e84393;
+    line-height: 1.2;
+}
+
+.mt-stat-lbl {
+    display: block;
+    font-size: 9px;
+    color: rgba(74, 26, 46, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.mt-subtitle {
+    text-align: center;
+    font-size: 11px;
+    color: rgba(74, 26, 46, 0.4);
+    font-style: italic;
+    margin: 0 0 6px;
+}

@@ -298,10 +298,29 @@ var MealTracker = (function () {
                 '    </div>',
                 '  </div>',
 
+                // Chart
+                '  <div class="mt-chart-section">',
+                '    <div class="mt-chart-header">',
+                '      <span class="mt-chart-title">Calorie Trends</span>',
+                '      <div class="mt-chart-toggles">',
+                '        <button class="mt-chart-btn active" data-range="weekly">Weekly</button>',
+                '        <button class="mt-chart-btn" data-range="monthly">Monthly</button>',
+                '        <button class="mt-chart-btn" data-range="yearly">Yearly</button>',
+                '      </div>',
+                '    </div>',
+                '    <div class="mt-chart-wrap">',
+                '      <canvas id="mt-chart" width="600" height="200"></canvas>',
+                '    </div>',
+                '    <div id="mt-chart-stats" class="mt-chart-stats"></div>',
+                '  </div>',
+
                 '</div>',
             ].join("");
 
             bindEvents(container, data);
+
+            // Render chart after DOM is ready
+            setTimeout(function () { renderChart(data); }, 0);
         });
     }
 
@@ -327,6 +346,169 @@ var MealTracker = (function () {
             '    <div class="mt-meal-items">' + (rows || '<div class="mt-empty">No items yet</div>') + '</div>',
             '  </div>',
         ].join("");
+    }
+
+    /* --------------------------------------------------
+       CHART
+    -------------------------------------------------- */
+
+    var chartRange = "weekly";
+
+    function dayTotalCals(data, dateStr) {
+        var day = data[dateStr];
+        if (!day) return 0;
+        var total = 0;
+        ["breakfast", "lunch", "dinner", "snacks"].forEach(function (meal) {
+            (day[meal] || []).forEach(function (item) { total += item.calories; });
+        });
+        return total;
+    }
+
+    function getChartData(data, range) {
+        var labels = [];
+        var values = [];
+        var now = new Date();
+
+        if (range === "weekly") {
+            for (var i = 6; i >= 0; i--) {
+                var d = new Date(now);
+                d.setDate(d.getDate() - i);
+                var key = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+                var dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                labels.push(dayNames[d.getDay()] + "\n" + d.getDate() + "/" + (d.getMonth() + 1));
+                values.push(dayTotalCals(data, key));
+            }
+        } else if (range === "monthly") {
+            for (var i = 29; i >= 0; i--) {
+                var d = new Date(now);
+                d.setDate(d.getDate() - i);
+                var key = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+                labels.push(d.getDate() + "/" + (d.getMonth() + 1));
+                values.push(dayTotalCals(data, key));
+            }
+        } else if (range === "yearly") {
+            var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            var curMonth = now.getMonth();
+            var curYear = now.getFullYear();
+            for (var i = 11; i >= 0; i--) {
+                var m = (curMonth - i + 12) % 12;
+                var y = curMonth - i < 0 ? curYear - 1 : curYear;
+                var total = 0;
+                var count = 0;
+                var daysInMonth = new Date(y, m + 1, 0).getDate();
+                for (var day = 1; day <= daysInMonth; day++) {
+                    var key = y + "-" + String(m + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+                    var t = dayTotalCals(data, key);
+                    if (t > 0) { total += t; count++; }
+                }
+                labels.push(monthNames[m] + " " + y);
+                values.push(count > 0 ? Math.round(total / count) : 0);
+            }
+        }
+
+        return { labels: labels, values: values };
+    }
+
+    function renderChart(data) {
+        var canvas = document.getElementById("mt-chart");
+        var statsEl = document.getElementById("mt-chart-stats");
+        if (!canvas || !statsEl) return;
+
+        var ctx = canvas.getContext("2d");
+        var wrap = canvas.parentElement;
+        var W = wrap.clientWidth || 600;
+        var H = 200;
+        canvas.width = W;
+        canvas.height = H;
+
+        var chartData = getChartData(data, chartRange);
+        var labels = chartData.labels;
+        var values = chartData.values;
+
+        var maxVal = Math.max.apply(null, values);
+        if (maxVal === 0) maxVal = 2000;
+        maxVal = Math.ceil(maxVal / 500) * 500;
+
+        var padL = 50, padR = 16, padT = 16, padB = 40;
+        var chartW = W - padL - padR;
+        var chartH = H - padT - padB;
+        var barW = Math.max(2, (chartW / labels.length) - 3);
+
+        ctx.clearRect(0, 0, W, H);
+
+        // Grid lines
+        ctx.strokeStyle = "rgba(135,42,78,0.1)";
+        ctx.lineWidth = 1;
+        ctx.font = "10px Balsamiq Sans, sans-serif";
+        ctx.fillStyle = "rgba(135,42,78,0.5)";
+        ctx.textAlign = "right";
+
+        var gridLines = 4;
+        for (var i = 0; i <= gridLines; i++) {
+            var y = padT + chartH - (chartH * i / gridLines);
+            var val = Math.round(maxVal * i / gridLines);
+            ctx.beginPath();
+            ctx.moveTo(padL, y);
+            ctx.lineTo(W - padR, y);
+            ctx.stroke();
+            ctx.fillText(val, padL - 6, y + 3);
+        }
+
+        // Bars
+        var gap = chartW / labels.length;
+        var barColors = ["#e84393", "#fd79a8", "#fab1a0", "#ff7675", "#fdcb6e", "#55efc4", "#74b9ff", "#a29bfe"];
+
+        for (var i = 0; i < labels.length; i++) {
+            var x = padL + i * gap + (gap - barW) / 2;
+            var barH = (values[i] / maxVal) * chartH;
+            var y = padT + chartH - barH;
+
+            // Bar gradient
+            var grad = ctx.createLinearGradient(x, y, x, padT + chartH);
+            grad.addColorStop(0, "#e84393");
+            grad.addColorStop(1, "rgba(232,67,147,0.3)");
+            ctx.fillStyle = grad;
+
+            // Rounded top
+            var r = Math.min(4, barW / 2, barH / 2);
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + barW - r, y);
+            ctx.quadraticCurveTo(x + barW, y, x + barW, y + r);
+            ctx.lineTo(x + barW, padT + chartH);
+            ctx.lineTo(x, padT + chartH);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.fill();
+
+            // Value on top
+            if (values[i] > 0) {
+                ctx.fillStyle = "#4a1a2e";
+                ctx.font = "9px Balsamiq Sans, sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText(values[i], x + barW / 2, y - 4);
+            }
+
+            // Label below
+            ctx.fillStyle = "rgba(135,42,78,0.6)";
+            ctx.font = "9px Balsamiq Sans, sans-serif";
+            ctx.textAlign = "center";
+            var labelLines = labels[i].split("\n");
+            for (var l = 0; l < labelLines.length; l++) {
+                ctx.fillText(labelLines[l], x + barW / 2, padT + chartH + 12 + l * 11);
+            }
+        }
+
+        // Stats
+        var nonZero = values.filter(function (v) { return v > 0; });
+        var avg = nonZero.length > 0 ? Math.round(nonZero.reduce(function (a, b) { return a + b; }, 0) / nonZero.length) : 0;
+        var peak = Math.max.apply(null, values);
+        var total = values.reduce(function (a, b) { return a + b; }, 0);
+        statsEl.innerHTML =
+            '<div class="mt-stat"><span class="mt-stat-val">' + avg + '</span><span class="mt-stat-lbl">avg cal/day</span></div>' +
+            '<div class="mt-stat"><span class="mt-stat-val">' + peak + '</span><span class="mt-stat-lbl">peak</span></div>' +
+            '<div class="mt-stat"><span class="mt-stat-val">' + total + '</span><span class="mt-stat-lbl">total</span></div>' +
+            '<div class="mt-stat"><span class="mt-stat-val">' + nonZero.length + '</span><span class="mt-stat-lbl">days logged</span></div>';
     }
 
     /* --------------------------------------------------
@@ -419,6 +601,16 @@ var MealTracker = (function () {
                 render();
             });
         }
+
+        // Chart range toggles
+        container.querySelectorAll(".mt-chart-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                container.querySelectorAll(".mt-chart-btn").forEach(function (b) { b.classList.remove("active"); });
+                btn.classList.add("active");
+                chartRange = btn.getAttribute("data-range");
+                renderChart(data);
+            });
+        });
     }
 
     /* --------------------------------------------------
