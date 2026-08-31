@@ -147,7 +147,7 @@ var MealTracker = (function () {
             }
             html += '</div>';
 
-            html += '<div class="mt-footer-sub">~ to fuel my eating disorder</div>';
+            html += '<div class="mt-footer-sub">~ to fuel my eating disorder ~</div>';
 
             html += '</div>';
 
@@ -466,14 +466,12 @@ var MealTracker = (function () {
 
             FOODS.push({ name: name, img: img, cal: cal, cat: "custom", isCustom: false, userAdded: true });
 
-            loadData(function (freshData) {
-                var day = getDayData(freshData, currentDate);
+            closeModal();
+            loadData(function (d) {
+                var day = getDayData(d, currentDate);
                 if (!day[activeMeal]) day[activeMeal] = [];
                 day[activeMeal].push({ name: name, calories: cal, img: img });
-                saveData(freshData, function () {
-                    closeModal();
-                    render();
-                });
+                saveData(d, function () { render(); });
             });
         });
 
