@@ -12,10 +12,12 @@ var MealTracker = (function () {
         // Drinks
         { name: "Bubble Tea (no sugar)", img: "img/food/1bubbletea.png", cal: 360, cat: "drinks" },
         { name: "Bubble Tea (2, no sugar)",       img: "img/food/2bubbletea.png", cal: 720, cat: "drinks" },
+        { name: "Green Tea Frappe (no sugar)",       img: "img/food/greenteafrappe.png", cal: 200, cat: "drinks" },
 
         // Snacks
-        { name: "Chocolate Bar",           img: "img/food/chocolate-bar.png", cal: 230, cat: "snacks" },
+        { name: "Chocolate Bar",           img: "img/food/chocolate-bar.png", cal: 105, cat: "snacks" },
         { name: "Strawberries",            img: "img/food/strawberries.png", cal: 49, cat: "snacks" },
+        { name: "Mamee",            img: "img/food/mamee.png", cal: 120, cat: "snacks" },
 
         // Meals
         { name: "Wrap",                    img: "img/food/wrap.png", cal: 300, cat: "meals" },
@@ -44,6 +46,7 @@ var MealTracker = (function () {
     var activeTab = "add";
     var activeMeal = "breakfast";
     var chartRange = "weekly";
+    var cachedData = null;
 
     /* --------------------------------------------------
        HELPERS
@@ -113,6 +116,7 @@ var MealTracker = (function () {
         if (!container) return;
 
         loadData(function (data) {
+            cachedData = data;
             var day = getDayData(data, currentDate);
             var total = dayTotalCals(day);
 
@@ -469,12 +473,15 @@ var MealTracker = (function () {
             FOODS.push({ name: name, img: img, cal: cal, cat: "custom", isCustom: false, userAdded: true });
 
             closeModal();
-            loadData(function (d) {
-                var day = getDayData(d, currentDate);
+
+            if (cachedData) {
+                var day = getDayData(cachedData, currentDate);
                 if (!day[activeMeal]) day[activeMeal] = [];
                 day[activeMeal].push({ name: name, calories: cal, img: img });
-                saveData(d, function () { render(); });
-            });
+                saveData(cachedData, function () { render(); });
+            } else {
+                render();
+            }
         });
 
         nameInput.focus();
@@ -525,12 +532,12 @@ var MealTracker = (function () {
                 var img = card.getAttribute("data-img");
                 var targetMeal = card.getAttribute("data-meal-target") || activeMeal;
 
-                loadData(function (d) {
-                    var day = getDayData(d, currentDate);
+                if (cachedData) {
+                    var day = getDayData(cachedData, currentDate);
                     if (!day[targetMeal]) day[targetMeal] = [];
                     day[targetMeal].push({ name: name, calories: cal, img: img });
-                    saveData(d, function () { render(); });
-                });
+                    saveData(cachedData, function () { render(); });
+                }
             });
 
             // Right-click to delete custom foods
@@ -559,10 +566,12 @@ var MealTracker = (function () {
             btn.addEventListener("click", function () {
                 var meal = btn.getAttribute("data-meal");
                 var idx = parseInt(btn.getAttribute("data-idx"), 10);
-                var day = getDayData(data, currentDate);
-                if (day[meal]) {
-                    day[meal].splice(idx, 1);
-                    saveData(data, function () { render(); });
+                if (cachedData) {
+                    var day = getDayData(cachedData, currentDate);
+                    if (day[meal]) {
+                        day[meal].splice(idx, 1);
+                        saveData(cachedData, function () { render(); });
+                    }
                 }
             });
         });
