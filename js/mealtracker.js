@@ -218,7 +218,6 @@ var MealTracker = (function () {
             } else {
                 items.forEach(function (item, i) {
                     html += '<div class="mt-today-item">';
-                    html += '<img src="' + item.img + '" class="mt-today-item-img" onerror="this.style.display=\'none\'">';
                     html += '<div class="mt-today-item-info">';
                     html += '<div class="mt-today-item-name">' + item.name + '</div>';
                     html += '<div class="mt-today-item-cal">' + item.calories + ' cal</div>';
