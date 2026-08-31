@@ -121,7 +121,6 @@ var MealTracker = (function () {
             // Header
             html += '<div class="mt-header">';
             html += '<div class="mt-date">' + formatDate(currentDate) + '</div>';
-            html += '<div class="mt-subtitle">~ to fuel my eating disorder ~</div>';
             html += '<div class="mt-total"><span class="mt-total-num">' + total + '</span> cal</div>';
             html += '</div>';
 
@@ -147,6 +146,8 @@ var MealTracker = (function () {
                 html += renderTodayTab(day);
             }
             html += '</div>';
+
+            html += '<div class="mt-footer-sub">~ to fuel my eating disorder</div>';
 
             html += '</div>';
 

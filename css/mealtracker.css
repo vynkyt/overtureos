@@ -24,15 +24,17 @@
     font-weight: 700;
     color: #872A4E;
 }
-.mt-subtitle {
+.mt-total {
+    font-size: 11px;
+    color: #872A4E;
+}
+.mt-footer-sub {
+    text-align: center;
     font-size: 9px;
     color: #c47a92;
     font-style: italic;
     letter-spacing: 0.3px;
-}
-.mt-total {
-    font-size: 11px;
-    color: #872A4E;
+    padding: 8px 0 4px;
 }
 .mt-total-num {
     font-size: 18px;
