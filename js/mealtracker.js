@@ -309,7 +309,7 @@ var MealTracker = (function () {
                 '      </div>',
                 '    </div>',
                 '    <div class="mt-chart-wrap">',
-                '      <canvas id="mt-chart" width="600" height="200"></canvas>',
+                '      <canvas id="mt-chart"></canvas>',
                 '    </div>',
                 '    <div id="mt-chart-stats" class="mt-chart-stats"></div>',
                 '  </div>',
@@ -418,8 +418,13 @@ var MealTracker = (function () {
         var wrap = canvas.parentElement;
         var W = wrap.clientWidth || 600;
         var H = 200;
-        canvas.width = W;
-        canvas.height = H;
+        var dpr = window.devicePixelRatio || 1;
+
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        canvas.style.width = W + "px";
+        canvas.style.height = H + "px";
+        ctx.scale(dpr, dpr);
 
         var chartData = getChartData(data, chartRange);
         var labels = chartData.labels;
