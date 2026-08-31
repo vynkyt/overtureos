@@ -1,251 +1,312 @@
 /* --------------------------------------------------
    MEAL TRACKER — OvertureOS
    -------------------------------------------------- */
-@font-face {
-    font-family: "Balsamiq Sans";
-    src: url("https://imp.neocities.org/layouts/spacehey/sickly-sweet/BalsamiqSans-Regular.ttf");
-}
+
 .mt-container {
     font-family: "Balsamiq Sans", Georgia, serif;
     color: #4a1a2e;
     padding: 0;
 }
 
-.mt-subtitle {
-    text-align: center;
-    font-size: 11px;
-}
-
+/* Header */
 .mt-header {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
-
 .mt-date {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: #872A4E;
 }
-
 .mt-total {
-    font-size: 12px;
+    font-size: 11px;
     color: #872A4E;
 }
-
 .mt-total-num {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     color: #e84393;
 }
 
+/* Date nav */
 .mt-nav {
     display: flex;
     justify-content: center;
-    gap: 6px;
-    margin-bottom: 14px;
+    gap: 4px;
+    margin-bottom: 10px;
 }
-
 .mt-nav-btn {
-    background: rgba(255, 200, 220, 0.3);
-    border: 1px solid rgba(255, 175, 204, 0.5);
+    background: rgba(255, 200, 220, 0.25);
+    border: 1px solid rgba(255, 175, 204, 0.4);
     border-radius: 8px;
-    padding: 4px 14px;
-    font-size: 11px;
+    padding: 3px 12px;
+    font-size: 10px;
     font-family: "Balsamiq Sans", Georgia, serif;
     color: #872A4E;
     cursor: pointer;
     transition: background 0.15s;
 }
-
 .mt-nav-btn:hover {
-    background: rgba(255, 175, 204, 0.4);
+    background: rgba(255, 175, 204, 0.35);
 }
 
-.mt-meal {
-    margin-bottom: 14px;
-    border: 1px solid rgba(255, 175, 204, 0.35);
+/* --------------------------------------------------
+   NOTEBOOK TABS
+   -------------------------------------------------- */
+
+.mt-tabs {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 0;
+    padding: 0 4px;
+    border-bottom: 2px solid rgba(255, 175, 204, 0.2);
+}
+.mt-tab {
+    flex: 1;
+    padding: 7px 6px 6px;
+    font-size: 11px;
+    font-family: "Balsamiq Sans", Georgia, serif;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: rgba(74, 26, 46, 0.5);
+    background: rgba(255, 245, 249, 0.4);
+    border: 1px solid transparent;
+    border-bottom: none;
+    position: relative;
+}
+.mt-tab:hover {
+    color: #872A4E;
+    background: rgba(255, 230, 240, 0.6);
+}
+.mt-tab.active {
+    color: #872A4E;
+    background: rgba(255, 250, 253, 0.9);
+    border-color: rgba(255, 175, 204, 0.35);
+    border-bottom: 2px solid rgba(255, 250, 253, 0.9);
+    margin-bottom: -2px;
+    z-index: 1;
+}
+.mt-tab:nth-child(1).active { border-top: 2px solid #fdcb6e; }
+.mt-tab:nth-child(2).active { border-top: 2px solid #74b9ff; }
+.mt-tab:nth-child(3).active { border-top: 2px solid #a29bfe; }
+
+.mt-tab-content {
+    padding: 12px 4px;
+    min-height: 200px;
+}
+
+/* --------------------------------------------------
+   MEAL SELECTOR PILLS
+   -------------------------------------------------- */
+
+.mt-meal-selector {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+.mt-meal-pill {
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1.5px solid color-mix(in srgb, var(--pill-color) 50%, transparent);
+    background: color-mix(in srgb, var(--pill-color) 12%, white);
+    color: #4a1a2e;
+    font-size: 11px;
+    font-family: "Balsamiq Sans", Georgia, serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.mt-meal-pill:hover {
+    background: color-mix(in srgb, var(--pill-color) 25%, white);
+}
+.mt-meal-pill.active {
+    background: var(--pill-color);
+    color: #fff;
+    border-color: var(--pill-color);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--pill-color) 40%, transparent);
+}
+.mt-pill-count {
+    display: inline-block;
+    background: rgba(255,255,255,0.35);
+    border-radius: 50%;
+    width: 17px;
+    height: 17px;
+    line-height: 17px;
+    text-align: center;
+    font-size: 9px;
+    margin-left: 4px;
+}
+.mt-meal-pill.active .mt-pill-count {
+    background: rgba(255,255,255,0.3);
+}
+
+/* --------------------------------------------------
+   FOOD GRID
+   -------------------------------------------------- */
+
+.mt-food-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+}
+.mt-food-card {
+    text-align: center;
+    cursor: pointer;
+    padding: 6px 4px;
     border-radius: 12px;
+    border: 1.5px solid rgba(255, 175, 204, 0.2);
+    background: rgba(255, 250, 253, 0.6);
+    transition: all 0.25s ease;
+    position: relative;
+}
+.mt-food-card:hover {
+    border-color: rgba(232, 67, 147, 0.4);
+    background: rgba(255, 245, 249, 0.9);
+    box-shadow: 0 4px 16px rgba(232, 67, 147, 0.15);
+    transform: perspective(400px) rotateY(4deg) rotateX(-2deg) scale(1.04);
+}
+.mt-food-card:active {
+    transform: scale(0.96);
+    transition-duration: 0.1s;
+}
+.mt-food-img-wrap {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 4px;
+    border-radius: 50%;
     overflow: hidden;
+    background: rgba(255, 220, 235, 0.2);
+    border: 1.5px solid rgba(255, 175, 204, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s;
+}
+.mt-food-card:hover .mt-food-img-wrap {
+    border-color: rgba(232, 67, 147, 0.5);
+}
+.mt-food-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.mt-food-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #4a1a2e;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mt-food-cal {
+    font-size: 9px;
+    color: #e84393;
+    font-weight: 700;
 }
 
-.mt-meal-header {
+/* --------------------------------------------------
+   TODAY TAB
+   -------------------------------------------------- */
+
+.mt-today-meal {
+    margin-bottom: 10px;
+}
+.mt-today-meal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 14px;
-    background: rgba(255, 220, 235, 0.25);
-    border-bottom: 1px solid rgba(255, 175, 204, 0.2);
+    padding: 6px 10px;
+    background: rgba(255, 220, 235, 0.2);
+    border-radius: 8px;
+    margin-bottom: 4px;
 }
-
-.mt-meal-title {
-    font-size: 13px;
+.mt-today-meal-title {
+    font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
 }
-
-.mt-meal-cals {
-    font-size: 12px;
+.mt-today-meal-cals {
+    font-size: 11px;
     color: #e84393;
     font-weight: 700;
 }
-
-.mt-meal-items {
-    padding: 6px 10px;
-    max-height: 180px;
-    overflow-y: auto;
+.mt-today-items {
+    padding: 0 4px;
 }
-
 .mt-empty {
-    font-size: 11px;
-    color: rgba(74, 26, 46, 0.4);
-    padding: 6px 0;
+    font-size: 10px;
+    color: rgba(74, 26, 46, 0.35);
     font-style: italic;
+    padding: 4px 8px;
 }
-
-.mt-item {
+.mt-today-item {
     display: flex;
     align-items: center;
-    padding: 5px 4px;
-    border-bottom: 1px solid rgba(255, 175, 204, 0.12);
-    font-size: 12px;
+    gap: 8px;
+    padding: 5px 6px;
+    border-bottom: 1px solid rgba(255, 175, 204, 0.1);
 }
-
-.mt-item:last-child {
-    border-bottom: none;
+.mt-today-item:last-child { border-bottom: none; }
+.mt-today-item-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 175, 204, 0.25);
+    flex-shrink: 0;
 }
-
-.mt-item-name {
+.mt-today-item-info {
     flex: 1;
+    min-width: 0;
 }
-
-.mt-item-cals {
-    width: 70px;
-    text-align: right;
-    color: #e84393;
-    font-weight: 700;
+.mt-today-item-name {
     font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-
-.mt-item-del {
+.mt-today-item-cal {
+    font-size: 10px;
+    color: #e84393;
+}
+.mt-today-item-del {
     background: none;
     border: none;
-    color: rgba(135, 42, 78, 0.35);
-    font-size: 14px;
+    color: rgba(135, 42, 78, 0.3);
+    font-size: 16px;
     cursor: pointer;
     padding: 0 4px;
     line-height: 1;
     transition: color 0.15s;
+    flex-shrink: 0;
 }
-
-.mt-item-del:hover {
-    color: #e84393;
-}
-
-.mt-quick-add {
-    margin-top: 10px;
-    padding: 10px;
-    border: 1px dashed rgba(255, 175, 204, 0.45);
-    border-radius: 10px;
-    background: rgba(255, 245, 249, 0.5);
-}
-
-.mt-quick-row {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.mt-quick-row select,
-.mt-quick-row input {
-    font-family: "Balsamiq Sans", Georgia, serif;
-    font-size: 11px;
-    border: 1px solid rgba(255, 175, 204, 0.5);
-    border-radius: 6px;
-    padding: 5px 8px;
-    background: rgba(255, 255, 255, 0.7);
-    color: #4a1a2e;
-    outline: none;
-}
-
-.mt-quick-row select {
-    flex: 1;
-    min-width: 0;
-}
-
-.mt-quick-row input[type="number"] {
-    width: 90px;
-}
-
-.mt-quick-row input[type="text"] {
-    flex: 1;
-    min-width: 0;
-}
-
-.mt-add-btn {
-    background: #e84393;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 5px 12px;
-    font-size: 11px;
-    font-family: "Balsamiq Sans", Georgia, serif;
-    font-weight: 700;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.15s;
-}
-
-.mt-add-btn:hover {
-    background: #d63384;
-}
-
-/* scrollbar */
-.mt-meal-items::-webkit-scrollbar {
-    width: 4px;
-}
-.mt-meal-items::-webkit-scrollbar-thumb {
-    background: rgba(255, 175, 204, 0.4);
-    border-radius: 2px;
-}
+.mt-today-item-del:hover { color: #e84393; }
 
 /* --------------------------------------------------
    CHART
    -------------------------------------------------- */
 
 .mt-chart-section {
-    margin-top: 16px;
-    border: 1px solid rgba(255, 175, 204, 0.35);
-    border-radius: 12px;
+    border: 1px solid rgba(255, 175, 204, 0.3);
+    border-radius: 10px;
     overflow: hidden;
-    background: rgba(255, 245, 249, 0.5);
+    background: rgba(255, 245, 249, 0.4);
 }
-
-.mt-chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 14px;
-    background: rgba(255, 220, 235, 0.25);
-    border-bottom: 1px solid rgba(255, 175, 204, 0.2);
-}
-
-.mt-chart-title {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #4a1a2e;
-}
-
 .mt-chart-toggles {
     display: flex;
     gap: 4px;
+    padding: 8px 10px 6px;
+    justify-content: center;
 }
-
 .mt-chart-btn {
     background: rgba(255, 255, 255, 0.4);
     border: 1px solid rgba(255, 175, 204, 0.3);
@@ -257,57 +318,185 @@
     cursor: pointer;
     transition: all 0.15s;
 }
-
-.mt-chart-btn:hover {
-    background: rgba(255, 200, 220, 0.4);
-}
-
+.mt-chart-btn:hover { background: rgba(255, 200, 220, 0.35); }
 .mt-chart-btn.active {
     background: #e84393;
     color: #fff;
     border-color: #e84393;
 }
-
 .mt-chart-wrap {
-    padding: 10px 10px 0;
+    padding: 6px 8px 0;
 }
-
 .mt-chart-wrap canvas {
     width: 100%;
-    height: auto;
     display: block;
 }
-
 .mt-chart-stats {
     display: flex;
     justify-content: space-around;
-    padding: 8px 14px 12px;
+    padding: 6px 10px 10px;
 }
-
-.mt-stat {
-    text-align: center;
-}
-
+.mt-stat { text-align: center; }
 .mt-stat-val {
     display: block;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     color: #e84393;
     line-height: 1.2;
 }
-
 .mt-stat-lbl {
     display: block;
-    font-size: 9px;
-    color: rgba(74, 26, 46, 0.5);
+    font-size: 8px;
+    color: rgba(74, 26, 46, 0.45);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
 }
 
-.mt-subtitle {
-    text-align: center;
-    font-size: 11px;
-    color: rgba(74, 26, 46, 0.4);
-    font-style: italic;
-    margin: 0 0 6px;
+/* --------------------------------------------------
+   CUSTOM FOOD MODAL
+   -------------------------------------------------- */
+
+.mt-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(74, 26, 46, 0.4);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
 }
+.mt-modal-overlay.open { opacity: 1; }
+
+.mt-modal {
+    width: 320px;
+    max-width: 90vw;
+    background: rgba(255, 250, 253, 0.96);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 175, 204, 0.4);
+    box-shadow: 0 20px 60px rgba(74, 26, 46, 0.25);
+    overflow: hidden;
+    transform: scale(0.92) translateY(10px);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.mt-modal-overlay.open .mt-modal {
+    transform: scale(1) translateY(0);
+}
+
+.mt-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: rgba(255, 220, 235, 0.25);
+    border-bottom: 1px solid rgba(255, 175, 204, 0.2);
+    font-size: 13px;
+    font-weight: 700;
+    color: #872A4E;
+}
+.mt-modal-close {
+    background: none;
+    border: none;
+    color: rgba(135, 42, 78, 0.5);
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+}
+.mt-modal-close:hover { color: #e84393; }
+
+.mt-modal-body {
+    padding: 16px;
+}
+.mt-modal-field {
+    margin-bottom: 12px;
+}
+.mt-modal-field label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(74, 26, 46, 0.6);
+    margin-bottom: 4px;
+}
+.mt-modal-field input[type="text"],
+.mt-modal-field input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid rgba(255, 175, 204, 0.45);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    font-family: "Balsamiq Sans", Georgia, serif;
+    color: #4a1a2e;
+    outline: none;
+    box-sizing: border-box;
+}
+.mt-modal-field input:focus {
+    border-color: #e84393;
+    box-shadow: 0 0 0 2px rgba(232, 67, 147, 0.15);
+}
+
+.mt-modal-img-upload {
+    width: 100%;
+    height: 80px;
+    border: 2px dashed rgba(255, 175, 204, 0.45);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.2s;
+    position: relative;
+}
+.mt-modal-img-upload:hover {
+    border-color: #e84393;
+}
+.mt-modal-img-placeholder {
+    font-size: 11px;
+    color: rgba(74, 26, 46, 0.35);
+}
+.mt-modal-img-upload img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mt-modal-footer {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px 14px;
+}
+.mt-modal-cancel {
+    flex: 1;
+    padding: 7px;
+    border: 1px solid rgba(255, 175, 204, 0.4);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    font-family: "Balsamiq Sans", Georgia, serif;
+    color: #872A4E;
+    cursor: pointer;
+}
+.mt-modal-confirm {
+    flex: 1;
+    padding: 7px;
+    border: none;
+    border-radius: 8px;
+    background: #e84393;
+    font-size: 11px;
+    font-family: "Balsamiq Sans", Georgia, serif;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.mt-modal-confirm:hover { background: #d63384; }
+
+/* Scrollbar */
+.mt-tab-content::-webkit-scrollbar { width: 4px; }
+.mt-tab-content::-webkit-scrollbar-thumb { background: rgba(255,175,204,0.3); border-radius: 2px; }
