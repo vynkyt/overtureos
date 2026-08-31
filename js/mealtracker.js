@@ -228,9 +228,7 @@ var MealTracker = (function () {
                 });
             }
 
-            html += '</div>';
-            html += renderFoodGrid(m.id);
-            html += '</div>';
+            html += '</div></div>';
         });
 
         // Chart inline
