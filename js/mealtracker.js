@@ -176,16 +176,7 @@ var MealTracker = (function () {
         });
         html += '</div>';
 
-        // Food grid
-        html += '<div class="mt-food-grid">';
-        FOODS.forEach(function (f) {
-            html += '<div class="mt-food-card" data-name="' + f.name + '" data-cal="' + f.cal + '" data-img="' + f.img + '" data-custom="' + (f.isCustom ? "1" : "0") + '">';
-            html += '<img src="' + f.img + '" alt="' + f.name + '" class="mt-food-img" loading="lazy">';
-            html += '<div class="mt-food-label">' + f.name + '</div>';
-            html += '<div class="mt-food-cal">' + (f.isCustom ? "tap to add" : f.cal + " cal") + '</div>';
-            html += '</div>';
-        });
-        html += '</div>';
+        html += renderFoodGrid(activeMeal);
 
         return html;
     }
@@ -193,6 +184,19 @@ var MealTracker = (function () {
     /* --------------------------------------------------
        RENDER — TODAY TAB
     -------------------------------------------------- */
+
+    function renderFoodGrid(targetMeal) {
+        var html = '<div class="mt-food-grid">';
+        FOODS.forEach(function (f) {
+            html += '<div class="mt-food-card" data-name="' + f.name + '" data-cal="' + f.cal + '" data-img="' + f.img + '" data-custom="' + (f.isCustom ? "1" : "0") + '" data-meal-target="' + targetMeal + '">';
+            html += '<img src="' + f.img + '" alt="' + f.name + '" class="mt-food-img" loading="lazy">';
+            html += '<div class="mt-food-label">' + f.name + '</div>';
+            html += '<div class="mt-food-cal">' + (f.isCustom ? "tap to add" : f.cal + " cal") + '</div>';
+            html += '</div>';
+        });
+        html += '</div>';
+        return html;
+    }
 
     function renderTodayTab(day) {
         var html = '';
@@ -224,7 +228,9 @@ var MealTracker = (function () {
                 });
             }
 
-            html += '</div></div>';
+            html += '</div>';
+            html += renderFoodGrid(m.id);
+            html += '</div>';
         });
 
         // Chart inline
@@ -522,11 +528,12 @@ var MealTracker = (function () {
                 var name = card.getAttribute("data-name");
                 var cal = parseInt(card.getAttribute("data-cal"), 10);
                 var img = card.getAttribute("data-img");
+                var targetMeal = card.getAttribute("data-meal-target") || activeMeal;
 
                 loadData(function (d) {
                     var day = getDayData(d, currentDate);
-                    if (!day[activeMeal]) day[activeMeal] = [];
-                    day[activeMeal].push({ name: name, calories: cal, img: img });
+                    if (!day[targetMeal]) day[targetMeal] = [];
+                    day[targetMeal].push({ name: name, calories: cal, img: img });
                     saveData(d, function () { render(); });
                 });
             });
