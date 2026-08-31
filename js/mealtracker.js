@@ -183,9 +183,7 @@ var MealTracker = (function () {
         html += '<div class="mt-food-grid">';
         FOODS.forEach(function (f) {
             html += '<div class="mt-food-card" data-name="' + f.name + '" data-cal="' + f.cal + '" data-img="' + f.img + '" data-custom="' + (f.isCustom ? "1" : "0") + '">';
-            html += '<div class="mt-food-img-wrap">';
             html += '<img src="' + f.img + '" alt="' + f.name + '" class="mt-food-img" loading="lazy">';
-            html += '</div>';
             html += '<div class="mt-food-label">' + f.name + '</div>';
             html += '<div class="mt-food-cal">' + (f.isCustom ? "tap to add" : f.cal + " cal") + '</div>';
             html += '</div>';
