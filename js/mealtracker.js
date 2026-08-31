@@ -442,7 +442,7 @@ var MealTracker = (function () {
         modal.querySelector(".mt-modal-cancel").addEventListener("click", closeModal);
         modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
 
-        imgArea.addEventListener("click", function () { imgInput.click(); });
+        imgArea.addEventListener("click", function (e) { e.stopPropagation(); imgInput.click(); });
         imgInput.addEventListener("change", function () {
             var file = imgInput.files[0];
             if (!file) return;
@@ -456,7 +456,9 @@ var MealTracker = (function () {
             reader.readAsDataURL(file);
         });
 
-        modal.querySelector(".mt-modal-confirm").addEventListener("click", function () {
+        var confirmBtn = modal.querySelector(".mt-modal-confirm");
+        confirmBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
             var name = nameInput.value.trim();
             var cal = parseInt(calInput.value, 10);
             if (!name) { nameInput.focus(); return; }
