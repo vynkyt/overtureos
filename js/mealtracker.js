@@ -34,8 +34,62 @@ var MealTracker = (function () {
     ];
 
     var TABS = [
-        { id: "add",    label: "Add Food" },
-        { id: "today",  label: "Chart" },
+        { id: "add",          label: "Add Food" },
+        { id: "ingredients",  label: "Add Ingredients" },
+        { id: "today",        label: "Chart" },
+    ];
+
+    var INGREDIENTS = [
+        { name: "White Rice (~1/2 cup cooked)", cal: 206, cat: "grains" },
+        { name: "Brown Rice (1 cup cooked)", cal: 216, cat: "grains" },
+        { name: "Bread (1 slice)", cal: 79, cat: "grains" },
+        { name: "Tortilla (1 medium)", cal: 140, cat: "grains" },
+        { name: "Oats (1/2 cup dry)", cal: 150, cat: "grains" },
+        { name: "Chicken Breast (100g)", cal: 165, cat: "protein" },
+        { name: "Chicken Thigh (100g)", cal: 209, cat: "protein" },
+        { name: "Ground Beef (100g)", cal: 254, cat: "protein" },
+        { name: "Salmon (100g)", cal: 208, cat: "protein" },
+        { name: "Shrimp (100g)", cal: 85, cat: "protein" },
+        { name: "Egg (1 large)", cal: 78, cat: "protein" },
+        { name: "Tofu (100g)", cal: 76, cat: "protein" },
+        { name: "Milk (1 cup)", cal: 149, cat: "dairy" },
+        { name: "Cheese (1 slice)", cal: 113, cat: "dairy" },
+        { name: "Yogurt (1 cup)", cal: 154, cat: "dairy" },
+        { name: "Butter (1 tbsp)", cal: 102, cat: "dairy" },
+        { name: "Cheddar Cheese (100g)", cal: 402, cat: "dairy" },
+        { name: "Banana (1 medium)", cal: 105, cat: "fruit" },
+        { name: "Apple (1 medium)", cal: 95, cat: "fruit" },
+        { name: "Orange (1 medium)", cal: 62, cat: "fruit" },
+        { name: "Strawberries (1 cup)", cal: 49, cat: "fruit" },
+        { name: "Blueberries (1 cup)", cal: 84, cat: "fruit" },
+        { name: "Avocado (1 medium)", cal: 240, cat: "fruit" },
+        { name: "Broccoli (1 cup)", cal: 55, cat: "vegetable" },
+        { name: "Carrot (1 medium)", cal: 25, cat: "vegetable" },
+        { name: "Spinach (1 cup raw)", cal: 7, cat: "vegetable" },
+        { name: "Tomato (1 medium)", cal: 22, cat: "vegetable" },
+        { name: "Potato (1 medium)", cal: 161, cat: "vegetable" },
+        { name: "Sweet Potato (1 medium)", cal: 103, cat: "vegetable" },
+        { name: "Onion (1 medium)", cal: 44, cat: "vegetable" },
+        { name: "Garlic (1 clove)", cal: 4, cat: "vegetable" },
+        { name: "Soy Sauce (1 tbsp)", cal: 9, cat: "condiment" },
+        { name: "Olive Oil (1 tbsp)", cal: 119, cat: "condiment" },
+        { name: "Honey (1 tbsp)", cal: 64, cat: "condiment" },
+        { name: "Sugar (1 tsp)", cal: 16, cat: "condiment" },
+        { name: "Salt (1 tsp)", cal: 0, cat: "condiment" },
+        { name: "Black Pepper (1 tsp)", cal: 6, cat: "condiment" },
+        { name: "Ketchup (1 tbsp)", cal: 20, cat: "condiment" },
+        { name: "Mayonnaise (1 tbsp)", cal: 94, cat: "condiment" },
+        { name: "Hot Sauce (1 tbsp)", cal: 0, cat: "condiment" },
+        { name: "Coca-Cola (1 can)", cal: 140, cat: "drinks" },
+        { name: "Orange Juice (1 cup)", cal: 112, cat: "drinks" },
+        { name: "Coffee (black, 1 cup)", cal: 2, cat: "drinks" },
+        { name: "Green Tea (1 cup)", cal: 2, cat: "drinks" },
+        { name: "Almond Milk (1 cup)", cal: 39, cat: "drinks" },
+        { name: "Protein Powder (1 scoop)", cal: 120, cat: "drinks" },
+        { name: "Peanut Butter (1 tbsp)", cal: 94, cat: "other" },
+        { name: "Almonds (1 oz)", cal: 164, cat: "other" },
+        { name: "Dark Chocolate (1 oz)", cal: 170, cat: "other" },
+        { name: "Granola (1/4 cup)", cal: 120, cat: "other" },
     ];
 
     /* --------------------------------------------------
@@ -46,6 +100,7 @@ var MealTracker = (function () {
     var activeTab = "add";
     var activeMeal = "breakfast";
     var chartRange = "weekly";
+    var ingredientSearch = "";
     var cachedData = null;
 
     /* --------------------------------------------------
@@ -146,6 +201,8 @@ var MealTracker = (function () {
             html += '<div class="mt-tab-content">';
             if (activeTab === "add") {
                 html += renderAddTab(data, day);
+            } else if (activeTab === "ingredients") {
+                html += renderIngredientsTab(data, day);
             } else if (activeTab === "today") {
                 html += renderTodayTab(day);
             }
@@ -183,6 +240,50 @@ var MealTracker = (function () {
         html += '</div>';
 
         html += renderFoodGrid(activeMeal);
+
+        return html;
+    }
+
+    /* --------------------------------------------------
+       RENDER — INGREDIENTS TAB
+    -------------------------------------------------- */
+
+    function renderIngredientsTab(data, day) {
+        var html = '';
+
+        // Meal selector
+        html += '<div class="mt-meal-selector">';
+        MEALS.forEach(function (m) {
+            var count = (day[m.id] || []).length;
+            html += '<button class="mt-meal-pill' + (activeMeal === m.id ? ' active' : '') + '" data-meal="' + m.id + '" style="--pill-color:' + m.color + '">';
+            html += m.label;
+            if (count > 0) html += '<span class="mt-pill-count">' + count + '</span>';
+            html += '</button>';
+        });
+        html += '</div>';
+
+        // Search bar
+        html += '<div class="mt-search-wrap">';
+        html += '<input type="text" id="mt-ingredient-search" class="mt-search-input" placeholder="Search ingredients..." value="' + ingredientSearch.replace(/"/g, '&quot;') + '">';
+        html += '</div>';
+
+        // Ingredient list
+        var query = ingredientSearch.toLowerCase();
+        var filtered = INGREDIENTS.filter(function (ing) {
+            return !query || ing.name.toLowerCase().indexOf(query) !== -1;
+        });
+
+        html += '<div class="mt-ingredient-list">';
+        if (filtered.length === 0) {
+            html += '<div class="mt-empty">No ingredients found</div>';
+        }
+        filtered.forEach(function (ing) {
+            html += '<div class="mt-ingredient-row" data-name="' + ing.name + '" data-cal="' + ing.cal + '" data-meal-target="' + activeMeal + '">';
+            html += '<div class="mt-ingredient-name">' + ing.name + '</div>';
+            html += '<div class="mt-ingredient-cal">' + ing.cal + ' cal</div>';
+            html += '</div>';
+        });
+        html += '</div>';
 
         return html;
     }
@@ -567,6 +668,35 @@ var MealTracker = (function () {
                 if (confirm('Remove "' + name + '" from your food list?')) {
                     FOODS.splice(idx, 1);
                     render();
+                }
+            });
+        });
+
+        // Ingredient search
+        var searchInput = document.getElementById("mt-ingredient-search");
+        if (searchInput) {
+            searchInput.addEventListener("input", function () {
+                ingredientSearch = searchInput.value;
+                render();
+            });
+            searchInput.addEventListener("keydown", function (e) {
+                if (e.key === "Enter") e.preventDefault();
+            });
+            searchInput.focus();
+        }
+
+        // Ingredient rows — click to add
+        container.querySelectorAll(".mt-ingredient-row").forEach(function (row) {
+            row.addEventListener("click", function () {
+                var name = row.getAttribute("data-name");
+                var cal = parseInt(row.getAttribute("data-cal"), 10);
+                var targetMeal = row.getAttribute("data-meal-target") || activeMeal;
+
+                if (cachedData) {
+                    var day = getDayData(cachedData, currentDate);
+                    if (!day[targetMeal]) day[targetMeal] = [];
+                    day[targetMeal].push({ name: name, calories: cal, img: "" });
+                    saveData(cachedData, function () { render(); });
                 }
             });
         });
