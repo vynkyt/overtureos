@@ -24,6 +24,12 @@
     font-weight: 700;
     color: #872A4E;
 }
+.mt-subtitle {
+    font-size: 9px;
+    color: #c47a92;
+    font-style: italic;
+    letter-spacing: 0.3px;
+}
 .mt-total {
     font-size: 11px;
     color: #872A4E;
