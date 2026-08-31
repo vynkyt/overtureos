@@ -97,7 +97,6 @@ var MealTracker = (function () {
         "Sushi (6 pieces)":                 290,
         "Spring roll (2)":                  160,
         "Dumpling (4)":                     220,
-        "Spring rolls (2)":                 160,
         "Fried rice (1 plate)":             350,
         "Curry (1 cup, chicken)":           290,
         "Curry (1 cup, vegetable)":         180,
@@ -194,15 +193,22 @@ var MealTracker = (function () {
             String(d.getDate()).padStart(2, "0");
     }
 
-    function loadData() {
-        if (typeof OvertureStore === "undefined") return {};
-        return OvertureStore.get("mealtracker", "data") || {};
+    function loadData(callback) {
+        if (typeof OvertureStore === "undefined") { callback({}); return; }
+        OvertureStore.get("mealtracker", "data").then(function (val) {
+            callback(val || {});
+        }).catch(function () {
+            callback({});
+        });
     }
 
-    function saveData(data) {
-        if (typeof OvertureStore !== "undefined") {
-            OvertureStore.set("mealtracker", "data", data);
-        }
+    function saveData(data, callback) {
+        if (typeof OvertureStore === "undefined") { if (callback) callback(); return; }
+        OvertureStore.set("mealtracker", "data", data).then(function () {
+            if (callback) callback();
+        }).catch(function () {
+            if (callback) callback();
+        });
     }
 
     function getDayData(data, date) {
@@ -212,73 +218,93 @@ var MealTracker = (function () {
         return data[date];
     }
 
+    function formatDate(dateStr) {
+        var parts = dateStr.split("-");
+        var d = new Date(parts[0], parts[1] - 1, parts[2]);
+        var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        return days[d.getDay()] + ", " + d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+    }
+
+    function shiftDate(dateStr, days) {
+        var parts = dateStr.split("-");
+        var d = new Date(parts[0], parts[1] - 1, parts[2]);
+        d.setDate(d.getDate() + days);
+        return d.getFullYear() + "-" +
+            String(d.getMonth() + 1).padStart(2, "0") + "-" +
+            String(d.getDate()).padStart(2, "0");
+    }
+
     /* --------------------------------------------------
        RENDER
     -------------------------------------------------- */
+
+    var currentDate = today();
 
     function render() {
         var container = document.getElementById("mealtracker-content");
         if (!container) return;
 
-        var data = loadData();
-        var day = getDayData(data, today());
+        loadData(function (data) {
+            var day = getDayData(data, currentDate);
 
-        var totalCals = 0;
-        ["breakfast", "lunch", "dinner", "snacks"].forEach(function (meal) {
-            (day[meal] || []).forEach(function (item) {
-                totalCals += item.calories;
+            var totalCals = 0;
+            ["breakfast", "lunch", "dinner", "snacks"].forEach(function (meal) {
+                (day[meal] || []).forEach(function (item) {
+                    totalCals += item.calories;
+                });
             });
+
+            var foodOptions = Object.keys(FOODS).sort().map(function (name) {
+                return '<option value="' + name + '">' + name + ' (' + FOODS[name] + ' cal)</option>';
+            }).join("");
+
+            container.innerHTML = [
+                '<div class="mt-container">',
+
+                // Header
+                '  <div class="mt-header">',
+                '    <div class="mt-date">' + formatDate(currentDate) + '</div>',
+                '    <div class="mt-total"><span class="mt-total-num">' + totalCals + '</span> cal today</div>',
+                '  </div>',
+
+                // Date nav
+                '  <div class="mt-nav">',
+                '    <button class="mt-nav-btn" id="mt-prev-day">&#9664;</button>',
+                '    <button class="mt-nav-btn" id="mt-today-btn">Today</button>',
+                '    <button class="mt-nav-btn" id="mt-next-day">&#9654;</button>',
+                '  </div>',
+
+                // Meal sections
+                renderMealSection("breakfast", "Breakfast", day.breakfast),
+                renderMealSection("lunch", "Lunch", day.lunch),
+                renderMealSection("dinner", "Dinner", day.dinner),
+                renderMealSection("snacks", "Snacks", day.snacks),
+
+                // Quick add
+                '  <div class="mt-quick-add">',
+                '    <div class="mt-quick-row">',
+                '      <select id="mt-food-select"><option value="">-- pick a food --</option>' + foodOptions + '<option value="__custom">Custom food...</option></select>',
+                '      <input type="number" id="mt-custom-cals" placeholder="custom cal" min="0" style="display:none;">',
+                '      <input type="text" id="mt-custom-name" placeholder="custom food name" style="display:none;">',
+                '      <select id="mt-meal-select">',
+                '        <option value="breakfast">Breakfast</option>',
+                '        <option value="lunch">Lunch</option>',
+                '        <option value="dinner">Dinner</option>',
+                '        <option value="snacks">Snacks</option>',
+                '      </select>',
+                '      <button class="mt-add-btn" id="mt-add-btn">+ Add</button>',
+                '    </div>',
+                '  </div>',
+
+                '</div>',
+            ].join("");
+
+            bindEvents(container, data);
         });
-
-        var foodOptions = Object.keys(FOODS).sort().map(function (name) {
-            return '<option value="' + name + '">' + name + ' (' + FOODS[name] + ' cal)</option>';
-        }).join("");
-
-        container.innerHTML = [
-            '<div class="mt-container">',
-
-            // Header
-            '  <div class="mt-header">',
-            '    <div class="mt-date">' + formatDate(today()) + '</div>',
-            '    <div class="mt-total"><span class="mt-total-num">' + totalCals + '</span> cal today</div>',
-            '  </div>',
-
-            // Date nav
-            '  <div class="mt-nav">',
-            '    <button class="mt-nav-btn" id="mt-prev-day">&#9664;</button>',
-            '    <button class="mt-nav-btn" id="mt-today-btn">Today</button>',
-            '    <button class="mt-nav-btn" id="mt-next-day">&#9654;</button>',
-            '  </div>',
-
-            // Meal sections
-            renderMealSection("breakfast", "Breakfast", day.breakfast, foodOptions),
-            renderMealSection("lunch", "Lunch", day.lunch, foodOptions),
-            renderMealSection("dinner", "Dinner", day.dinner, foodOptions),
-            renderMealSection("snacks", "Snacks", day.snacks, foodOptions),
-
-            // Quick add
-            '  <div class="mt-quick-add">',
-            '    <div class="mt-quick-row">',
-            '      <select id="mt-food-select"><option value="">-- pick a food --</option>' + foodOptions + '</select>',
-            '      <input type="number" id="mt-custom-cals" placeholder="or custom cal" min="0" style="display:none;">',
-            '      <input type="text" id="mt-custom-name" placeholder="custom food name" style="display:none;">',
-            '      <select id="mt-meal-select">',
-            '        <option value="breakfast">Breakfast</option>',
-            '        <option value="lunch">Lunch</option>',
-            '        <option value="dinner">Dinner</option>',
-            '        <option value="snacks">Snacks</option>',
-            '      </select>',
-            '      <button class="mt-add-btn" id="mt-add-btn">+ Add</button>',
-            '    </div>',
-            '  </div>',
-
-            '</div>',
-        ].join("");
-
-        bindEvents(container, data);
     }
 
-    function renderMealSection(meal, label, items, foodOptions) {
+    function renderMealSection(meal, label, items) {
         var mealCals = 0;
         (items || []).forEach(function (item) { mealCals += item.calories; });
 
@@ -302,19 +328,9 @@ var MealTracker = (function () {
         ].join("");
     }
 
-    function formatDate(dateStr) {
-        var parts = dateStr.split("-");
-        var d = new Date(parts[0], parts[1] - 1, parts[2]);
-        var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        return days[d.getDay()] + ", " + d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
-    }
-
     /* --------------------------------------------------
        EVENTS
     -------------------------------------------------- */
-
-    var currentDate = today();
 
     function bindEvents(container, data) {
 
@@ -335,12 +351,6 @@ var MealTracker = (function () {
                     customName.style.display = "none";
                 }
             });
-
-            // Add custom option at the end
-            var custOpt = document.createElement("option");
-            custOpt.value = "__custom";
-            custOpt.textContent = "Custom food...";
-            foodSelect.appendChild(custOpt);
         }
 
         if (addBtn) {
@@ -366,8 +376,7 @@ var MealTracker = (function () {
                 var dayData = getDayData(data, currentDate);
                 if (!dayData[meal]) dayData[meal] = [];
                 dayData[meal].push({ name: name, calories: cals });
-                saveData(data);
-                render();
+                saveData(data, function () { render(); });
             });
         }
 
@@ -379,8 +388,7 @@ var MealTracker = (function () {
                 var dayData = getDayData(data, currentDate);
                 if (dayData[meal]) {
                     dayData[meal].splice(idx, 1);
-                    saveData(data);
-                    render();
+                    saveData(data, function () { render(); });
                 }
             });
         });
@@ -412,20 +420,12 @@ var MealTracker = (function () {
         }
     }
 
-    function shiftDate(dateStr, days) {
-        var parts = dateStr.split("-");
-        var d = new Date(parts[0], parts[1] - 1, parts[2]);
-        d.setDate(d.getDate() + days);
-        return d.getFullYear() + "-" +
-            String(d.getMonth() + 1).padStart(2, "0") + "-" +
-            String(d.getDate()).padStart(2, "0");
-    }
-
     /* --------------------------------------------------
        INIT
     -------------------------------------------------- */
 
     function init() {
+        currentDate = today();
         render();
     }
 
