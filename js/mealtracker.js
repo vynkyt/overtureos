@@ -667,6 +667,67 @@ var MealTracker = (function () {
             });
         });
 
+        // Ingredient search
+        var searchInput = document.getElementById("mt-ingredient-search");
+        var ingredientList = container.querySelector(".mt-ingredient-list");
+        if (searchInput && ingredientList) {
+            searchInput.addEventListener("input", function () {
+                ingredientSearch = searchInput.value;
+                var query = ingredientSearch.toLowerCase();
+                var filtered = INGREDIENTS.filter(function (ing) {
+                    return !query || ing.name.toLowerCase().indexOf(query) !== -1;
+                });
+                var listHtml = '';
+                if (filtered.length === 0) {
+                    listHtml = '<div class="mt-empty">No ingredients found</div>';
+                }
+                filtered.forEach(function (ing) {
+                    listHtml += '<div class="mt-ingredient-row" data-name="' + ing.name + '" data-cal="' + ing.cal + '" data-meal-target="' + activeMeal + '">';
+                    listHtml += '<div class="mt-ingredient-name">' + ing.name + '</div>';
+                    listHtml += '<div class="mt-ingredient-cal">' + ing.cal + ' cal</div>';
+                    listHtml += '</div>';
+                });
+                ingredientList.innerHTML = listHtml;
+
+                ingredientList.querySelectorAll(".mt-ingredient-row").forEach(function (row) {
+                    row.addEventListener("click", function () {
+                        var rname = row.getAttribute("data-name");
+                        var rcal = parseInt(row.getAttribute("data-cal"), 10);
+                        var rmeal = row.getAttribute("data-meal-target") || activeMeal;
+                        if (cachedData) {
+                            var rday = getDayData(cachedData, currentDate);
+                            if (!rday[rmeal]) rday[rmeal] = [];
+                            rday[rmeal].push({ name: rname, calories: rcal, img: "" });
+                            saveData(cachedData, function () { render(); });
+                        }
+                    });
+                });
+            });
+            searchInput.addEventListener("keydown", function (e) {
+                if (e.key === "Enter") e.preventDefault();
+            });
+            if (ingredientSearch) {
+                searchInput.setSelectionRange(ingredientSearch.length, ingredientSearch.length);
+            }
+            searchInput.focus();
+        }
+
+        // Ingredient rows — click to add
+        container.querySelectorAll(".mt-ingredient-row").forEach(function (row) {
+            row.addEventListener("click", function () {
+                var name = row.getAttribute("data-name");
+                var cal = parseInt(row.getAttribute("data-cal"), 10);
+                var targetMeal = row.getAttribute("data-meal-target") || activeMeal;
+
+                if (cachedData) {
+                    var day = getDayData(cachedData, currentDate);
+                    if (!day[targetMeal]) day[targetMeal] = [];
+                    day[targetMeal].push({ name: name, calories: cal, img: "" });
+                    saveData(cachedData, function () { render(); });
+                }
+            });
+        });
+
         // Delete items (today tab)
         container.querySelectorAll(".mt-today-item-del").forEach(function (btn) {
             btn.addEventListener("click", function () {
