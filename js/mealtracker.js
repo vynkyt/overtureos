@@ -34,7 +34,6 @@ var MealTracker = (function () {
     var TABS = [
         { id: "add",    label: "Add Food" },
         { id: "today",  label: "Today" },
-        { id: "chart",  label: "Chart" },
     ];
 
     /* --------------------------------------------------
@@ -145,8 +144,6 @@ var MealTracker = (function () {
                 html += renderAddTab(data, day);
             } else if (activeTab === "today") {
                 html += renderTodayTab(day);
-            } else if (activeTab === "chart") {
-                html += renderChartTab();
             }
             html += '</div>';
 
@@ -155,7 +152,7 @@ var MealTracker = (function () {
             container.innerHTML = html;
             bindEvents(container, data);
 
-            if (activeTab === "chart") {
+            if (activeTab === "today" || activeTab === "chart") {
                 setTimeout(function () { drawChart(data); }, 0);
             }
         });
@@ -206,7 +203,7 @@ var MealTracker = (function () {
             items.forEach(function (i) { mealCals += i.calories; });
 
             html += '<div class="mt-today-meal">';
-            html += '<div class="mt-today-meal-header" style="border-left: 3px solid ' + m.color + '">';
+            html += '<div class="mt-today-meal-header">';
             html += '<span class="mt-today-meal-title">' + m.label + '</span>';
             html += '<span class="mt-today-meal-cals">' + mealCals + ' cal</span>';
             html += '</div>';
@@ -230,16 +227,7 @@ var MealTracker = (function () {
             html += '</div></div>';
         });
 
-        return html;
-    }
-
-    /* --------------------------------------------------
-       RENDER — CHART TAB
-    -------------------------------------------------- */
-
-    function renderChartTab() {
-        var html = '';
-
+        // Chart inline
         html += '<div class="mt-chart-section">';
         html += '<div class="mt-chart-toggles">';
         ["weekly", "monthly", "yearly"].forEach(function (r) {

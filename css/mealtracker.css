@@ -97,7 +97,6 @@
 }
 .mt-tab:nth-child(1).active { border-top: 2px solid #fdcb6e; }
 .mt-tab:nth-child(2).active { border-top: 2px solid #74b9ff; }
-.mt-tab:nth-child(3).active { border-top: 2px solid #a29bfe; }
 
 .mt-tab-content {
     padding: 12px 4px;
@@ -155,36 +154,37 @@
    -------------------------------------------------- */
 
 .mt-food-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+}
+@media (max-width: 500px) {
+    .mt-food-grid { grid-template-columns: repeat(4, 1fr); }
 }
 .mt-food-card {
     text-align: center;
     cursor: pointer;
     padding: 4px;
-    border-radius: 10px;
+    border-radius: 8px;
     transition: all 0.25s ease;
     position: relative;
 }
 .mt-food-card:hover {
-    transform: perspective(500px) rotateY(5deg) rotateX(-3deg) scale(1.08);
-    filter: drop-shadow(0 4px 10px rgba(232, 67, 147, 0.25));
+    transform: perspective(500px) rotateY(5deg) rotateX(-3deg) scale(1.06);
+    filter: drop-shadow(0 3px 8px rgba(232, 67, 147, 0.2));
 }
 .mt-food-card:active {
     transform: scale(0.95);
     transition-duration: 0.1s;
 }
 .mt-food-img {
-    width: 72px;
-    height: 72px;
+    width: 100%;
+    aspect-ratio: 1;
     object-fit: contain;
     display: block;
-    image-rendering: auto;
 }
 .mt-food-label {
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 700;
     color: #4a1a2e;
     line-height: 1.2;
@@ -192,7 +192,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 80px;
 }
 .mt-food-cal {
     font-size: 8px;
