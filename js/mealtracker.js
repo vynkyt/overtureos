@@ -10,8 +10,8 @@ var MealTracker = (function () {
 
     var FOODS = [
         // Drinks
-        { name: "Bubble Tea (brown sugar)", img: "img/food/1bubbletea.png", cal: 300, cat: "drinks" },
-        { name: "Bubble Tea (taro)",       img: "img/food/2bubbletea.png", cal: 280, cat: "drinks" },
+        { name: "Bubble Tea (no sugar)", img: "img/food/1bubbletea.png", cal: 360, cat: "drinks" },
+        { name: "Bubble Tea (2, no sugar)",       img: "img/food/2bubbletea.png", cal: 720, cat: "drinks" },
 
         // Snacks
         { name: "Chocolate Bar",           img: "img/food/chocolate-bar.png", cal: 230, cat: "snacks" },
@@ -33,7 +33,7 @@ var MealTracker = (function () {
 
     var TABS = [
         { id: "add",    label: "Add Food" },
-        { id: "today",  label: "Today" },
+        { id: "today",  label: "Chart" },
     ];
 
     /* --------------------------------------------------
@@ -386,7 +386,7 @@ var MealTracker = (function () {
        CUSTOM FOOD MODAL
     -------------------------------------------------- */
 
-    function showCustomModal() {
+    function showCustomModal(data) {
         var existing = document.getElementById("mt-custom-modal");
         if (existing) existing.remove();
 
@@ -463,19 +463,18 @@ var MealTracker = (function () {
 
             var img = uploadedDataUrl || "img/food/custom.jpg";
 
-            // Add to FOODS list dynamically
-            var newFood = { name: name, img: img, cal: cal, cat: "custom", isCustom: false, userAdded: true };
-            FOODS.push(newFood);
+            // Add to FOODS list
+            FOODS.push({ name: name, img: img, cal: cal, cat: "custom", isCustom: false, userAdded: true });
 
-            // Add to today's selected meal
-            loadData(function (data) {
-                var day = getDayData(data, currentDate);
-                if (!day[activeMeal]) day[activeMeal] = [];
-                day[activeMeal].push({ name: name, calories: cal, img: img });
-                saveData(data, function () {
-                    modal.remove();
-                    render();
-                });
+            // Add to today's meal
+            var day = getDayData(data, currentDate);
+            if (!day[activeMeal]) day[activeMeal] = [];
+            day[activeMeal].push({ name: name, calories: cal, img: img });
+
+            // Save and re-render
+            saveData(data, function () {
+                modal.remove();
+                render();
             });
         };
 
@@ -518,7 +517,7 @@ var MealTracker = (function () {
             card.addEventListener("click", function () {
                 var isCustom = card.getAttribute("data-custom") === "1";
                 if (isCustom) {
-                    showCustomModal();
+                    showCustomModal(data);
                     return;
                 }
 
