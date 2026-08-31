@@ -193,11 +193,21 @@ var MealTracker = (function () {
 
     function renderFoodGrid(targetMeal) {
         var html = '<div class="mt-food-grid">';
+
+        // Custom placeholder first
+        html += '<div class="mt-food-card" data-name="Custom" data-cal="0" data-img="img/food/custom.jpg" data-custom="1" data-meal-target="' + targetMeal + '">';
+        html += '<img src="img/food/custom.jpg" alt="Custom" class="mt-food-img" loading="lazy">';
+        html += '<div class="mt-food-label">Custom</div>';
+        html += '<div class="mt-food-cal">tap to add</div>';
+        html += '</div>';
+
+        // Then all other foods
         FOODS.forEach(function (f) {
-            html += '<div class="mt-food-card" data-name="' + f.name + '" data-cal="' + f.cal + '" data-img="' + f.img + '" data-custom="' + (f.isCustom ? "1" : "0") + '" data-meal-target="' + targetMeal + '">';
+            if (f.isCustom) return;
+            html += '<div class="mt-food-card" data-name="' + f.name + '" data-cal="' + f.cal + '" data-img="' + f.img + '" data-custom="0" data-meal-target="' + targetMeal + '">';
             html += '<img src="' + f.img + '" alt="' + f.name + '" class="mt-food-img" loading="lazy">';
             html += '<div class="mt-food-label">' + f.name + '</div>';
-            html += '<div class="mt-food-cal">' + (f.isCustom ? "tap to add" : f.cal + " cal") + '</div>';
+            html += '<div class="mt-food-cal">' + f.cal + ' cal</div>';
             html += '</div>';
         });
         html += '</div>';
