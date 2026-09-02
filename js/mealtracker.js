@@ -18,9 +18,11 @@ var MealTracker = (function () {
         { name: "Chocolate Bar", img: "img/food/chocolate-bar.png", cal: 105, cat: "snacks" },
         { name: "Strawberries", img: "img/food/strawberries.png", cal: 49, cat: "snacks" },
         { name: "Mamee", img: "img/food/mamee.png", cal: 120, cat: "snacks" },
+        { name: "Mexican Coffee Bun", img: "img/food/mexicancoffeebun.png", cal: 424, cat: "snacks" },
 
         // Meals
         { name: "Wrap", img: "img/food/wrap.png", cal: 300, cat: "meals" },
+        { name: "Bak Kut Teh", img: "img/food/bakkutteh.png", cal: 400, cat: "meals" },
 
         // Custom placeholder
         { name: "Custom", img: "img/food/custom.jpg", cal: 0, cat: "custom", isCustom: true },
