@@ -20,6 +20,7 @@ var MealTracker = (function () {
         { name: "Mamee", img: "img/food/mamee.png", cal: 120, cat: "snacks" },
         { name: "Mexican Coffee Bun", img: "img/food/mexicancoffeebun.png", cal: 424, cat: "snacks" },
         { name: "Cookie (plain)", img: "img/food/1cookie.png", cal: 100, cat: "snacks" },
+        { name: "Emco Nut & Pistachio Bar", img: "img/food/proteinbar.png", cal: 188, cat: "snacks" },
 
         // Meals
         { name: "Wrap", img: "img/food/wrap.png", cal: 300, cat: "meals" },
