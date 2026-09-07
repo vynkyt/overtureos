@@ -28,9 +28,12 @@ var MealTracker = (function () {
         { name: "Love Letters Choco Wafers (50g)", img: "img/food/chocowafers.png", cal: 240, cat: "snacks" },
         { name: "KFC Wedges (w/ sauce)", img: "img/food/kfcwedges.png", cal: 310, cat: "snacks" },
         { name: "KFC Chicken (small portion)", img: "img/food/kfcchicken.png", cal: 250, cat: "snacks" },
+        { name: "Hotdog Bun (fried bun)", img: "img/food/friedhotdogbun.png", cal: 380, cat: "snacks" },
+        
         // Meals
         { name: "Wrap", img: "img/food/wrap.png", cal: 300, cat: "meals" },
         { name: "Bak Kut Teh", img: "img/food/bakkutteh.png", cal: 400, cat: "meals" },
+        { name: "Hokkien Mee", img: "img/food/hokkienmee.png", cal: 580, cat: "meals" },
 
         // Custom placeholder
         { name: "Custom", img: "img/food/custom.jpg", cal: 0, cat: "custom", isCustom: true },
