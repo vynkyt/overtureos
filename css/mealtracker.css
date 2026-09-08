@@ -28,6 +28,41 @@
     font-size: 11px;
     color: #872A4E;
 }
+
+/* Quick cal input */
+.mt-quick-cal {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+.mt-quick-cal-input {
+    flex: 1;
+    font-family: "Balsamiq Sans", Georgia, serif;
+    font-size: 11px;
+    padding: 5px 8px;
+    border: 1px solid rgba(135,42,78,0.2);
+    border-radius: 6px;
+    background: rgba(255,255,255,0.7);
+    color: #4a1a2e;
+    outline: none;
+}
+.mt-quick-cal-input:focus {
+    border-color: #e84393;
+}
+.mt-quick-cal-btn {
+    background: #e84393;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: "Balsamiq Sans", Georgia, serif;
+}
+.mt-quick-cal-btn:hover {
+    background: #d63384;
+}
 .mt-footer-sub {
     text-align: center;
     font-size: 9px;

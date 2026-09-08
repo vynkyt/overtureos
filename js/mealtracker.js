@@ -290,6 +290,12 @@ var MealTracker = (function () {
             html += '<div class="mt-total"><span class="mt-total-num">' + total + '</span> cal</div>';
             html += '</div>';
 
+            // Quick cal input
+            html += '<div class="mt-quick-cal">';
+            html += '<input type="number" id="mt-quick-cal-input" class="mt-quick-cal-input" placeholder="Quick add calories..." min="0">';
+            html += '<button class="mt-quick-cal-btn" id="mt-quick-cal-btn">+</button>';
+            html += '</div>';
+
             // Date nav
             html += '<div class="mt-nav">';
             html += '<button class="mt-nav-btn" id="mt-prev-day">&#9664;</button>';
@@ -727,6 +733,21 @@ var MealTracker = (function () {
         if (prevBtn) prevBtn.onclick = function () { currentDate = shiftDate(currentDate, -1); render(); };
         if (nextBtn) nextBtn.onclick = function () { currentDate = shiftDate(currentDate, 1); render(); };
         if (todayBtn) todayBtn.onclick = function () { currentDate = today(); render(); };
+
+        // Quick cal input
+        var quickInput = document.getElementById("mt-quick-cal-input");
+        var quickBtn = document.getElementById("mt-quick-cal-btn");
+        function addQuickCal() {
+            if (!quickInput || !cachedData) return;
+            var val = parseInt(quickInput.value, 10);
+            if (isNaN(val) || val <= 0) { quickInput.focus(); return; }
+            var day = getDayData(cachedData, currentDate);
+            if (!day["snacks"]) day["snacks"] = [];
+            day["snacks"].push({ name: "Quick add", calories: val, img: "" });
+            saveData(cachedData, function () { render(); });
+        }
+        if (quickBtn) quickBtn.addEventListener("click", addQuickCal);
+        if (quickInput) quickInput.addEventListener("keydown", function (e) { if (e.key === "Enter") addQuickCal(); });
 
         // Meal selector pills
         container.querySelectorAll(".mt-meal-pill").forEach(function (btn) {
