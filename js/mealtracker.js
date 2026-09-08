@@ -29,7 +29,10 @@ var MealTracker = (function () {
         { name: "KFC Wedges (w/ sauce)", img: "img/food/kfcwedges.png", cal: 310, cat: "snacks" },
         { name: "KFC Chicken (small portion)", img: "img/food/kfcchicken.png", cal: 250, cat: "snacks" },
         { name: "Hotdog Bun (fried bun)", img: "img/food/friedhotdogbun.png", cal: 380, cat: "snacks" },
-        
+        { name: "Kinder Joy", img: "img/food/kinderjoy.png", cal: 110, cat: "snacks" },
+        { name: "Ferrero Rocher (classic)", img: "img/food/ferrerorocherclassic.png", cal: 76, cat: "snacks" },
+        { name: "Ferrero Rocher (dark choco)", img: "img/food/ferrerorocherdc.png", cal: 55, cat: "snacks" },
+
         // Meals
         { name: "Wrap", img: "img/food/wrap.png", cal: 300, cat: "meals" },
         { name: "Bak Kut Teh", img: "img/food/bakkutteh.png", cal: 400, cat: "meals" },
@@ -60,6 +63,8 @@ var MealTracker = (function () {
         { name: "Oats (1/2 cup dry)", cal: 150, cat: "grains" },
         { name: "Salmon (100g)", cal: 208, cat: "protein" },
         { name: "Fish Fillet (100g)", cal: 100, cat: "protein" },
+        { name: "Chicken (100g)", cal: 165, cat: "protein" },
+        { name: "Unagi (~60g)", cal: 180, cat: "protein" },
         { name: "Fish Tofu (1 pcs)", cal: 37, cat: "protein" },
         { name: "Shrimp (100g)", cal: 85, cat: "protein" },
         { name: "Egg (1 large)", cal: 78, cat: "protein" },
