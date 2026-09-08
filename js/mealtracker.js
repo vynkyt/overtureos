@@ -53,6 +53,7 @@ var MealTracker = (function () {
         { id: "add", label: "Add Food" },
         { id: "ingredients", label: "Add Ingredients" },
         { id: "today", label: "Chart" },
+        { id: "calendar", label: "Calendar" },
     ];
 
     var INGREDIENTS = [
@@ -123,6 +124,8 @@ var MealTracker = (function () {
     var chartRange = "weekly";
     var ingredientSearch = "";
     var cachedData = null;
+    var calendarYear = new Date().getFullYear();
+    var calendarMonth = new Date().getMonth();
 
     /* --------------------------------------------------
        HELPERS
@@ -316,9 +319,9 @@ var MealTracker = (function () {
 
             // Date nav
             html += '<div class="mt-nav">';
-            html += '<button class="mt-nav-btn" id="mt-prev-day">&#9664;</button>';
+            html += '<button class="mt-nav-btn mt-nav-arrow" id="mt-prev-day">&lt;</button>';
             html += '<button class="mt-nav-btn" id="mt-today-btn">Today</button>';
-            html += '<button class="mt-nav-btn" id="mt-next-day">&#9654;</button>';
+            html += '<button class="mt-nav-btn mt-nav-arrow" id="mt-next-day">&gt;</button>';
             html += '</div>';
 
             // Tabs
@@ -336,6 +339,8 @@ var MealTracker = (function () {
                 html += renderIngredientsTab(data, day);
             } else if (activeTab === "today") {
                 html += renderTodayTab(day);
+            } else if (activeTab === "calendar") {
+                html += renderCalendarTab(data);
             }
             html += '</div>';
 
@@ -494,6 +499,93 @@ var MealTracker = (function () {
         html += '</div>';
         html += '<div class="mt-chart-wrap"><canvas id="mt-chart"></canvas></div>';
         html += '<div id="mt-chart-stats" class="mt-chart-stats"></div>';
+        html += '</div>';
+
+        return html;
+    }
+
+    /* --------------------------------------------------
+       RENDER — CALENDAR TAB
+    -------------------------------------------------- */
+
+    function renderCalendarTab(data) {
+        var html = '';
+        var mn = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+        html += '<div class="mt-cal">';
+        html += '<div class="mt-cal-nav">';
+        html += '<button class="mt-cal-nav-btn mt-cal-arrow" id="mt-cal-prev-year">&lt;&lt;</button>';
+        html += '<button class="mt-cal-nav-btn mt-cal-arrow" id="mt-cal-prev-month">&lt;</button>';
+        html += '<div class="mt-cal-title">' + mn[calendarMonth] + ' ' + calendarYear + '</div>';
+        html += '<button class="mt-cal-nav-btn mt-cal-arrow" id="mt-cal-next-month">&gt;</button>';
+        html += '<button class="mt-cal-nav-btn mt-cal-arrow" id="mt-cal-next-year">&gt;&gt;</button>';
+        html += '</div>';
+
+        var firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+        var daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+
+        var dayCals = [];
+        var maxCal = 0;
+        var minCal = Infinity;
+        var hasData = false;
+
+        for (var d = 1; d <= daysInMonth; d++) {
+            var key = calendarYear + "-" + String(calendarMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+            var total = dayTotalFromData(data, key);
+            dayCals.push(total);
+            if (total > 0) {
+                hasData = true;
+                if (total > maxCal) maxCal = total;
+                if (total < minCal) minCal = total;
+            }
+        }
+
+        if (!hasData) minCal = 0;
+
+        html += '<div class="mt-cal-grid">';
+        var dow = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+        for (var i = 0; i < 7; i++) {
+            html += '<div class="mt-cal-dow">' + dow[i] + '</div>';
+        }
+
+        for (var i = 0; i < firstDay; i++) {
+            html += '<div class="mt-cal-day mt-cal-empty"></div>';
+        }
+
+        for (var d = 1; d <= daysInMonth; d++) {
+            var cal = dayCals[d - 1];
+            var key = calendarYear + "-" + String(calendarMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+            var isPeak = hasData && cal === maxCal && cal > 0;
+            var isLeast = hasData && cal === minCal && cal > 0 && minCal !== maxCal;
+            var isToday = key === today();
+
+            var cls = "mt-cal-day";
+            if (isToday) cls += " mt-cal-today";
+            if (cal > 0) cls += " mt-cal-has-data";
+
+            html += '<div class="' + cls + '" data-date="' + key + '">';
+            html += '<div class="mt-cal-day-num">' + d + '</div>';
+
+            if (isPeak) {
+                html += '<div class="mt-cal-icon mt-cal-star" title="Peak: ' + cal + ' cal">&#9733;</div>';
+            } else if (isLeast) {
+                html += '<div class="mt-cal-icon mt-cal-heart" title="Least: ' + cal + ' cal">&#9825;</div>';
+            }
+
+            if (cal > 0) {
+                html += '<div class="mt-cal-day-cal">' + cal + '</div>';
+            }
+
+            html += '</div>';
+        }
+
+        html += '</div>';
+
+        html += '<div class="mt-cal-legend">';
+        html += '<span class="mt-cal-legend-item"><span class="mt-cal-star">&#9733;</span> peak</span>';
+        html += '<span class="mt-cal-legend-item"><span class="mt-cal-heart">&#9825;</span> least</span>';
+        html += '</div>';
+
         html += '</div>';
 
         return html;
@@ -898,6 +990,36 @@ var MealTracker = (function () {
                         saveData(cachedData, function () { render(); });
                     }
                 }
+            });
+        });
+
+        // Calendar nav
+        var calPrevYear = document.getElementById("mt-cal-prev-year");
+        var calPrevMonth = document.getElementById("mt-cal-prev-month");
+        var calNextMonth = document.getElementById("mt-cal-next-month");
+        var calNextYear = document.getElementById("mt-cal-next-year");
+
+        if (calPrevYear) calPrevYear.onclick = function () { calendarYear--; render(); };
+        if (calPrevMonth) calPrevMonth.onclick = function () {
+            calendarMonth--;
+            if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+            render();
+        };
+        if (calNextMonth) calNextMonth.onclick = function () {
+            calendarMonth++;
+            if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+            render();
+        };
+        if (calNextYear) calNextYear.onclick = function () { calendarYear++; render(); };
+
+        // Calendar day click → navigate to that day
+        container.querySelectorAll(".mt-cal-has-data, .mt-cal-day:not(.mt-cal-empty)").forEach(function (el) {
+            el.addEventListener("click", function () {
+                var date = el.getAttribute("data-date");
+                if (!date) return;
+                currentDate = date;
+                activeTab = "add";
+                render();
             });
         });
 

@@ -111,6 +111,11 @@
     min-width: 28px;
     text-align: center;
 }
+.mt-nav-arrow {
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 1;
+}
 .mt-nav-btn:hover {
     background: rgba(255, 175, 204, 0.35);
 }
@@ -645,4 +650,114 @@
     color: #872A4E;
     margin-left: auto;
     padding: 0 4px;
+}
+
+/* Calendar */
+.mt-cal {
+    font-family: "Balsamiq Sans", Georgia, serif;
+}
+.mt-cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 10px;
+}
+.mt-cal-nav-btn {
+    background: rgba(255, 200, 220, 0.25);
+    border: 1px solid rgba(255, 175, 204, 0.4);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-family: "Balsamiq Sans", Georgia, serif;
+    color: #872A4E;
+    cursor: pointer;
+}
+.mt-cal-nav-btn:hover {
+    background: rgba(255, 175, 204, 0.35);
+}
+.mt-cal-arrow {
+    font-weight: 700;
+    font-size: 11px;
+    min-width: 26px;
+    text-align: center;
+}
+.mt-cal-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #872A4E;
+    min-width: 130px;
+    text-align: center;
+}
+.mt-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+.mt-cal-dow {
+    text-align: center;
+    font-size: 9px;
+    color: #872A4E;
+    opacity: 0.5;
+    padding: 2px 0 4px;
+    font-weight: 700;
+}
+.mt-cal-day {
+    position: relative;
+    text-align: center;
+    padding: 4px 2px;
+    border-radius: 6px;
+    cursor: pointer;
+    min-height: 40px;
+    transition: background 0.15s;
+}
+.mt-cal-day:hover {
+    background: rgba(232, 67, 147, 0.08);
+}
+.mt-cal-empty {
+    cursor: default;
+}
+.mt-cal-empty:hover {
+    background: none;
+}
+.mt-cal-today {
+    background: rgba(232, 67, 147, 0.12);
+    font-weight: 700;
+}
+.mt-cal-day-num {
+    font-size: 11px;
+    color: #4a1a2e;
+}
+.mt-cal-day-cal {
+    font-size: 8px;
+    color: #872A4E;
+    opacity: 0.6;
+    margin-top: 1px;
+}
+.mt-cal-icon {
+    position: absolute;
+    top: 1px;
+    right: 2px;
+    font-size: 10px;
+    line-height: 1;
+}
+.mt-cal-star {
+    color: #f9a825;
+}
+.mt-cal-heart {
+    color: #e84393;
+}
+.mt-cal-legend {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 10px;
+    font-size: 10px;
+    color: #872A4E;
+    opacity: 0.6;
+}
+.mt-cal-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 3px;
 }
