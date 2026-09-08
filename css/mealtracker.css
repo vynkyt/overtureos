@@ -763,3 +763,68 @@
     align-items: center;
     gap: 3px;
 }
+
+/* Calendar view toggle */
+.mt-cal-top-bar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+.mt-cal-view-toggle {
+    display: flex;
+    gap: 2px;
+    background: rgba(255, 200, 220, 0.2);
+    border-radius: 6px;
+    padding: 2px;
+}
+.mt-cal-view-btn {
+    background: none;
+    border: none;
+    border-radius: 5px;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-family: "Balsamiq Sans", Georgia, serif;
+    color: #872A4E;
+    cursor: pointer;
+    opacity: 0.5;
+}
+.mt-cal-view-btn.active {
+    background: rgba(232, 67, 147, 0.15);
+    opacity: 1;
+    font-weight: 700;
+}
+
+/* Year view */
+.mt-cal-year-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+.mt-cal-year-cell {
+    position: relative;
+    text-align: center;
+    padding: 10px 4px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 175, 204, 0.3);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.mt-cal-year-cell:hover {
+    background: rgba(232, 67, 147, 0.08);
+}
+.mt-cal-year-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #4a1a2e;
+}
+.mt-cal-year-total {
+    font-size: 10px;
+    color: #872A4E;
+    margin-top: 2px;
+}
+.mt-cal-year-empty {
+    opacity: 0.3;
+}
+.mt-cal-year-cell .mt-cal-icon {
+    font-size: 12px;
+}

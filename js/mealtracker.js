@@ -126,6 +126,7 @@ var MealTracker = (function () {
     var cachedData = null;
     var calendarYear = new Date().getFullYear();
     var calendarMonth = new Date().getMonth();
+    var calendarView = "month";
 
     /* --------------------------------------------------
        HELPERS
@@ -511,80 +512,150 @@ var MealTracker = (function () {
     function renderCalendarTab(data) {
         var html = '';
         var mn = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+        var mnShort = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
         html += '<div class="mt-cal">';
-        html += '<div class="mt-cal-nav">';
-        html += '<button class="mt-cal-nav-btn mt-cal-arrow" id="mt-cal-prev-year">&lt;&lt;</button>';
-        html += '<button class="mt-cal-nav-btn mt-cal-arrow" id="mt-cal-prev-month">&lt;</button>';
-        html += '<div class="mt-cal-title">' + mn[calendarMonth] + ' ' + calendarYear + '</div>';
-        html += '<button class="mt-cal-nav-btn mt-cal-arrow" id="mt-cal-next-month">&gt;</button>';
-        html += '<button class="mt-cal-nav-btn mt-cal-arrow" id="mt-cal-next-year">&gt;&gt;</button>';
+
+        html += '<div class="mt-cal-top-bar">';
+        html += '<div class="mt-cal-view-toggle">';
+        html += '<button class="mt-cal-view-btn' + (calendarView === "month" ? " active" : '') + '" id="mt-cal-view-month">Month</button>';
+        html += '<button class="mt-cal-view-btn' + (calendarView === "year" ? " active" : '') + '" id="mt-cal-view-year">Year</button>';
+        html += '</div>';
         html += '</div>';
 
-        var firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
-        var daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+        if (calendarView === "month") {
+            html += '<div class="mt-cal-nav">';
+            html += '<button class="mt-cal-nav-btn mt-cal-arrow" id="mt-cal-prev-month">&lt;</button>';
+            html += '<div class="mt-cal-title">' + mn[calendarMonth] + ' ' + calendarYear + '</div>';
+            html += '<button class="mt-cal-nav-btn mt-cal-arrow" id="mt-cal-next-month">&gt;</button>';
+            html += '</div>';
 
-        var dayCals = [];
-        var maxCal = 0;
-        var minCal = Infinity;
-        var hasData = false;
+            var firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+            var daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
 
-        for (var d = 1; d <= daysInMonth; d++) {
-            var key = calendarYear + "-" + String(calendarMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
-            var total = dayTotalFromData(data, key);
-            dayCals.push(total);
-            if (total > 0) {
-                hasData = true;
-                if (total > maxCal) maxCal = total;
-                if (total < minCal) minCal = total;
-            }
-        }
+            var dayCals = [];
+            var maxCal = 0;
+            var minCal = Infinity;
+            var hasData = false;
 
-        if (!hasData) minCal = 0;
-
-        html += '<div class="mt-cal-grid">';
-        var dow = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-        for (var i = 0; i < 7; i++) {
-            html += '<div class="mt-cal-dow">' + dow[i] + '</div>';
-        }
-
-        for (var i = 0; i < firstDay; i++) {
-            html += '<div class="mt-cal-day mt-cal-empty"></div>';
-        }
-
-        for (var d = 1; d <= daysInMonth; d++) {
-            var cal = dayCals[d - 1];
-            var key = calendarYear + "-" + String(calendarMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
-            var isPeak = hasData && cal === maxCal && cal > 0;
-            var isLeast = hasData && cal === minCal && cal > 0 && minCal !== maxCal;
-            var isToday = key === today();
-
-            var cls = "mt-cal-day";
-            if (isToday) cls += " mt-cal-today";
-            if (cal > 0) cls += " mt-cal-has-data";
-
-            html += '<div class="' + cls + '" data-date="' + key + '">';
-            html += '<div class="mt-cal-day-num">' + d + '</div>';
-
-            if (isPeak) {
-                html += '<div class="mt-cal-icon mt-cal-star" title="Peak: ' + cal + ' cal">&#9733;</div>';
-            } else if (isLeast) {
-                html += '<div class="mt-cal-icon mt-cal-heart" title="Least: ' + cal + ' cal">&#9825;</div>';
+            for (var d = 1; d <= daysInMonth; d++) {
+                var key = calendarYear + "-" + String(calendarMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+                var total = dayTotalFromData(data, key);
+                dayCals.push(total);
+                if (total > 0) {
+                    hasData = true;
+                    if (total > maxCal) maxCal = total;
+                    if (total < minCal) minCal = total;
+                }
             }
 
-            if (cal > 0) {
-                html += '<div class="mt-cal-day-cal">' + cal + '</div>';
+            if (!hasData) minCal = 0;
+
+            html += '<div class="mt-cal-grid">';
+            var dow = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+            for (var i = 0; i < 7; i++) {
+                html += '<div class="mt-cal-dow">' + dow[i] + '</div>';
+            }
+
+            for (var i = 0; i < firstDay; i++) {
+                html += '<div class="mt-cal-day mt-cal-empty"></div>';
+            }
+
+            for (var d = 1; d <= daysInMonth; d++) {
+                var cal = dayCals[d - 1];
+                var key = calendarYear + "-" + String(calendarMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+                var isPeak = hasData && cal === maxCal && cal > 0;
+                var isLeast = hasData && cal === minCal && cal > 0 && minCal !== maxCal;
+                var isToday = key === today();
+
+                var cls = "mt-cal-day";
+                if (isToday) cls += " mt-cal-today";
+                if (cal > 0) cls += " mt-cal-has-data";
+
+                html += '<div class="' + cls + '" data-date="' + key + '">';
+                html += '<div class="mt-cal-day-num">' + d + '</div>';
+
+                if (isPeak) {
+                    html += '<div class="mt-cal-icon mt-cal-star" title="Peak: ' + cal + ' cal">&#9733;</div>';
+                } else if (isLeast) {
+                    html += '<div class="mt-cal-icon mt-cal-heart" title="Least: ' + cal + ' cal">&#9825;</div>';
+                }
+
+                if (cal > 0) {
+                    html += '<div class="mt-cal-day-cal">' + cal + '</div>';
+                }
+
+                html += '</div>';
             }
 
             html += '</div>';
+
+            html += '<div class="mt-cal-legend">';
+            html += '<span class="mt-cal-legend-item"><span class="mt-cal-star">&#9733;</span> peak</span>';
+            html += '<span class="mt-cal-legend-item"><span class="mt-cal-heart">&#9825;</span> least</span>';
+            html += '</div>';
+
+        } else {
+            html += '<div class="mt-cal-nav">';
+            html += '<button class="mt-cal-nav-btn mt-cal-arrow" id="mt-cal-prev-year">&lt;</button>';
+            html += '<div class="mt-cal-title">' + calendarYear + '</div>';
+            html += '<button class="mt-cal-nav-btn mt-cal-arrow" id="mt-cal-next-year">&gt;</button>';
+            html += '</div>';
+
+            var yearTotals = [];
+            var yearMax = 0;
+            var yearMin = Infinity;
+            var yearHasData = false;
+
+            for (var m = 0; m < 12; m++) {
+                var mTotal = 0;
+                var dim = new Date(calendarYear, m + 1, 0).getDate();
+                for (var dd = 1; dd <= dim; dd++) {
+                    var key = calendarYear + "-" + String(m + 1).padStart(2, "0") + "-" + String(dd).padStart(2, "0");
+                    mTotal += dayTotalFromData(data, key);
+                }
+                yearTotals.push(mTotal);
+                if (mTotal > 0) {
+                    yearHasData = true;
+                    if (mTotal > yearMax) yearMax = mTotal;
+                    if (mTotal < yearMin) yearMin = mTotal;
+                }
+            }
+            if (!yearHasData) yearMin = 0;
+
+            html += '<div class="mt-cal-year-grid">';
+            for (var m = 0; m < 12; m++) {
+                var mTotal = yearTotals[m];
+                var isPeak = yearHasData && mTotal === yearMax && mTotal > 0;
+                var isLeast = yearHasData && mTotal === yearMin && mTotal > 0 && yearMin !== yearMax;
+
+                var cls = "mt-cal-year-cell";
+                if (mTotal > 0) cls += " mt-cal-has-data";
+
+                html += '<div class="' + cls + '" data-month="' + m + '">';
+                html += '<div class="mt-cal-year-name">' + mnShort[m] + '</div>';
+
+                if (isPeak) {
+                    html += '<div class="mt-cal-icon mt-cal-star">&#9733;</div>';
+                } else if (isLeast) {
+                    html += '<div class="mt-cal-icon mt-cal-heart">&#9825;</div>';
+                }
+
+                if (mTotal > 0) {
+                    html += '<div class="mt-cal-year-total">' + mTotal + '</div>';
+                } else {
+                    html += '<div class="mt-cal-year-total mt-cal-year-empty">-</div>';
+                }
+
+                html += '</div>';
+            }
+            html += '</div>';
+
+            html += '<div class="mt-cal-legend">';
+            html += '<span class="mt-cal-legend-item"><span class="mt-cal-star">&#9733;</span> peak</span>';
+            html += '<span class="mt-cal-legend-item"><span class="mt-cal-heart">&#9825;</span> least</span>';
+            html += '</div>';
         }
-
-        html += '</div>';
-
-        html += '<div class="mt-cal-legend">';
-        html += '<span class="mt-cal-legend-item"><span class="mt-cal-star">&#9733;</span> peak</span>';
-        html += '<span class="mt-cal-legend-item"><span class="mt-cal-heart">&#9825;</span> least</span>';
-        html += '</div>';
 
         html += '</div>';
 
@@ -993,6 +1064,12 @@ var MealTracker = (function () {
             });
         });
 
+        // Calendar view toggle
+        var calViewMonth = document.getElementById("mt-cal-view-month");
+        var calViewYear = document.getElementById("mt-cal-view-year");
+        if (calViewMonth) calViewMonth.onclick = function () { calendarView = "month"; render(); };
+        if (calViewYear) calViewYear.onclick = function () { calendarView = "year"; render(); };
+
         // Calendar nav
         var calPrevYear = document.getElementById("mt-cal-prev-year");
         var calPrevMonth = document.getElementById("mt-cal-prev-month");
@@ -1013,12 +1090,21 @@ var MealTracker = (function () {
         if (calNextYear) calNextYear.onclick = function () { calendarYear++; render(); };
 
         // Calendar day click → navigate to that day
-        container.querySelectorAll(".mt-cal-has-data, .mt-cal-day:not(.mt-cal-empty)").forEach(function (el) {
+        container.querySelectorAll(".mt-cal-day:not(.mt-cal-empty)").forEach(function (el) {
             el.addEventListener("click", function () {
                 var date = el.getAttribute("data-date");
                 if (!date) return;
                 currentDate = date;
                 activeTab = "add";
+                render();
+            });
+        });
+
+        // Calendar year month click → switch to that month view
+        container.querySelectorAll(".mt-cal-year-cell").forEach(function (el) {
+            el.addEventListener("click", function () {
+                calendarMonth = parseInt(el.getAttribute("data-month"), 10);
+                calendarView = "month";
                 render();
             });
         });
