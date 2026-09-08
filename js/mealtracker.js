@@ -341,8 +341,10 @@ var MealTracker = (function () {
 
             html += '<div class="mt-footer-sub">';
             html += '~ to fuel my eating disorder ~';
-            html += ' &middot; <a href="#" id="mt-export-btn" style="color:#872A4E">export</a>';
-            html += ' &middot; <a href="#" id="mt-import-btn" style="color:#872A4E">import</a>';
+            html += '</div>';
+            html += '<div class="mt-footer-actions">';
+            html += '<a href="#" id="mt-export-btn">export</a>';
+            html += ' &middot; <a href="#" id="mt-import-btn">import</a>';
             html += '</div>';
             html += '<input type="file" id="mt-import-file" accept=".json" style="display:none">';
 

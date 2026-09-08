@@ -69,6 +69,20 @@
     color: #c47a92;
     font-style: italic;
     letter-spacing: 0.3px;
+}
+.mt-footer-actions {
+    text-align: center;
+    font-size: 9px;
+    margin-top: 2px;
+}
+.mt-footer-actions a {
+    color: #872A4E;
+    text-decoration: none;
+    opacity: 0.6;
+}
+.mt-footer-actions a:hover {
+    opacity: 1;
+}
     padding: 8px 0 4px;
 }
 .mt-total-num {
