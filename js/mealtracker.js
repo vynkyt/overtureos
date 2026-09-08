@@ -168,8 +168,16 @@ var MealTracker = (function () {
                         OvertureStore.set("mealtracker", "data", result.value).catch(function () {});
                         callback(result.value);
                     } else {
-                        console.log("MealTracker: no data found anywhere");
-                        callback({});
+                console.log("MealTracker: no data found in IndexedDB");
+                try {
+                    var ls = JSON.parse(localStorage.getItem(LS_KEY));
+                    if (ls && Object.keys(ls).length > 0) {
+                        console.log("MealTracker: restoring from localStorage mirror");
+                        callback(ls);
+                        return;
+                    }
+                } catch (e) {}
+                callback({});
                     }
                 });
             }
@@ -186,10 +194,20 @@ var MealTracker = (function () {
                 }
             }).catch(function (err2) {
                 console.error("MealTracker: recovery also failed:", err2);
+                try {
+                    var ls2 = JSON.parse(localStorage.getItem(LS_KEY));
+                    if (ls2 && Object.keys(ls2).length > 0) {
+                        console.log("MealTracker: restoring from localStorage after all failures");
+                        callback(ls2);
+                        return;
+                    }
+                } catch (e) {}
                 callback(null);
             });
         });
     }
+
+    var LS_KEY = "mealtracker_mirror";
 
     function saveData(data, cb) {
         if (typeof OvertureStore === "undefined" || !OvertureStore.isReady()) {
@@ -199,15 +217,15 @@ var MealTracker = (function () {
         }
         storeReady = true;
 
+        try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch (e) {}
+
         var backupKey = "mealtracker_backup_" + Date.now();
-        var backupDone = false;
 
         OvertureStore.get("mealtracker", "data").then(function (oldData) {
             if (oldData && Object.keys(oldData).length > 0) {
                 return OvertureStore.set("mealtracker", backupKey, oldData);
             }
         }).catch(function () {}).then(function () {
-            backupDone = true;
             return OvertureStore.set("mealtracker", "data", data);
         }).then(function () {
             cleanupBackups();
@@ -321,7 +339,12 @@ var MealTracker = (function () {
             }
             html += '</div>';
 
-            html += '<div class="mt-footer-sub">~ to fuel my eating disorder ~</div>';
+            html += '<div class="mt-footer-sub">';
+            html += '~ to fuel my eating disorder ~';
+            html += ' &middot; <a href="#" id="mt-export-btn" style="color:#872A4E">export</a>';
+            html += ' &middot; <a href="#" id="mt-import-btn" style="color:#872A4E">import</a>';
+            html += '</div>';
+            html += '<input type="file" id="mt-import-file" accept=".json" style="display:none">';
 
             html += '</div>';
 
@@ -882,6 +905,44 @@ var MealTracker = (function () {
                 chartRange = btn.getAttribute("data-range");
                 render();
             });
+        });
+
+        // Export
+        var exportBtn = document.getElementById("mt-export-btn");
+        if (exportBtn) exportBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (!cachedData) return;
+            var blob = new Blob([JSON.stringify(cachedData, null, 2)], { type: "application/json" });
+            var a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "mealtracker-" + today() + ".json";
+            a.click();
+            URL.revokeObjectURL(a.href);
+        });
+
+        // Import
+        var importBtn = document.getElementById("mt-import-btn");
+        var importFile = document.getElementById("mt-import-file");
+        if (importBtn) importBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (importFile) importFile.click();
+        });
+        if (importFile) importFile.addEventListener("change", function () {
+            var file = importFile.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                try {
+                    var imported = JSON.parse(ev.target.result);
+                    if (imported && typeof imported === "object") {
+                        saveData(imported, function () { render(); });
+                    }
+                } catch (e) {
+                    alert("Invalid backup file.");
+                }
+            };
+            reader.readAsText(file);
+            importFile.value = "";
         });
     }
 
