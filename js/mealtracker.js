@@ -154,10 +154,32 @@ var MealTracker = (function () {
         loadRetries = 0;
         storeReady = true;
         OvertureStore.get("mealtracker", "data").then(function (val) {
-            callback(val || {});
+            if (val && Object.keys(val).length > 0) {
+                callback(val);
+            } else {
+                return OvertureStore.searchAll("mealtracker:", "data").then(function (result) {
+                    if (result && result.value && Object.keys(result.value).length > 0) {
+                        console.log("MealTracker: recovered data from namespace", result.namespace);
+                        OvertureStore.set("mealtracker", "data", result.value).catch(function () {});
+                        callback(result.value);
+                    } else {
+                        callback({});
+                    }
+                });
+            }
         }).catch(function (err) {
-            console.error("MealTracker: failed to load data", err);
-            callback(null);
+            console.error("MealTracker: primary load failed, trying recovery...", err);
+            OvertureStore.searchAll("mealtracker:", "data").then(function (result) {
+                if (result && result.value && Object.keys(result.value).length > 0) {
+                    console.log("MealTracker: recovered data from namespace", result.namespace);
+                    OvertureStore.set("mealtracker", "data", result.value).catch(function () {});
+                    callback(result.value);
+                } else {
+                    callback(null);
+                }
+            }).catch(function () {
+                callback(null);
+            });
         });
     }
 

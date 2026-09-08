@@ -498,6 +498,50 @@ var OvertureStore = (function () {
         return !!(db && encKey);
     }
 
+    function searchAll(nsPrefix, key) {
+
+        return new Promise(function (resolve, reject) {
+
+            if (!db) {
+                reject(new Error("Store not initialized."));
+                return;
+            }
+
+            var tx = db.transaction(STORE_NAME, "readonly");
+            var store = tx.objectStore(STORE_NAME);
+            var request = store.getAll();
+
+            request.onsuccess = function () {
+
+                var records = (request.result || []).filter(function (rec) {
+                    return rec.namespace && rec.namespace.indexOf(nsPrefix) === 0 && rec.key === key;
+                });
+
+                if (records.length === 0) {
+                    resolve(null);
+                    return;
+                }
+
+                var best = records[0];
+                for (var i = 1; i < records.length; i++) {
+                    if ((records[i].updatedAt || 0) > (best.updatedAt || 0)) {
+                        best = records[i];
+                    }
+                }
+
+                decryptValue(best)
+                    .then(function (val) {
+                        resolve({ value: val, namespace: best.namespace });
+                    })
+                    .catch(reject);
+            };
+
+            request.onerror = function () {
+                reject(new Error("Search failed."));
+            };
+        });
+    }
+
     return {
         init: init,
         setEncryptionKey: setEncryptionKey,
@@ -508,6 +552,7 @@ var OvertureStore = (function () {
         set: set,
         delete: del,
         keys: keys,
+        searchAll: searchAll,
         exportAll: exportAll,
         importAll: importAll,
         exportToUSB: exportToUSB,

@@ -787,8 +787,8 @@ made w/ wings, made to fly
 			} else {
 				OvertureAuth.onUnlock(function () {
 					var uid = OvertureAuth.getUser();
-					if (uid && typeof OvertureStore !== "undefined") {
-						OvertureStore.init(uid).then(function () {
+					if (typeof OvertureStore !== "undefined") {
+						OvertureStore.init(uid || "_pending").then(function () {
 							initSettings();
 							if (typeof MealTracker !== "undefined") MealTracker.init();
 						});
@@ -802,8 +802,8 @@ made w/ wings, made to fly
 			console.error("Auth init failed:", err);
 			OvertureAuth.onUnlock(function () {
 				var uid = OvertureAuth.getUser();
-				if (uid && typeof OvertureStore !== "undefined") {
-					OvertureStore.init(uid).then(function () {
+				if (typeof OvertureStore !== "undefined") {
+					OvertureStore.init(uid || "_pending").then(function () {
 						initSettings();
 						if (typeof MealTracker !== "undefined") MealTracker.init();
 					});
