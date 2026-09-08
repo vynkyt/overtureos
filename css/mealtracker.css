@@ -740,7 +740,7 @@
     position: absolute;
     top: 1px;
     right: 2px;
-    font-size: 10px;
+    font-size: 13px;
     line-height: 1;
 }
 .mt-cal-star {
@@ -826,5 +826,6 @@
     opacity: 0.3;
 }
 .mt-cal-year-cell .mt-cal-icon {
-    font-size: 12px;
+    font-size: 14px;
+    position: static;
 }

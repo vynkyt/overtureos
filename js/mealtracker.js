@@ -609,28 +609,32 @@ var MealTracker = (function () {
 
             for (var m = 0; m < 12; m++) {
                 var mTotal = 0;
+                var mDays = 0;
                 var dim = new Date(calendarYear, m + 1, 0).getDate();
                 for (var dd = 1; dd <= dim; dd++) {
                     var key = calendarYear + "-" + String(m + 1).padStart(2, "0") + "-" + String(dd).padStart(2, "0");
-                    mTotal += dayTotalFromData(data, key);
+                    var dayCal = dayTotalFromData(data, key);
+                    mTotal += dayCal;
+                    if (dayCal > 0) mDays++;
                 }
-                yearTotals.push(mTotal);
-                if (mTotal > 0) {
+                var mAvg = mDays > 0 ? Math.round(mTotal / mDays) : 0;
+                yearTotals.push(mAvg);
+                if (mAvg > 0) {
                     yearHasData = true;
-                    if (mTotal > yearMax) yearMax = mTotal;
-                    if (mTotal < yearMin) yearMin = mTotal;
+                    if (mAvg > yearMax) yearMax = mAvg;
+                    if (mAvg < yearMin) yearMin = mAvg;
                 }
             }
             if (!yearHasData) yearMin = 0;
 
             html += '<div class="mt-cal-year-grid">';
             for (var m = 0; m < 12; m++) {
-                var mTotal = yearTotals[m];
-                var isPeak = yearHasData && mTotal === yearMax && mTotal > 0;
-                var isLeast = yearHasData && mTotal === yearMin && mTotal > 0 && yearMin !== yearMax;
+                var mAvg = yearTotals[m];
+                var isPeak = yearHasData && mAvg === yearMax && mAvg > 0;
+                var isLeast = yearHasData && mAvg === yearMin && mAvg > 0 && yearMin !== yearMax;
 
                 var cls = "mt-cal-year-cell";
-                if (mTotal > 0) cls += " mt-cal-has-data";
+                if (mAvg > 0) cls += " mt-cal-has-data";
 
                 html += '<div class="' + cls + '" data-month="' + m + '">';
                 html += '<div class="mt-cal-year-name">' + mnShort[m] + '</div>';
@@ -641,8 +645,8 @@ var MealTracker = (function () {
                     html += '<div class="mt-cal-icon mt-cal-heart">&#9825;</div>';
                 }
 
-                if (mTotal > 0) {
-                    html += '<div class="mt-cal-year-total">' + mTotal + '</div>';
+                if (mAvg > 0) {
+                    html += '<div class="mt-cal-year-total">' + mAvg + '</div>';
                 } else {
                     html += '<div class="mt-cal-year-total mt-cal-year-empty">-</div>';
                 }
