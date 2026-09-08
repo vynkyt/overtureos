@@ -108,6 +108,8 @@
     color: #872A4E;
     cursor: pointer;
     transition: background 0.15s;
+    min-width: 28px;
+    text-align: center;
 }
 .mt-nav-btn:hover {
     background: rgba(255, 175, 204, 0.35);
