@@ -135,18 +135,69 @@ var MealTracker = (function () {
             String(d.getDate()).padStart(2, "0");
     }
 
+    var storeReady = false;
+    var loadRetries = 0;
+    var MAX_LOAD_RETRIES = 20;
+
     function loadData(callback) {
-        if (typeof OvertureStore === "undefined") { callback({}); return; }
+        if (typeof OvertureStore === "undefined" || !OvertureStore.isReady()) {
+            storeReady = false;
+            if (loadRetries < MAX_LOAD_RETRIES) {
+                loadRetries++;
+                setTimeout(function () { loadData(callback); }, 150);
+            } else {
+                loadRetries = 0;
+                callback(null);
+            }
+            return;
+        }
+        loadRetries = 0;
+        storeReady = true;
         OvertureStore.get("mealtracker", "data").then(function (val) {
             callback(val || {});
-        }).catch(function () { callback({}); });
+        }).catch(function (err) {
+            console.error("MealTracker: failed to load data", err);
+            callback(null);
+        });
     }
 
     function saveData(data, cb) {
-        if (typeof OvertureStore === "undefined") { if (cb) cb(); return; }
-        OvertureStore.set("mealtracker", "data", data).then(function () {
+        if (typeof OvertureStore === "undefined" || !OvertureStore.isReady()) {
+            storeReady = false;
             if (cb) cb();
-        }).catch(function () { if (cb) cb(); });
+            return;
+        }
+        storeReady = true;
+
+        var backupKey = "mealtracker_backup_" + Date.now();
+        var backupDone = false;
+
+        OvertureStore.get("mealtracker", "data").then(function (oldData) {
+            if (oldData && Object.keys(oldData).length > 0) {
+                return OvertureStore.set("mealtracker", backupKey, oldData);
+            }
+        }).catch(function () {}).then(function () {
+            backupDone = true;
+            return OvertureStore.set("mealtracker", "data", data);
+        }).then(function () {
+            cleanupBackups();
+            if (cb) cb();
+        }).catch(function (err) {
+            console.error("MealTracker: save failed", err);
+            if (cb) cb();
+        });
+    }
+
+    function cleanupBackups() {
+        if (typeof OvertureStore === "undefined") return;
+        OvertureStore.keys("mealtracker").then(function (allKeys) {
+            var backups = allKeys.filter(function (k) { return k.indexOf("mealtracker_backup_") === 0; })
+                .sort();
+            while (backups.length > 3) {
+                var oldest = backups.shift();
+                OvertureStore.delete("mealtracker", oldest);
+            }
+        }).catch(function () {});
     }
 
     function getDayData(data, date) {
@@ -192,6 +243,11 @@ var MealTracker = (function () {
         if (!container) return;
 
         loadData(function (data) {
+            if (data === null) {
+                container.innerHTML = '<div class="mt-container"><div class="mt-header"><div class="mt-total" style="color:#e84393">Please log in to use the meal tracker</div></div></div>';
+                return;
+            }
+
             cachedData = data;
             var day = getDayData(data, currentDate);
             var total = dayTotalCals(day);
@@ -787,6 +843,50 @@ var MealTracker = (function () {
         activeTab = "add";
         activeMeal = "breakfast";
         render();
+        checkForBackups();
+    }
+
+    function checkForBackups() {
+        if (typeof OvertureStore === "undefined" || !OvertureStore.isReady()) return;
+
+        OvertureStore.get("mealtracker", "data").then(function (currentData) {
+            if (currentData && Object.keys(currentData).length > 0) return;
+
+            return OvertureStore.keys("mealtracker").then(function (allKeys) {
+                var backups = allKeys.filter(function (k) { return k.indexOf("mealtracker_backup_") === 0; })
+                    .sort()
+                    .reverse();
+
+                if (backups.length === 0) return;
+
+                var latest = backups[0];
+                return OvertureStore.get("mealtracker", latest);
+            }).then(function (backupData) {
+                if (!backupData || Object.keys(backupData).length === 0) return;
+
+                var container = document.getElementById("mealtracker-content");
+                if (!container) return;
+
+                var days = Object.keys(backupData).length;
+                var msg = "Found a backup with " + days + " day(s) of data. Restore it?";
+
+                var banner = document.createElement("div");
+                banner.className = "mt-backup-banner";
+                banner.innerHTML = '<span>' + msg + '</span><button class="mt-backup-restore">Restore</button><button class="mt-backup-dismiss">&times;</button>';
+                container.prepend(banner);
+
+                banner.querySelector(".mt-backup-restore").addEventListener("click", function () {
+                    saveData(backupData, function () {
+                        banner.remove();
+                        render();
+                    });
+                });
+
+                banner.querySelector(".mt-backup-dismiss").addEventListener("click", function () {
+                    banner.remove();
+                });
+            });
+        }).catch(function () {});
     }
 
     return { init: init, render: render };

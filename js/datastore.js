@@ -62,7 +62,7 @@ var OvertureStore = (function () {
 
     function setEncryptionKey(password, uid) {
 
-        if (uid) {
+        if (uid != null) {
             userId = uid;
         }
 
@@ -99,7 +99,7 @@ var OvertureStore = (function () {
 
     function setEncryptionKeyFromToken(usbToken, uid) {
 
-        if (uid) {
+        if (uid != null) {
             userId = uid;
         }
 

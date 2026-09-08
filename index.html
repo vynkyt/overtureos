@@ -780,17 +780,22 @@ made w/ wings, made to fly
 	<script>
 		OvertureAuth.init().then(function (result) {
 			if (result.loggedIn && typeof OvertureStore !== "undefined") {
-				OvertureStore.init(result.userId);
-				initSettings();
-				if (typeof MealTracker !== "undefined") MealTracker.init();
+				OvertureStore.init(result.userId).then(function () {
+					initSettings();
+					if (typeof MealTracker !== "undefined") MealTracker.init();
+				});
 			} else {
 				OvertureAuth.onUnlock(function () {
 					var uid = OvertureAuth.getUser();
 					if (uid && typeof OvertureStore !== "undefined") {
-						OvertureStore.init(uid);
+						OvertureStore.init(uid).then(function () {
+							initSettings();
+							if (typeof MealTracker !== "undefined") MealTracker.init();
+						});
+					} else {
+						initSettings();
+						if (typeof MealTracker !== "undefined") MealTracker.init();
 					}
-					initSettings();
-					if (typeof MealTracker !== "undefined") MealTracker.init();
 				});
 			}
 		}).catch(function (err) {
@@ -798,10 +803,14 @@ made w/ wings, made to fly
 			OvertureAuth.onUnlock(function () {
 				var uid = OvertureAuth.getUser();
 				if (uid && typeof OvertureStore !== "undefined") {
-					OvertureStore.init(uid);
+					OvertureStore.init(uid).then(function () {
+						initSettings();
+						if (typeof MealTracker !== "undefined") MealTracker.init();
+					});
+				} else {
+					initSettings();
+					if (typeof MealTracker !== "undefined") MealTracker.init();
 				}
-				initSettings();
-				if (typeof MealTracker !== "undefined") MealTracker.init();
 			});
 			OvertureAuth.showLoginScreen();
 		});
