@@ -147,22 +147,28 @@ var MealTracker = (function () {
                 setTimeout(function () { loadData(callback); }, 150);
             } else {
                 loadRetries = 0;
+                console.warn("MealTracker: store not ready after retries, giving up");
                 callback(null);
             }
             return;
         }
         loadRetries = 0;
         storeReady = true;
+        console.log("MealTracker: store ready, attempting load...");
         OvertureStore.get("mealtracker", "data").then(function (val) {
+            console.log("MealTracker: get result:", val);
             if (val && Object.keys(val).length > 0) {
                 callback(val);
             } else {
+                console.log("MealTracker: primary get empty, trying searchAll...");
                 return OvertureStore.searchAll("mealtracker:", "data").then(function (result) {
+                    console.log("MealTracker: searchAll result:", result);
                     if (result && result.value && Object.keys(result.value).length > 0) {
-                        console.log("MealTracker: recovered data from namespace", result.namespace);
+                        console.log("MealTracker: RECOVERED data from namespace", result.namespace);
                         OvertureStore.set("mealtracker", "data", result.value).catch(function () {});
                         callback(result.value);
                     } else {
+                        console.log("MealTracker: no data found anywhere");
                         callback({});
                     }
                 });
@@ -170,14 +176,16 @@ var MealTracker = (function () {
         }).catch(function (err) {
             console.error("MealTracker: primary load failed, trying recovery...", err);
             OvertureStore.searchAll("mealtracker:", "data").then(function (result) {
+                console.log("MealTracker: recovery searchAll result:", result);
                 if (result && result.value && Object.keys(result.value).length > 0) {
-                    console.log("MealTracker: recovered data from namespace", result.namespace);
+                    console.log("MealTracker: RECOVERED data from namespace", result.namespace);
                     OvertureStore.set("mealtracker", "data", result.value).catch(function () {});
                     callback(result.value);
                 } else {
                     callback(null);
                 }
-            }).catch(function () {
+            }).catch(function (err2) {
+                console.error("MealTracker: recovery also failed:", err2);
                 callback(null);
             });
         });
