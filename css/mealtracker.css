@@ -161,6 +161,8 @@
 }
 .mt-tab:nth-child(1).active { border-top: 2px solid #fdcb6e; }
 .mt-tab:nth-child(2).active { border-top: 2px solid #74b9ff; }
+.mt-tab:nth-child(3).active { border-top: 2px solid #e84393; }
+.mt-tab:nth-child(4).active { border-top: 2px solid #a29bfe; }
 
 .mt-tab-content {
     padding: 12px 4px;
